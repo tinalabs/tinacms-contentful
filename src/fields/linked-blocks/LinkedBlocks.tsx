@@ -22,7 +22,6 @@ import styled, { css } from 'styled-components';
 import { AddIcon, DragIcon, ReorderIcon, TrashIcon } from '@tinacms/icons';
 import { Dismissible } from 'react-dismissible';
 import { IconButton } from '@tinacms/styles';
-import { useFormPortal } from '@tinacms/react-forms';
 import { AddBlockModal } from './AddBlockModal';
 import {
   useCMS,
@@ -113,8 +112,6 @@ const LinkBlockForm = ({
   field: BlocksFieldDefinititon;
   onAddBlock: any;
 }) => {
-  const cms = useCMS();
-
   const [visible, setVisible] = React.useState(false);
 
   return (
@@ -136,7 +133,7 @@ const LinkBlockForm = ({
       >
         {visible && (
           <LinkBlockModal
-            onSubmit={(values: any, cms: any) => {
+            onSubmit={(values: any) => {
               onAddBlock(values);
             }}
             close={() => setVisible(false)}
@@ -155,8 +152,6 @@ const AddBlockForm = ({
   field: BlocksFieldDefinititon;
   onAddBlock: any;
 }) => {
-  const cms = useCMS();
-
   const [
     currentAddingBlock,
     setCurrentAddingBlock,
@@ -331,7 +326,6 @@ const BlockListItem = ({
   template,
   block,
 }: BlockListItemProps) => {
-  const FormPortal = useFormPortal();
   const [isExpanded, setExpanded] = React.useState<boolean>(false);
 
   const removeItem = React.useCallback(() => {
@@ -408,12 +402,12 @@ const LinkForm = ({ entry, close, templates }: any) => {
         .then(function(response: any) {
           return response.json();
         })
-        .then((data: any) => {
+        .then(() => {
           close();
         });
     },
   } as FormOptions<any, any>;
-  const [pageData, form] = useForm(formConfig);
+  const [, form] = useForm(formConfig);
 
   return <FormView activeForm={form} />;
 };

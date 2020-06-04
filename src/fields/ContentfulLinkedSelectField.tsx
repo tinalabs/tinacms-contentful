@@ -32,7 +32,7 @@ export const ContentfulLinkedSelectField: React.FC<LinkedFieldProps> = (
     <SelectElement>
       <select
         onChange={props.input.onChange}
-        onMouseDown={(e) => {
+        onMouseDown={() => {
           props.field.getOptions().then((entries: any) => {
             setOptions(entries.items);
           });
