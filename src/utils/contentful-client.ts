@@ -1,7 +1,8 @@
-import Cookies from "js-cookie";
-import popupWindow from "../popupWindow";
+import Cookies from 'js-cookie';
+import popupWindow from '../popupWindow';
+import resolveResponse from 'contentful-resolve-response';
 
-export const CONTENTFUL_AUTH_TOKEN = "contentful_auth_token";
+export const CONTENTFUL_AUTH_TOKEN = 'contentful_auth_token';
 
 export interface ContentfulClientOptions {
   clientId: string;
@@ -29,14 +30,14 @@ export class ContentfulClient {
   }
 
   authenticate() {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       let authTab: Window | undefined;
       const url = `https://be.contentful.com/oauth/authorize?response_type=token&client_id=${this.clientId}&redirect_uri=${this.redirectUrl}&scope=content_management_manage`;
 
-      window.addEventListener("storage", function (e: StorageEvent) {
+      window.addEventListener('storage', function(e: StorageEvent) {
         if (e.newValue) {
           Cookies.set(CONTENTFUL_AUTH_TOKEN, e.newValue, {
-            sameSite: "strict",
+            sameSite: 'strict',
           });
         }
 
@@ -45,21 +46,44 @@ export class ContentfulClient {
         }
         resolve();
       });
-      authTab = popupWindow(url, "_blank", window, 1000, 700);
+      authTab = popupWindow(url, '_blank', window, 1000, 700);
     });
   }
 
-  async fetchEntry(id: string) {
+  async fetchFullEntry(id: string) {
+    const managementEntry = await this.fetchEntry(id);
+
+    const previewResult = await this.req({
+      url:
+        `https://preview.contentful.com/spaces/raftynxu3gyd/environments/master/entries?include=1` +
+        `&sys.id[match]=${id}`,
+      method: 'GET',
+      headers: {},
+    }).then(response => {
+      return response.json();
+    });
+
+    //@ts-ignore
+    const resolved = resolveResponse(previewResult, {
+      removeUnresolved: true,
+      itemEntryPoints: ['fields'],
+    })[0];
+
+    resolved.sys.version = managementEntry.sys.version;
+    return resolved;
+  }
+
+  async fetchEntry(id: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.req({
         url: `https://api.contentful.com/spaces/raftynxu3gyd/environments/master/entries/${id}`,
-        method: "GET",
+        method: 'GET',
         headers: {},
       })
-        .then(function (response) {
+        .then(function(response) {
           resolve(response.json());
         })
-        .catch(function (e) {
+        .catch(function(e) {
           reject(e);
         });
     });
@@ -69,27 +93,27 @@ export class ContentfulClient {
     return new Promise((resolve, reject) => {
       this.req({
         url: `https://preview.contentful.com/spaces/${this.space}/environments/master/entries?content_type=${contentModel}`,
-        method: "GET",
+        method: 'GET',
         headers: {},
       })
-        .then(function (response) {
+        .then(function(response) {
           resolve(response.json());
         })
-        .catch(function (e) {
+        .catch(function(e) {
           reject(e);
         });
     });
   }
 
   async save(id: string, version: string, contentModel: string, fields: any) {
-    console.log("Saving entity: ", id, fields);
+    console.log('Saving entity: ', id, fields);
     return this.req({
       url: `https://api.contentful.com/spaces/${this.space}/environments/master/entries/${id}`,
-      method: "PUT",
+      method: 'PUT',
       headers: {
-        "X-Contentful-Content-Type": contentModel,
-        "X-Contentful-Version": version,
-        "Content-Type": "application/vnd.contentful.management.v1+json",
+        'X-Contentful-Content-Type': contentModel,
+        'X-Contentful-Version': version,
+        'Content-Type': 'application/vnd.contentful.management.v1+json',
       },
       data: {
         fields: fields,
@@ -103,7 +127,7 @@ export class ContentfulClient {
 
   proxyRequest(data: any) {
     return fetch(this.proxy, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }

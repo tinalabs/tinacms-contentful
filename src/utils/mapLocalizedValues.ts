@@ -6,6 +6,9 @@ const stripLinkedData = (fieldValue: any) => {
   return fieldValue;
 };
 
+// turn { slug: "yo" }
+// into
+// turn { slug: "en-US": "yo" }
 export const mapLocalizedValues = (values: any, locale: string) => {
   const localizedValues: any = {};
   Object.keys(values).forEach(function(key) {
@@ -25,6 +28,9 @@ export const mapLocalizedValues = (values: any, locale: string) => {
   return localizedValues;
 };
 
+// turn { slug: "en-US": "yo" }
+// into
+// turn { slug: "yo" }
 export const getLocaleValues = (localizedValues: any, locale: string) => {
   const values: any = {};
   Object.keys(localizedValues).forEach(function(key) {

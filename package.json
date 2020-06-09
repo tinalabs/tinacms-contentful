@@ -35,32 +35,33 @@
   "author": "James O'Halloran",
   "module": "dist/react-tinacms-contentful.esm.js",
   "devDependencies": {
-    "husky": "^4.2.5",
-    "tsdx": "^0.13.2",
-    "tslib": "^2.0.0",
-    "typescript": "^3.9.5",
     "@tinacms/fields": "^0.9.3-alpha.3",
     "@tinacms/forms": "^0.4.1-alpha.0",
     "@tinacms/icons": "^0.9.0-alpha.1",
     "@tinacms/react-forms": "^0.1.2-alpha.3",
-    "@tinacms/styles": "^0.4.2-alpha.1",
     "@tinacms/react-modals": "^0.1.7",
-    "@types/react": "^16.9.35",
+    "@tinacms/styles": "^0.4.2-alpha.1",
+    "@types/contentful-resolve-response": "^0.1.30",
     "@types/js-cookie": "^2.2.5",
-    "@types/styled-components": "^5.1.0",
+    "@types/react": "^16.9.35",
     "@types/react-beautiful-dnd": "11.0.5",
     "@types/react-dom": "^16.9.8",
+    "@types/styled-components": "^5.1.0",
     "final-form": "^4.18.7",
-    "styled-components": ">=4.1",
-    "tinacms": "^0.19.0-alpha.4",
+    "husky": "^4.2.5",
     "react": "^16.13.0",
     "react-beautiful-dnd": "11.0.5",
-    "react-dom": "^16.13.0"
+    "react-dom": "^16.13.0",
+    "styled-components": ">=4.1",
+    "tinacms": "^0.19.0-alpha.4",
+    "tsdx": "^0.13.2",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.5"
   },
   "dependencies": {
-    "js-cookie": "^2.2.1",
     "contentful": "^7.14.4",
     "contentful-management": "^5.26.3",
-    "contentful-resolve-response": "^1.1.4"
+    "contentful-resolve-response": "^1.1.4",
+    "js-cookie": "^2.2.1"
   }
 }
