@@ -50,6 +50,7 @@ export interface BlocksFieldDefinititon extends Field {
   templates: {
     [key: string]: BlockTemplate;
   };
+  getTemplateId: (_block: any) => string;
 }
 
 export interface BlockTemplate {
@@ -239,7 +240,6 @@ const Blocks = ({ tinaForm, form, field, input }: BlockFieldProps) => {
     const formattedBlock = {
       ...block,
       fields: getLocaleValues(block.fields, 'en-US'),
-      _template: block.sys.contentType.sys.id, //TODO - this is a bit icky
     };
     form.mutators.push(field.name, formattedBlock);
   };
@@ -265,7 +265,7 @@ const Blocks = ({ tinaForm, form, field, input }: BlockFieldProps) => {
               <div ref={provider.innerRef} className="edit-page--list-parent">
                 {items.length === 0 && <EmptyState />}
                 {items.map((block: any, index: any) => {
-                  const template = field.templates[block._template];
+                  const template = field.templates[field.getTemplateId(block)];
 
                   if (!template) {
                     return (
