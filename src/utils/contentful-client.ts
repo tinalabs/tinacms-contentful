@@ -55,7 +55,7 @@ export class ContentfulClient {
 
     const previewResult = await this.req({
       url:
-        `https://preview.contentful.com/spaces/raftynxu3gyd/environments/master/entries?include=1` +
+        `https://preview.contentful.com/spaces/raftynxu3gyd/environments/master/entries?include=10` +
         `&sys.id[match]=${id}`,
       method: 'GET',
       headers: {},

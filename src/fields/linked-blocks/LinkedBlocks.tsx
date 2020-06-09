@@ -390,7 +390,7 @@ const LinkForm = ({ entry, close, templates }: any) => {
   const formConfig = {
     ...templates[contentModel],
     id: entry.sys.id,
-    initialValues: getLocaleValues(entry.fields, 'en-US'),
+    initialValues: entry.fields,
     onSubmit: (values: any) => {
       return cms.api.contentful
         .save(
@@ -422,10 +422,10 @@ const ContentfulFormModal = ({
   const [entry, setEntry] = React.useState<any>(null);
 
   React.useEffect(() => {
-    cms.api.contentful.fetchEntry(block.sys.id).then((entry: any) => {
+    cms.api.contentful.fetchFullEntry(block.sys.id).then((entry: any) => {
       setEntry(entry);
     });
-  });
+  }, []);
 
   return (
     <Modal>
