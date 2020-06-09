@@ -23,9 +23,7 @@ export interface LinkedFieldProps {
   disabled?: boolean;
 }
 
-export const ContentfulLinkedSelectField: React.FC<LinkedFieldProps> = (
-  props
-) => {
+export const ContentfulLinkedSelectField: React.FC<LinkedFieldProps> = props => {
   const [allOptions, setOptions] = useState([]);
 
   return (
@@ -39,11 +37,9 @@ export const ContentfulLinkedSelectField: React.FC<LinkedFieldProps> = (
         }}
       >
         {allOptions.length !== 0 ? (
-          allOptions.map((option) => toComponent(option, props.input.value))
+          allOptions.map(option => toComponent(option, props.input.value))
         ) : props.input.value ? (
-          <option value={JSON.stringify(props.input.value)}>
-            {props.input.value.fields.name}
-          </option>
+          toComponent(props.input.value, props.input.value)
         ) : (
           <></>
         )}
