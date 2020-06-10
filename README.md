@@ -26,11 +26,13 @@ import { contentfulClient } from 'react-tinacms-contentful';
 
 const REPO_FULL_NAME = process.env.REPO_FULL_NAME; // e.g: tinacms/tinacms.org
 
+const redirectUrl = process.env.CONTENTFUL_AUTH_REDIRECT_URL; //https://localhost:3000/contentful/authorizing
+
 const cms = new TinaCMS({
   apis: {
     contentful: new ContentfulClient({
       clientId: process.env.CONTENTFUL_CLIENT_ID,
-      redirectUrl: process.env.CONTENTFUL_AUTH_REDIRECT_URL,
+      redirectUrl: redirectUrl,
       space: process.env.CONTENTFUL_SPACE_ID,
       proxy: '/api/proxy',
     }),
@@ -50,7 +52,7 @@ import { TinacmsContentfulProvider } from 'react-tinacms-contentful';
 
 const enterEditMode = () => {
   return fetch(`/api/preview`).then(() => {
-    window.location.href = window.location.pathname;
+    window.location.href = window.location.pathname; //refresh in edit-mode
   });
 };
 const exitEditMode = () => {
@@ -117,7 +119,9 @@ export const EditLink = ({ isEditing }: EditLinkProps) => {
 
 ### Contentful Oauth App:
 
-In Contentful, you will need to create an OAuth app.
+In Contentful, you will need to [create an OAuth app](https://app.contentful.com/account/profile/developers/applications) through Contentful's settings.
+
+Once you have done so, you can use the Client ID value to create the ContentfulClient.
 
 # NextJS implementation:
 
@@ -178,6 +182,8 @@ const proxy = (req: any, res: any) => {
 export default proxy
 ```
 
+Note that these CONTENTFUL_MANAGEMENT_ACCESS_TOKEN & CONTENTFUL_PREVIEW_API_TOKEN will need to be generated separetly through the Contentful UI.
+
 # Development
 
 ## TSDX Bootstrap
@@ -207,3 +213,33 @@ The package is optimized and bundled with Rollup into multiple formats (CommonJS
 
 Runs the test watcher (Jest) in an interactive mode.
 By default, runs tests related to files changed since the last commit.
+
+### Linking for local development
+
+If you are want to test local changes to `react-tinacms-contentful`, we recommend using webpack aliases rather than using npm/yarn link.
+
+On a NextJS site, your next.config.js may look like:
+
+```
+const path = require("path");
+
+const tinaWebpackHelpers = require("@tinacms/webpack-helpers");
+
+module.exports = {
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.resolve.alias["@tinacms/react-tinacms-contentful"] = path.resolve(
+        "../react-tinacms-contentful"
+      );
+      config.resolve.alias["react-beautiful-dnd"] = path.resolve(
+        "./node_modules/react-beautiful-dnd"
+      );
+
+      tinaWebpackHelpers.aliasTinaDev(config, "../tinacms");
+    }
+
+    return config;
+  },
+  // ...
+};
+```
