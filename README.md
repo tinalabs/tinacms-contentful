@@ -237,6 +237,47 @@ You can see that the file's version gets saved to local storage. We'll use that 
   usePlugin(form);
 ```
 
+There are a few Tina fields available within this package.
+
+They can be registered with your cms instance like so:
+
+```
+// _app.js
+
+import { BlocksFieldPlugin } from "@tinacms/react-tinacms-contentful";
+
+// ...
+  const cms = React.useMemo(() => new TinaCMS(tinaConfig), []);
+  cms.fields.add({
+    name: "contentful-linked-field",
+    Component: ContentfulLinkedSelectField,
+  });
+  cms.fields.add(BlocksFieldPlugin);
+// ...
+```
+
+## `LinkedBlocks`
+
+Similar to the [blocks field](https://tinacms.org/docs/fields/blocks) defined within Tina, except this field stores a list of references instead of defining the content inline.
+
+Your field registration might look like:
+
+```
+      {
+        name: "my-blocks-field",
+        label: "My Blocks Fields",
+        component: "linked-blocks",
+        templates: blocks,
+        getTemplateId: (block) => block.sys.contentType.sys.id,
+      },
+```
+
+`getTemplateId`: function to return the block identifier, from the block object.
+
+## `ContentfulLinkedSelectField`
+
+TODO: ContentfulLinkedSelectField docs
+
 # Development
 
 ## TSDX Bootstrap
