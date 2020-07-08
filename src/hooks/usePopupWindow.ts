@@ -1,3 +1,10 @@
+export function usePopupWindow(args: Parameters<typeof popupWindow>): [Window]
+{
+  const popup = popupWindow(...args);
+
+  return [popup];
+}
+
 // TODO: This is a straight up copy-paste from react-tinacms-github/src/github-client/popupWindow.ts
 function popupWindow(
   url: string,
@@ -22,4 +29,4 @@ function popupWindow(
   )
 }
 
-export default popupWindow
+export default usePopupWindow;

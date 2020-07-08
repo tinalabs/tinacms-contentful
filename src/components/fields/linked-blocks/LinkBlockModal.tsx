@@ -29,7 +29,7 @@ import { useMemo } from "react";
 import { Form } from "@tinacms/forms";
 import { Button } from "@tinacms/styles";
 import { useCMS } from "@tinacms/react-core";
-import { mapLocalizedValues } from "../../utils/mapLocalizedValues";
+import { mapLocalizedValues } from "../../../utils/mapLocalizedValues";
 
 export const LinkBlockModal = ({ onSubmit, close, models }: any) => {
   const cms = useCMS();

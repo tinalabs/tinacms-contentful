@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { CONTENTFUL_AUTH_TOKEN } from "./utils/contentful-client";
+import { CONTENTFUL_AUTH_TOKEN } from "../utils/contentful-client";
 
 export const useContentfulAuthRedirect = () => {
   useEffect(() => {

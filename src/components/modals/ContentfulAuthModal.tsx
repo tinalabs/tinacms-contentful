@@ -7,7 +7,7 @@ import {
   ModalActions,
 } from 'tinacms';
 import { TinaReset } from '@tinacms/styles';
-import { AsyncButton } from './AsyncButton';
+import { AsyncButton } from '../components/AsyncButton';
 import styled from 'styled-components';
 import React from 'react';
 

@@ -35,7 +35,7 @@ import { FormView } from '@tinacms/react-forms';
 import {
   mapLocalizedValues,
   getLocaleValues,
-} from '../../utils/mapLocalizedValues';
+} from '../../../utils/mapLocalizedValues';
 
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { LinkBlockModal } from './LinkBlockModal';

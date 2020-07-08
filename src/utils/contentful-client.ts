@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import popupWindow from '../popupWindow';
+import usePopupWindow from '../hooks/usePopupWindow';
 import resolveResponse from 'contentful-resolve-response';
 
 export const CONTENTFUL_AUTH_TOKEN = 'contentful_auth_token';
@@ -46,7 +46,8 @@ export class ContentfulClient {
         }
         resolve();
       });
-      authTab = popupWindow(url, '_blank', window, 1000, 700);
+      
+      [authTab] = usePopupWindow([url, '_blank', window, 1000, 700]);
     });
   }
 
