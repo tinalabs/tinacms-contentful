@@ -1,7 +1,7 @@
 import React from 'react';
 import { ContentfulEditingContext } from './ContentfulEditingContext';
 import { useState } from 'react';
-import { ContentfulAuthModel } from './ContentfulAuthModal';
+import { ContentfulAuthModel } from '../components/modals';
 
 interface ProviderProps {
   children: any;
