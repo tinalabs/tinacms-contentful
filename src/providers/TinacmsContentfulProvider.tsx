@@ -1,42 +1,52 @@
-import React from 'react';
-import { ContentfulEditingContext } from './ContentfulEditingContext';
-import { useState } from 'react';
-import { ContentfulAuthModel } from '../components/modals';
+import React, { useState } from 'react';
+import { ContentfulEditingProvider, ContentfulEditingProps } from './ContentfulEditingContextProvider';
+import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
 
-interface ProviderProps {
+export interface TinaContentfulProviderProps {
+  userAuth?: boolean,
+  editing: {
+    enabled: boolean;
+    enterEditMode?: () => void;
+    exitEditMode?: () => void;
+  },
   children: any;
-  editMode: boolean;
-  enterEditMode: () => void;
-  exitEditMode: () => void;
 }
 
-export const TinaContentfulProvider = ({
-  children,
-  editMode,
-  enterEditMode,
-  exitEditMode,
-}: ProviderProps) => {
-  type ModalNames = null | 'authenticate';
-  const [activeModal, setActiveModal] = useState<ModalNames>(null);
+type Modals = "authenticate" | "none";
 
+export const TinaContentfulProvider = ({
+  userAuth = false,
+  editing,
+  children 
+}: TinaContentfulProviderProps) => {
+  const [activeModal, setActiveModal] = useState<Modals>("authenticate");
+  const [currentAccessToken, setCurrentAccessToken] = useState<string>();
   const onClose = () => {
-    setActiveModal(null);
+    setActiveModal("none");
   };
   const beginAuth = async () => {
-    setActiveModal('authenticate');
+    setActiveModal("authenticate");
   };
-  const onAuthSuccess = async () => {
-    enterEditMode();
+  const onAuthSuccess = async (accessToken: string) => {
+    if (accessToken) setCurrentAccessToken(accessToken);
+    if (editing.enterEditMode) editing.enterEditMode();
   };
+  const editingProviderProps: ContentfulEditingProps = {
+    userAccessToken: currentAccessToken ?? undefined,
+    editing: {
+      ...editing,
+      enterEditMode: beginAuth
+    }
+  }
 
   return (
-    <ContentfulEditingContext.Provider
-      value={{ editMode, enterEditMode: beginAuth, exitEditMode }}
+    <ContentfulEditingProvider
+      value={editingProviderProps}
     >
-      {activeModal === 'authenticate' && (
-        <ContentfulAuthModel close={onClose} onAuthSuccess={onAuthSuccess} />
+      {activeModal === "authenticate" && userAuth && (
+        <ContentfulAuthModal close={onClose} onAuthSuccess={onAuthSuccess} />
       )}
       {children}
-    </ContentfulEditingContext.Provider>
+    </ContentfulEditingProvider>
   );
 };
