@@ -7,19 +7,14 @@ import {
   ModalActions,
 } from 'tinacms';
 import { TinaReset } from '@tinacms/styles';
-import { AsyncButton } from '../components/AsyncButton';
+import { AsyncButton } from '../AsyncButton';
 import styled from 'styled-components';
 import React from 'react';
+import { ContentfulAuthenticationService } from '../../services/contentful/authentication';
 
-export interface ContentfulAuthModalProps {
-  onAuthSuccess(): void;
-  close(): void;
-}
-export function ContentfulAuthModel({
-  onAuthSuccess,
-  close,
-}: ContentfulAuthModalProps) {
+export function ContentfulAuthModal({ onAuthSuccess, close }: ContentfulAuthModalProps) {
   const cms = useCMS();
+
   return (
     <ModalBuilder
       title="Contentful Authorization"
@@ -32,8 +27,15 @@ export function ContentfulAuthModel({
         {
           name: 'Continue to Contentful',
           action: async () => {
+            const userAccessToken = ContentfulAuthenticationService.GetAccessTokenFromWindow(window);
+
             await cms.api.contentful.authenticate();
-            onAuthSuccess();
+
+            if (userAccessToken) {
+              onAuthSuccess(userAccessToken);
+            }
+            
+            console.error("Could not locate authorization token")
           },
           primary: true,
         },
@@ -43,11 +45,8 @@ export function ContentfulAuthModel({
   );
 }
 
-interface ModalBuilderProps {
-  title: string;
-  message: string;
-  error?: string;
-  actions: any[];
+export interface ContentfulAuthModalProps {
+  onAuthSuccess(accessToken: string | null): void;
   close(): void;
 }
 
@@ -76,3 +75,11 @@ export function ModalBuilder(modalProps: ModalBuilderProps) {
 export const ErrorLabel = styled.p`
   color: var(--tina-color-error) !important;
 `;
+
+interface ModalBuilderProps {
+  title: string;
+  message: string;
+  error?: string;
+  actions: any[];
+  close(): void;
+}
