@@ -31,6 +31,9 @@ export const TinaContentfulProvider = ({
     if (accessToken) setCurrentAccessToken(accessToken);
     if (editing.enterEditMode) editing.enterEditMode();
   };
+  const onAuthFailure = async (message: string) => {
+    console.error(message);
+  }
   const editingProviderProps: ContentfulEditingProps = {
     userAccessToken: currentAccessToken ?? undefined,
     editing: {
@@ -44,7 +47,7 @@ export const TinaContentfulProvider = ({
       value={editingProviderProps}
     >
       {activeModal === "authenticate" && userAuth && (
-        <ContentfulAuthModal close={onClose} onAuthSuccess={onAuthSuccess} />
+        <ContentfulAuthModal close={onClose} onAuthSuccess={onAuthSuccess} onAuthFailure={onAuthFailure} />
       )}
       {children}
     </ContentfulEditingProvider>

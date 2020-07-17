@@ -12,7 +12,7 @@ import styled from 'styled-components';
 import React from 'react';
 import { ContentfulAuthenticationService } from '../../services/contentful/authentication';
 
-export function ContentfulAuthModal({ onAuthSuccess, close }: ContentfulAuthModalProps) {
+export function ContentfulAuthModal({ onAuthSuccess, onAuthFailure, close }: ContentfulAuthModalProps) {
   const cms = useCMS();
 
   return (
@@ -29,13 +29,15 @@ export function ContentfulAuthModal({ onAuthSuccess, close }: ContentfulAuthModa
           action: async () => {
             const userAccessToken = ContentfulAuthenticationService.GetAccessTokenFromWindow(window);
 
-            await cms.api.contentful.authenticate();
+            if (cms.api.contentful) {
+              await cms.api.contentful.authenticate();
 
-            if (userAccessToken) {
-              onAuthSuccess(userAccessToken);
+              if (userAccessToken) {
+                onAuthSuccess(userAccessToken);
+              }
             }
             
-            console.error("Could not locate authorization token")
+            onAuthFailure("Could not locate authorization token")
           },
           primary: true,
         },
@@ -47,6 +49,7 @@ export function ContentfulAuthModal({ onAuthSuccess, close }: ContentfulAuthModa
 
 export interface ContentfulAuthModalProps {
   onAuthSuccess(accessToken: string | null): void;
+  onAuthFailure(message: string): void;
   close(): void;
 }
 

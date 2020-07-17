@@ -23,12 +23,13 @@ export class ContentfulAuthenticationService {
           if (accessToken) {
             // Add access token via HTTP-Only cookie to allow proxy-based auth
             Cookies.set(ContentfulAuthenticationService.CONTENTFUL_AUTH_TOKEN, accessToken, {
-              sameSite: 'strict'
+              sameSite: 'strict',
+              secure: true
             });
-          }
 
-          popupWindow.close();
-          resolve();
+            popupWindow.close();
+            resolve();
+          }
         }
       }, 1000 * 1);
     });
