@@ -10,7 +10,6 @@ import { TinaReset } from '@tinacms/styles';
 import { AsyncButton } from '../AsyncButton';
 import styled from 'styled-components';
 import React from 'react';
-import { ContentfulAuthenticationService } from '../../services/contentful/authentication';
 
 export function ContentfulAuthModal({ onAuthSuccess, onAuthFailure, close }: ContentfulAuthModalProps) {
   const cms = useCMS();
@@ -27,17 +26,18 @@ export function ContentfulAuthModal({ onAuthSuccess, onAuthFailure, close }: Con
         {
           name: 'Continue to Contentful',
           action: async () => {
-            const userAccessToken = ContentfulAuthenticationService.GetAccessTokenFromWindow(window);
+            try {
+              if (cms.api.contentful) {
+                await cms.api.contentful.authenticate();
 
-            if (cms.api.contentful) {
-              await cms.api.contentful.authenticate();
-
-              if (userAccessToken) {
-                onAuthSuccess(userAccessToken);
+                onAuthSuccess();
               }
+
+              throw new Error("No contentful API client found. Please register a client with Tina.")
             }
-            
-            onAuthFailure("Could not locate authorization token")
+            catch (error) {
+              onAuthFailure(error);
+            }
           },
           primary: true,
         },
@@ -48,7 +48,7 @@ export function ContentfulAuthModal({ onAuthSuccess, onAuthFailure, close }: Con
 }
 
 export interface ContentfulAuthModalProps {
-  onAuthSuccess(accessToken: string | null): void;
+  onAuthSuccess(): void;
   onAuthFailure(message: string): void;
   close(): void;
 }

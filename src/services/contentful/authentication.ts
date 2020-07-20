@@ -1,10 +1,10 @@
-import Cookies from 'js-cookie';
+//import Cookies from 'js-cookie';
 import usePopupWindow from '../../hooks/usePopupWindow';
 
 export class ContentfulAuthenticationService {
-  private static CONTENTFUL_AUTH_TOKEN = "TINACMS_CONTENTFUL_USER_AUTH_TOKEN";
+  //private static CONTENTFUL_AUTH_TOKEN = "TINACMS_CONTENTFUL_USER_AUTH_TOKEN";
 
-  public static async Authenticate(clientId: string, redirectUrl: string) {
+  public static async Authenticate(clientId: string, redirectUrl: string): Promise<string> {
     return new Promise(resolve => {
       const url = 
           `https://be.contentful.com/oauth/authorize?`
@@ -16,19 +16,20 @@ export class ContentfulAuthenticationService {
 
       // Poll for the access token in the window
       // TODO: see if this can move to event driven architecture
-      window.setTimeout(() => {
-        if (popupWindow) {
+      const interval = window.setInterval(() => {
+        if (popupWindow && popupWindow.location.href === redirectUrl) {
           const accessToken = ContentfulAuthenticationService.GetAccessTokenFromWindow(popupWindow);
 
           if (accessToken) {
             // Add access token via HTTP-Only cookie to allow proxy-based auth
-            Cookies.set(ContentfulAuthenticationService.CONTENTFUL_AUTH_TOKEN, accessToken, {
-              sameSite: 'strict',
-              secure: true
-            });
+            // Cookies.set(ContentfulAuthenticationService.CONTENTFUL_AUTH_TOKEN, accessToken, {
+            //   sameSite: 'strict',
+            //   secure: true
+            // });
 
             popupWindow.close();
-            resolve();
+            window.clearInterval(interval);
+            resolve(accessToken);
           }
         }
       }, 1000 * 1);
@@ -36,6 +37,10 @@ export class ContentfulAuthenticationService {
   }
 
   public static GetAccessTokenFromWindow(window: Window) {
+    if (window.location.host !== "localhost") {
+      return undefined;
+    }
+
     const urlParams = new URLSearchParams(window.location.hash);
     const accessToken = urlParams.get("#access_token");
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ContentfulEditingProvider, ContentfulEditingProps } from './ContentfulEditingContextProvider';
 import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
+import { useContentfulUserAuthToken } from '../hooks/useContentfulUserAccessToken';
 
 export interface TinaContentfulProviderProps {
   userAuth?: boolean,
@@ -20,22 +21,22 @@ export const TinaContentfulProvider = ({
   children 
 }: TinaContentfulProviderProps) => {
   const [activeModal, setActiveModal] = useState<Modals>("authenticate");
-  const [currentAccessToken, setCurrentAccessToken] = useState<string>();
+  const [userAccessToken] = useContentfulUserAuthToken();
   const onClose = () => {
     setActiveModal("none");
   };
   const beginAuth = async () => {
     setActiveModal("authenticate");
   };
-  const onAuthSuccess = async (accessToken: string) => {
-    if (accessToken) setCurrentAccessToken(accessToken);
+  const onAuthSuccess = async () => {
     if (editing.enterEditMode) editing.enterEditMode();
   };
   const onAuthFailure = async (message: string) => {
     console.error(message);
+    setActiveModal("none");
   }
   const editingProviderProps: ContentfulEditingProps = {
-    userAccessToken: currentAccessToken ?? undefined,
+    userAccessToken: userAccessToken,
     editing: {
       ...editing,
       enterEditMode: beginAuth

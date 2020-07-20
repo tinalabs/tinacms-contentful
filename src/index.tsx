@@ -1,6 +1,7 @@
 export * from './apis/contentful';
 export * from './components';
 export * from './hooks/useContentful';
+export * from './hooks/useContentfulAuthRedirect';
 export * from './hooks/useContentfulManagement';
 export * from './hooks/useContentfulEditing';
 export * from './providers/TinacmsContentfulProvider';
