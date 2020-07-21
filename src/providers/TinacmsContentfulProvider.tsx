@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { ContentfulEditingProvider, ContentfulEditingProps } from './ContentfulEditingContextProvider';
 import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
-import { useContentfulUserAuthToken } from '../hooks/useContentfulUserAccessToken';
+import { ContentfulErrorModal } from '../components/modals/ContentfulErrorModal';
+import { ContentfulAuthenticationService } from '../services/contentful/authentication';
 
 export interface TinaContentfulProviderProps {
-  userAuth?: boolean,
   editing: {
     enabled: boolean;
     enterEditMode?: () => void;
@@ -13,27 +13,35 @@ export interface TinaContentfulProviderProps {
   children: any;
 }
 
-type Modals = "authenticate" | "none";
+type Modals = "authenticate" | "error" | "none";
 
 export const TinaContentfulProvider = ({
-  userAuth = false,
   editing,
   children 
 }: TinaContentfulProviderProps) => {
-  const [activeModal, setActiveModal] = useState<Modals>("authenticate");
-  const [userAccessToken] = useContentfulUserAuthToken();
+  const [activeModal, setActiveModal] = useState<Modals>("none");
+  const [userAccessToken, setUserAccessToken] = useState<string | undefined>(ContentfulAuthenticationService.GetCachedAccessToken());
+  const [currentError, setCurrentError] = useState<Error>();
   const onClose = () => {
     setActiveModal("none");
+    setCurrentError(undefined);
   };
-  const beginAuth = async () => {
+  const onRetry = () => {
+    setActiveModal("authenticate");
+    setCurrentError(undefined);
+  }
+  const beginAuth = () => {
     setActiveModal("authenticate");
   };
-  const onAuthSuccess = async () => {
+  const onAuthSuccess = (userAccessToken: string) => {
     if (editing.enterEditMode) editing.enterEditMode();
-  };
-  const onAuthFailure = async (message: string) => {
-    console.error(message);
+    setUserAccessToken(userAccessToken);
     setActiveModal("none");
+    ContentfulAuthenticationService.SetCachedAccessToken(userAccessToken);
+  };
+  const onAuthFailure = (error: Error) => {
+    setCurrentError(error);
+    setActiveModal("error");
   }
   const editingProviderProps: ContentfulEditingProps = {
     userAccessToken: userAccessToken,
@@ -47,8 +55,11 @@ export const TinaContentfulProvider = ({
     <ContentfulEditingProvider
       value={editingProviderProps}
     >
-      {activeModal === "authenticate" && userAuth && (
-        <ContentfulAuthModal close={onClose} onAuthSuccess={onAuthSuccess} onAuthFailure={onAuthFailure} />
+      {activeModal === "authenticate" && (
+        <ContentfulAuthModal onClose={onClose} onAuthSuccess={onAuthSuccess} onAuthFailure={onAuthFailure} />
+      )}
+      {activeModal === "error" && currentError && (
+        <ContentfulErrorModal onClose={onClose} onRetry={onRetry} error={currentError} />
       )}
       {children}
     </ContentfulEditingProvider>
