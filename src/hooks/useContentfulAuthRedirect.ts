@@ -4,7 +4,7 @@ export function useContentfulAuthRedirect(): void {
   if (typeof window !== 'undefined') {
     const userAccessToken = ContentfulAuthenticationService.GetAccessTokenFromWindow(window);
 
-    if (!window.parent || !userAccessToken) {
+    if (!window.opener || !userAccessToken) {
       return;
     }
     
@@ -14,6 +14,7 @@ export function useContentfulAuthRedirect(): void {
       }
     }
 
-    window.parent.postMessage(payload, "*");
+    // Send token via postmessage
+    window.opener.postMessage(payload, "*");
   }
 }
