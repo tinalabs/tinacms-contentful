@@ -12,11 +12,11 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
-    "test": "tsdx test",
-    "lint": "tsdx lint",
-    "prepare": "tsdx build"
+    "start": "npx tsdx watch",
+    "build": "npx tsdx build",
+    "test": "npx tsdx test",
+    "lint": "npx tsdx lint",
+    "prepare": "npx tsdx build"
   },
   "peerDependencies": {
     "react": ">=16",
