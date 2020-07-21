@@ -6,6 +6,7 @@ import { ContentfulAuthenticationService } from '../services/contentful/authenti
 export interface ContentfulClientOptions {
   clientId: string,
   spaceId: string;
+  defaultEnvironmentId: string;
   accessTokens: { 
     delivery: string;
     management: string
@@ -31,7 +32,8 @@ export const ContentfulClient = function(this: ContentfulClient, options: Conten
     delivery: options.deliveryClient ?? createDeliveryClient({
       space: options.spaceId,
       accessToken: options.accessTokens.delivery,
-      host: options.userAuth ? "preview.contentful.com" : undefined
+      host: options.userAuth ? "preview.contentful.com" : undefined,
+      environment: options.defaultEnvironmentId
     }),
     management: options.managementClient ?? (options.userAuth && options.accessTokens.management
       ? createManagementClient({
