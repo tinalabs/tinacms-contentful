@@ -12,11 +12,11 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "npx tsdx watch",
-    "build": "npx tsdx build",
-    "test": "npx tsdx test",
-    "lint": "npx tsdx lint",
-    "prepare": "npx tsdx build"
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test --passWithNoTests",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build"
   },
   "peerDependencies": {
     "react": ">=16",
@@ -39,6 +39,7 @@
   "author": "James O'Halloran",
   "module": "dist/react-tinacms-contentful.esm.js",
   "devDependencies": {
+    "@testing-library/react": "^10.4.7",
     "@tinacms/fields": "^0.9.3-alpha.3",
     "@tinacms/forms": "^0.4.1-alpha.0",
     "@tinacms/icons": "^0.9.0-alpha.1",
