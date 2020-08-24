@@ -33,7 +33,7 @@ export const ContentfulClient = function(this: ContentfulClient, options: Conten
       space: options.spaceId,
       accessToken: options.accessTokens.delivery,
       host: options.userAuth ? "preview.contentful.com" : undefined,
-      environment: options.defaultEnvironmentId
+      environment: options.defaultEnvironmentId ?? "master"
     }),
     management: options.managementClient ?? (options.userAuth && options.accessTokens.management
       ? createManagementClient({
