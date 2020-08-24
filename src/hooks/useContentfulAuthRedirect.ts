@@ -1,10 +1,20 @@
-import { useEffect } from "react";
-import { CONTENTFUL_AUTH_TOKEN } from "../utils/contentful-client";
+import { ContentfulAuthenticationService } from '../services/contentful/authentication';
 
-export const useContentfulAuthRedirect = () => {
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.hash);
-    const code = urlParams.get("#access_token");
-    localStorage[CONTENTFUL_AUTH_TOKEN] = code;
-  }, []);
-};
+export function useContentfulAuthRedirect(): void {
+  if (typeof window !== 'undefined') {
+    const userAccessToken = ContentfulAuthenticationService.GetAccessTokenFromWindow(window);
+
+    if (!window.opener || !userAccessToken) {
+      return;
+    }
+    
+    const payload = {
+      contentful: {
+        userAccessToken: userAccessToken
+      }
+    }
+
+    // Send token via postmessage
+    window.opener.postMessage(payload, "*");
+  }
+}

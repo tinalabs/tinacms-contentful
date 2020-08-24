@@ -1,42 +1,67 @@
-import React from 'react';
-import { ContentfulEditingContext } from './ContentfulEditingContext';
-import { useState } from 'react';
-import { ContentfulAuthModel } from '../components/modals';
+import React, { useState } from 'react';
+import { ContentfulEditingProvider, ContentfulEditingProps } from './ContentfulEditingContextProvider';
+import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
+import { ContentfulErrorModal } from '../components/modals/ContentfulErrorModal';
+import { ContentfulAuthenticationService } from '../services/contentful/authentication';
 
-interface ProviderProps {
+export interface TinaContentfulProviderProps {
+  editing: {
+    enabled: boolean;
+    enterEditMode?: () => void;
+    exitEditMode?: () => void;
+  },
   children: any;
-  editMode: boolean;
-  enterEditMode: () => void;
-  exitEditMode: () => void;
 }
 
-export const TinaContentfulProvider = ({
-  children,
-  editMode,
-  enterEditMode,
-  exitEditMode,
-}: ProviderProps) => {
-  type ModalNames = null | 'authenticate';
-  const [activeModal, setActiveModal] = useState<ModalNames>(null);
+type Modals = "authenticate" | "error" | "none";
 
+export const TinaContentfulProvider = ({
+  editing,
+  children 
+}: TinaContentfulProviderProps) => {
+  const [activeModal, setActiveModal] = useState<Modals>("none");
+  const [userAccessToken, setUserAccessToken] = useState<string | undefined>(ContentfulAuthenticationService.GetCachedAccessToken());
+  const [currentError, setCurrentError] = useState<Error>();
   const onClose = () => {
-    setActiveModal(null);
+    setActiveModal("none");
+    setCurrentError(undefined);
   };
-  const beginAuth = async () => {
-    setActiveModal('authenticate');
+  const onRetry = () => {
+    setActiveModal("authenticate");
+    setCurrentError(undefined);
+  }
+  const beginAuth = () => {
+    setActiveModal("authenticate");
   };
-  const onAuthSuccess = async () => {
-    enterEditMode();
+  const onAuthSuccess = (userAccessToken: string) => {
+    if (editing.enterEditMode) editing.enterEditMode();
+    setUserAccessToken(userAccessToken);
+    setActiveModal("none");
+    ContentfulAuthenticationService.SetCachedAccessToken(userAccessToken);
   };
+  const onAuthFailure = (error: Error) => {
+    setCurrentError(error);
+    setActiveModal("error");
+  }
+  const editingProviderProps: ContentfulEditingProps = {
+    userAccessToken: userAccessToken,
+    editing: {
+      ...editing,
+      enterEditMode: beginAuth
+    }
+  }
 
   return (
-    <ContentfulEditingContext.Provider
-      value={{ editMode, enterEditMode: beginAuth, exitEditMode }}
+    <ContentfulEditingProvider
+      value={editingProviderProps}
     >
-      {activeModal === 'authenticate' && (
-        <ContentfulAuthModel close={onClose} onAuthSuccess={onAuthSuccess} />
+      {activeModal === "authenticate" && (
+        <ContentfulAuthModal onClose={onClose} onAuthSuccess={onAuthSuccess} onAuthFailure={onAuthFailure} />
+      )}
+      {activeModal === "error" && currentError && (
+        <ContentfulErrorModal onClose={onClose} onRetry={onRetry} error={currentError} />
       )}
       {children}
-    </ContentfulEditingContext.Provider>
+    </ContentfulEditingProvider>
   );
 };
