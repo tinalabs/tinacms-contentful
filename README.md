@@ -22,7 +22,7 @@ We will want to use the contentfulClient to load/save our content using the Cont
 
 ```ts
 import { TinaCMS } from 'tinacms';
-import { contentfulClient } from 'react-tinacms-contentful';
+import { ContentfulClient } from 'react-tinacms-contentful';
 
 const REPO_FULL_NAME = process.env.REPO_FULL_NAME; // e.g: tinacms/tinacms.org
 
@@ -48,7 +48,7 @@ In this case, we will hit our `/api` server functions.
 
 ```tsx
 // YourLayout.ts
-import { TinacmsContentfulProvider } from 'react-tinacms-contentful';
+import { TinaContentfulProvider } from 'react-tinacms-contentful';
 
 const enterEditMode = () => {
   return fetch(`/api/preview`).then(() => {
