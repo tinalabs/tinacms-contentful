@@ -18,6 +18,7 @@ export function useContentfulEntry<TEntryType extends Entry<any>>(spaceId: strin
     const getEntry = async () => {
       try  {
         setLoading(true);
+        
         const entry = await client.getEntry<TEntryType>(entryId, opts.query);
 
         if (entry) {

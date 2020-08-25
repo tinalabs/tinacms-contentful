@@ -48,7 +48,8 @@ export class ContentfulSSR {
         delivery: opts.preview ? "" : opts.accessToken,
         preview: opts.preview ? opts.accessToken : "",
         management: ""
-      }
+      },
+      redirectUrl: ""
     });
     const client = opts.preview ? contentful[opts.spaceId].previewClient : contentful[opts.spaceId].deliveryClient;
   

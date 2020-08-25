@@ -18,6 +18,7 @@ export function useContentfulEntries<TEntryType = any>(spaceId: string, query: a
     const getEntries = async () => {
       try {
         setLoading(true);
+        
         const entries = await ContentfulDeliveryService.getMany<TEntryType>(client, query);
 
         if (entries) {

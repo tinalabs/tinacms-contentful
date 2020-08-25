@@ -2,6 +2,7 @@ import React from 'react';
 import {
   useCMS
 } from 'tinacms';
+import { TinaCMS } from '../../declarations';
 import { ModalBuilder } from './ModalBuilder';
 
 export interface ContentfulAuthModalProps {
@@ -29,7 +30,7 @@ export function ContentfulAuthModal({ onAuthSuccess, onAuthFailure, onClose }: C
           action: async () => {
             try {
               if (cms.api.contentful && cms.api.contentful.authenticate) {
-                const userAccessToken = await cms.api.contentful.authenticate();
+                const userAccessToken = await (cms as TinaCMS).api.contentful.authenticate();
 
                 if (userAccessToken) {
                   onAuthSuccess(userAccessToken);
