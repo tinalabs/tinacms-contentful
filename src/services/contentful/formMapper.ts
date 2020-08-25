@@ -2,7 +2,7 @@ import { ContentType, Field } from 'contentful';
 import { AnyField } from '@tinacms/forms';
 
 export class ContentfulFormMapper {
-  public static CreateFieldConfigFromContentType(contentType: ContentType): AnyField[] {
+  public static createFieldConfigFromContentType(contentType: ContentType): AnyField[] {
     return contentType.fields.reduce((tinaFields, field) => {
       switch (field.type) {
         case "Text":
@@ -28,20 +28,28 @@ export class ContentfulFormMapper {
           // TODO: handle select and multiselect
           // break;
         default:
-          this.HandleUnmappedType(field);
+          this.handleUnmappedType(field);
       }
 
       return tinaFields;
     }, []);
   }
 
-  private static MapTextToField(field: Field) {}
-  private static MapRichTextToField(field: Field) {}
-  private static MapObjectToField(field: Field) {}
-  private static MapNumberToField(field: Field) {}
-  private static MapIntegerToField(field: Field) {}
-  private static MapDateToField(field: Field) {}
-  private static MapBooleanToField(field: Field) {}
-  private static MapArrayToField(field: Field) {}
-  private static HandleUnmappedType(field: Field) { console.warn(`Mapping for ${field.type} type not yet implemented`) }
+  // @ts-expect-error
+  private static mapTextToField(field: Field) {}
+  // @ts-expect-error
+  private static mapRichTextToField(field: Field) {}
+  // @ts-expect-error
+  private static mapObjectToField(field: Field) {}
+  // @ts-expect-error
+  private static mapNumberToField(field: Field) {}
+  // @ts-expect-error
+  private static mapIntegerToField(field: Field) {}
+  // @ts-expect-error
+  private static mapDateToField(field: Field) {}
+  // @ts-expect-error
+  private static mapBooleanToField(field: Field) {}
+  // @ts-expect-error
+  private static mapArrayToField(field: Field) {}
+  private static handleUnmappedType(field: Field) { console.warn(`Mapping for ${field.type} type not yet implemented`) }
 }

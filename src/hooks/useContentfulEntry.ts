@@ -1,9 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Entry } from 'contentful';
 import { useContentful } from './useContentful';
+import { useContentfulPreview } from './useContentfulPreview';
 
-export function useContentfulEntry<TEntryType extends Entry<any>>(spaceId: string, entryId: string, query?: any): [Entry<TEntryType> | undefined, boolean, Error | undefined] {
-  const delivery = useContentful(spaceId);
+export interface useContentfulEntryOptions {
+  preview?: boolean,
+  query?: any
+}
+
+export function useContentfulEntry<TEntryType extends Entry<any>>(spaceId: string, entryId: string, opts: useContentfulEntryOptions): [Entry<TEntryType> | undefined, boolean, Error | undefined] {
+  const client = opts.preview ? useContentfulPreview(spaceId) : useContentful(spaceId);
   const [entry, setEntry] = useState<Entry<TEntryType>>();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
@@ -12,7 +18,7 @@ export function useContentfulEntry<TEntryType extends Entry<any>>(spaceId: strin
     const getEntry = async () => {
       try  {
         setLoading(true);
-        const entry = await delivery.getEntry<TEntryType>(entryId, query);
+        const entry = await client.getEntry<TEntryType>(entryId, opts.query);
 
         if (entry) {
           setEntry(entry);
@@ -27,9 +33,9 @@ export function useContentfulEntry<TEntryType extends Entry<any>>(spaceId: strin
     }
 
     getEntry();
-  }, [spaceId, entryId, query]);
+  }, [spaceId, entryId, opts.preview, opts.query]);
 
   return useMemo(() => {
     return [entry, loading, error];
-  }, [spaceId, entryId, query]);
+  }, [spaceId, entryId, opts.preview, opts.query]);
 }

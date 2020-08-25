@@ -1,3 +1,9 @@
+import { ContentfulSSR } from "./services/contentful/ssr";
+
+export type { getContentfulEntryOptions, getContentfulEntriesOptions } from './services/contentful/ssr';
+export const getContentfulEntry = ContentfulSSR.getContenfulEntry;
+export const getContentfulEntries = ContentfulSSR.getContentfulEntries;
+
 export * from './apis/contentful';
 export * from './components';
 export * from './hooks/useContentful';
@@ -9,5 +15,4 @@ export * from './hooks/useContentfulManagement';
 export * from './hooks/useContentfulEditing';
 export * from './providers/TinacmsContentfulProvider';
 export * from './services/contentful/delivery';
-export * from './utils/getContentfulPreviewProps';
 export * from './utils';

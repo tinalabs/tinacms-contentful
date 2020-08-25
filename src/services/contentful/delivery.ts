@@ -3,11 +3,11 @@ import {Entry, EntryCollection, Asset, AssetCollection, ContentfulClientApi} fro
 
 export class ContentfulDeliveryService
 {
-  public static async GetMany<TEntryType>(client: ContentfulClientApi, query: any): Promise<Entry<TEntryType>[]> {
+  public static async getMany<TEntryType>(client: ContentfulClientApi, query: any): Promise<Entry<TEntryType>[]> {
       return await this.handleEntryPaging(client, query);
   }
 
-  public static async GetManyAssets(client: ContentfulClientApi, query: any): Promise<Asset[]> {
+  public static async getManyAssets(client: ContentfulClientApi, query: any): Promise<Asset[]> {
     return await this.handleAssetPaging(client, query);
   }
 
