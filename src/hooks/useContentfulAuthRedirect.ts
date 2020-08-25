@@ -2,7 +2,7 @@ import { ContentfulAuthenticationService } from '../services/contentful/authenti
 
 export function useContentfulAuthRedirect(): void {
   if (typeof window !== 'undefined') {
-    const userAccessToken = ContentfulAuthenticationService.GetAccessTokenFromWindow(window);
+    const userAccessToken = ContentfulAuthenticationService.getAccessTokenFromWindow(window);
 
     if (!window.opener || !userAccessToken) {
       return;
@@ -15,6 +15,7 @@ export function useContentfulAuthRedirect(): void {
     }
 
     // Send token via postmessage
+    // TODO: fix domain scoping
     window.opener.postMessage(payload, "*");
   }
 }

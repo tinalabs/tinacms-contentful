@@ -20,7 +20,7 @@ export const TinaContentfulProvider = ({
   children 
 }: TinaContentfulProviderProps) => {
   const [activeModal, setActiveModal] = useState<Modals>("none");
-  const [userAccessToken, setUserAccessToken] = useState<string | undefined>(ContentfulAuthenticationService.GetCachedAccessToken());
+  const [userAccessToken, setUserAccessToken] = useState<string | undefined>(ContentfulAuthenticationService.getCachedAccessToken());
   const [currentError, setCurrentError] = useState<Error>();
   const onClose = () => {
     setActiveModal("none");
@@ -37,7 +37,7 @@ export const TinaContentfulProvider = ({
     if (editing.enterEditMode) editing.enterEditMode();
     setUserAccessToken(userAccessToken);
     setActiveModal("none");
-    ContentfulAuthenticationService.SetCachedAccessToken(userAccessToken);
+    ContentfulAuthenticationService.setCachedAccessToken(userAccessToken);
   };
   const onAuthFailure = (error: Error) => {
     setCurrentError(error);

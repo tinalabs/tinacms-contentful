@@ -2,8 +2,8 @@ import { FormOptions, useForm, Form, useCMS } from 'tinacms'
 import { useState, useEffect, useMemo } from 'react';
 import { AnyField } from '@tinacms/forms';
 import { Entry, ContentType } from 'contentful';
-import { ContentfulClient } from 'apis/contentful';
-import { ContentfulFormMapper } from 'services/contentful/formMapper';
+import { ContentfulClient } from '../apis/contentful';
+import { ContentfulFormMapper } from '../services/contentful/formMapper';
 
 export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   query?: any,
@@ -24,7 +24,7 @@ export function useContentfulEntryForm<TEntryType extends Entry<any>>(spaceId: s
   useEffect(() => {
     const getContentType = async (contentTypeId: string) => {
       try {
-        const contentType = await space.delivery.getContentType(contentTypeId);
+        const contentType = await space.deliveryClient.getContentType(contentTypeId);
   
         if (contentType) {
           setContentType(contentType);
@@ -42,7 +42,7 @@ export function useContentfulEntryForm<TEntryType extends Entry<any>>(spaceId: s
       getContentType(options.contentTypeId);
     }
     else if (contentType) {
-      let formFields = ContentfulFormMapper.CreateFieldConfigFromContentType(contentType);
+      let formFields = ContentfulFormMapper.createFieldConfigFromContentType(contentType);
 
       if (formFields.length > 0) {
         setFormFields(formFields);

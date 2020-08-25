@@ -1,44 +1,36 @@
-import { createClient as createDeliveryClient, ContentfulClientApi } from 'contentful';
-import { createClient as createManagementClient } from 'contentful-management';
+import { ContentfulClientApi } from 'contentful';
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
 import { ContentfulAuthenticationService } from '../services/contentful/authentication';
+import { ContentfulApiService } from '../services/contentful/apis';
 
 export interface ContentfulClientOptions {
-  clientId: string,
+  clientId: string;
   spaceId: string;
   defaultEnvironmentId: string;
   accessTokens: { 
     delivery: string;
-    management: string
+    preview: string;
+    management?: string;
   },
   redirectUrl?: string;
-  userAuth?: boolean;
-  deliveryClient?: ContentfulClientApi,
-  managementClient?: ClientAPI
+  deliveryClient?: ContentfulClientApi;
+  previewClient?: ContentfulClientApi;
+  managementClient?: ClientAPI;
 }
 
 export type ContentfulClient = {
-  authenticate: Function;
+  authenticate: typeof ContentfulAuthenticationService.authenticate
 } & {
-  [key: string]: {
-    delivery: ContentfulClientApi;
-    management?: ClientAPI    
-  }
+  [spaceId: string]: ContentfulApiService
 }
 
-export const ContentfulClient = function(this: ContentfulClient, options: ContentfulClientOptions) {
-  this.authenticate = () => ContentfulAuthenticationService.Authenticate(options.clientId, options.redirectUrl ?? "/");
-  this[options.spaceId] = {
-    delivery: options.deliveryClient ?? createDeliveryClient({
-      space: options.spaceId,
-      accessToken: options.accessTokens.delivery,
-      host: options.userAuth ? "preview.contentful.com" : undefined,
-      environment: options.defaultEnvironmentId ?? "master"
-    }),
-    management: options.managementClient ?? (options.userAuth && options.accessTokens.management
-      ? createManagementClient({
-        accessToken: options.accessTokens.management
-      }) 
-      : undefined)
-  }
-} as any as { new (options: ContentfulClientOptions): ContentfulClient; }
+export interface ContentfulClientConstructor {
+  new (options: ContentfulClientOptions) : ContentfulClient;
+}
+
+export const ContentfulClient = function(this: ContentfulClient, options: ContentfulClientOptions): ContentfulClient {
+  this.authenticate = ContentfulAuthenticationService.authenticate;
+  this[options.spaceId] = new ContentfulApiService(options);
+
+  return this;
+} as Function as ContentfulClientConstructor;

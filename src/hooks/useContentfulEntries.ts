@@ -2,9 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { Entry } from 'contentful';
 import ContentfulDeliveryService from '../services/contentful/delivery';
 import { useContentful } from './useContentful';
+import { useContentfulPreview } from './useContentfulPreview';
 
-export function useContentfulEntries<TEntryType = any>(spaceId: string, query: any): [Entry<TEntryType>[], boolean, Error | undefined] {
-  const delivery = useContentful(spaceId);
+export interface useContentfulEntriesOptions {
+  preview?: boolean,
+}
+
+export function useContentfulEntries<TEntryType = any>(spaceId: string, query: any, opts: useContentfulEntriesOptions): [Entry<TEntryType>[], boolean, Error | undefined] {
+  const client = opts.preview ? useContentfulPreview(spaceId) : useContentful(spaceId);
   const [entries, setEntries] = useState<Entry<TEntryType>[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
@@ -13,7 +18,7 @@ export function useContentfulEntries<TEntryType = any>(spaceId: string, query: a
     const getEntries = async () => {
       try {
         setLoading(true);
-        const entries = await ContentfulDeliveryService.GetMany<TEntryType>(delivery, query);
+        const entries = await ContentfulDeliveryService.getMany<TEntryType>(client, query);
 
         if (entries) {
           setEntries(entries);
