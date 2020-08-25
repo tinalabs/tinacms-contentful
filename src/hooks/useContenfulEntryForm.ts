@@ -1,5 +1,5 @@
 import { FormOptions, useForm, Form, useCMS } from 'tinacms'
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { AnyField } from '@tinacms/forms';
 import { Entry, ContentType } from 'contentful';
 import { ContentfulClient } from '../apis/contentful';
@@ -53,16 +53,14 @@ export function useContentfulEntryForm<TEntryType extends Entry<any>>(spaceId: s
     }
   });
 
-  return useMemo(() => {
-    return useForm<Entry<TEntryType>>({
-      id: entry?.sys.id, // needs to be unique
-      label: (entry) ? options.label || entry.sys.id : "",
-      initialValues: entry,
-      fields: formFields || [],
-      actions: options.actions || [],
-      onSubmit: function(formData) {
-        console.log(formData);
-      },
-    });
-  }, [spaceId, entry]);    
+  return useForm<Entry<TEntryType>>({
+    id: entry?.sys.id, // needs to be unique
+    label: (entry) ? options.label || entry.sys.id : "",
+    initialValues: entry,
+    fields: formFields || [],
+    actions: options.actions || [],
+    onSubmit: function(formData) {
+      console.log(formData);
+    },
+  });  
 }

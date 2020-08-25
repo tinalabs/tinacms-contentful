@@ -12,14 +12,14 @@ export interface ContentfulClientOptions {
     preview: string;
     management?: string;
   },
-  redirectUrl?: string;
+  redirectUrl: string;
   deliveryClient?: ContentfulClientApi;
   previewClient?: ContentfulClientApi;
   managementClient?: ClientAPI;
 }
 
 export type ContentfulClient = {
-  authenticate: typeof ContentfulAuthenticationService.authenticate
+  authenticate: () => Promise<string>;
 } & {
   [spaceId: string]: ContentfulApiService
 }
@@ -29,7 +29,7 @@ export interface ContentfulClientConstructor {
 }
 
 export const ContentfulClient = function(this: ContentfulClient, options: ContentfulClientOptions): ContentfulClient {
-  this.authenticate = ContentfulAuthenticationService.authenticate;
+  this.authenticate = () => ContentfulAuthenticationService.authenticate(options.clientId, options.redirectUrl);
   this[options.spaceId] = new ContentfulApiService(options);
 
   return this;

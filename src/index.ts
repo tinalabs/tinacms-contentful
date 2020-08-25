@@ -4,6 +4,7 @@ export type { getContentfulEntryOptions, getContentfulEntriesOptions } from './s
 export const getContentfulEntry = ContentfulSSR.getContenfulEntry;
 export const getContentfulEntries = ContentfulSSR.getContentfulEntries;
 
+export * from './declarations';
 export * from './apis/contentful';
 export * from './components';
 export * from './hooks/useContentful';
