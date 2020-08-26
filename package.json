@@ -18,7 +18,8 @@
     "build": "tsdx build",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
-    "prepare": "tsdx build"
+    "prepare": "tsdx build",
+    "build:docs": "typedoc src/index.ts --out ./docs/api --ignoreCompilerErrors --exclude \"**/*+(.spec|.test|.e2e).ts\""
   },
   "husky": {
     "hooks": {
@@ -71,6 +72,7 @@
     "ts-jest": "^26.1.1",
     "tsdx": "^0.13.2",
     "tslib": "^2.0.0",
+    "typedoc": "^0.18.0",
     "typescript": "^3.9.5"
   }
 }
