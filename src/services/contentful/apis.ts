@@ -15,10 +15,13 @@ export class ContentfulApiService {
   private m_ManagementClient!: ClientAPI;
 
   get deliveryClient() {
-    if (!this.m_DeliveryClient && this.options.deliveryClient) {
+    if (this.m_DeliveryClient) {
+      return this.m_DeliveryClient;
+    }
+    else if (this.options.deliveryClient) {
       this.m_DeliveryClient = this.options.deliveryClient;
     }
-    else if (!this.m_DeliveryClient && this.options.accessTokens.delivery) {
+    else if (this.options?.accessTokens?.delivery) {
       this.m_DeliveryClient = createDeliveryClient({
         space: this.options.spaceId,
         accessToken: this.options.accessTokens.delivery,
@@ -27,7 +30,7 @@ export class ContentfulApiService {
       })
     }
     else {
-      throw new Error(ContentfulApiService.PREVIEW_CLIENT_ERROR)
+      throw new Error(ContentfulApiService.DELIVERY_CLIENT_ERROR)
     }
     
     return this.m_DeliveryClient;
@@ -46,7 +49,7 @@ export class ContentfulApiService {
       })
     }
     else {
-      throw new Error(ContentfulApiService.PREVIEW_CLIENT_ERROR)
+      throw new Error(ContentfulApiService.PREVIEW_CLIENT_ERROR);
     }
     
     return this.m_PreviewClient;
@@ -60,6 +63,9 @@ export class ContentfulApiService {
       this.m_ManagementClient = createManagementClient({
         accessToken: this.options.accessTokens.management
       })
+    }
+    else {
+      throw new Error(ContentfulApiService.MANAGEMENT_CLIENT_ERROR);
     }
     
     return this.m_ManagementClient;

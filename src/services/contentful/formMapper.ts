@@ -1,13 +1,15 @@
-import { ContentType, Field } from 'contentful';
-import { AnyField } from '@tinacms/forms';
+import { ContentType, Field as ContentfulField } from 'contentful';
+import { AnyField, Field as TinaField } from '@tinacms/forms';
 
 export class ContentfulFormMapper {
-  public static createFieldConfigFromContentType(contentType: ContentType): AnyField[] {
-    return contentType.fields.reduce((tinaFields, field) => {
+  public static createFieldConfigFromContentType(contentType: ContentType): TinaField<AnyField>[] {
+    console.log(contentType);
+
+    return contentType.fields.reduce((tinaFields: TinaField<AnyField>[], field) => {
       switch (field.type) {
         case "Text":
-          // TODO: short and long text handling
-          // break;
+          tinaFields.push(this.mapTextToField(field));
+          break;
         case "RichText":
           // TODO: markdown handling
           // break;
@@ -28,28 +30,46 @@ export class ContentfulFormMapper {
           // TODO: handle select and multiselect
           // break;
         default:
-          this.handleUnmappedType(field);
+          tinaFields.push(this.handleUnmappedType(field));
       }
 
       return tinaFields;
     }, []);
   }
 
+  private static mapContentfulFieldToTinaField(field: ContentfulField): TinaField<AnyField> {
+    return {
+      name: field.id,
+      label: field.name,
+      component: "text"
+    }
+  }
+
+  private static mapTextToField(field: ContentfulField): TinaField<AnyField> {
+    const baseField = this.mapContentfulFieldToTinaField(field);
+
+    return {
+      ...baseField,
+      component: "text"
+    }
+  }
   // @ts-expect-error
-  private static mapTextToField(field: Field) {}
+  private static mapRichTextToField(field: ContentfulField): TinaField<AnyField> {}
   // @ts-expect-error
-  private static mapRichTextToField(field: Field) {}
+  private static mapObjectToField(field: ContentfulField): TinaField<AnyField> {}
   // @ts-expect-error
-  private static mapObjectToField(field: Field) {}
+  private static mapNumberToField(field: ContentfulField): TinaField<AnyField> {}
   // @ts-expect-error
-  private static mapNumberToField(field: Field) {}
+  private static mapIntegerToField(field: ContentfulField): TinaField<AnyField> {}
   // @ts-expect-error
-  private static mapIntegerToField(field: Field) {}
+  private static mapDateToField(field: ContentfulField): TinaField<AnyField> {}
   // @ts-expect-error
-  private static mapDateToField(field: Field) {}
+  private static mapBooleanToField(field: ContentfulField): TinaField<AnyField> {}
   // @ts-expect-error
-  private static mapBooleanToField(field: Field) {}
-  // @ts-expect-error
-  private static mapArrayToField(field: Field) {}
-  private static handleUnmappedType(field: Field) { console.warn(`Mapping for ${field.type} type not yet implemented`) }
+  private static mapArrayToField(field: ContentfulField): TinaField<AnyField> {}
+  private static handleUnmappedType(field: ContentfulField) {
+    console.warn(`react-tinacms-contentful: Mapping for ${field.type} type not yet implemented`);
+
+    return this.mapContentfulFieldToTinaField(field);
+  }
 }
