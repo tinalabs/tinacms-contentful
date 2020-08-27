@@ -1,4 +1,4 @@
-import { FormOptions, useForm, Form, Field, useCMS } from 'tinacms'
+import { FormOptions, useForm, Form, Field, useCMS } from 'tinacms';
 import { useState, useEffect } from 'react';
 import { AnyField } from '@tinacms/forms';
 import { Entry, ContentType } from 'contentful';
@@ -7,15 +7,18 @@ import { ContentfulFormMapper } from '../services/contentful/formMapper';
 
 export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   name?: string;
-  query?: any,
-  fields?: AnyField[],
+  query?: any;
+  fields?: AnyField[];
   contentType?: ContentType;
   contentTypeId?: string;
   environmentId?: string;
 }
 
-export function useContentfulEntryForm<TEntryType extends any>(spaceId: string, entry: Entry<TEntryType>, options: ContentfulEntryFormOptions): [Entry<TEntryType>, Form]
-{
+export function useContentfulEntryForm<TEntryType extends any>(
+  spaceId: string,
+  entry: Entry<TEntryType>,
+  options: ContentfulEntryFormOptions
+): [Entry<TEntryType>, Form] {
   const cms = useCMS();
   const isEditing = cms.enabled;
   const contentful: ContentfulClient = cms.api.contentful;
@@ -33,21 +36,22 @@ export function useContentfulEntryForm<TEntryType extends any>(spaceId: string, 
 
         if (contentType) {
           setContentType(contentType);
-        };
-      } catch(err)
-      {
+        }
+      } catch (err) {
         throw err;
       }
-    }
+    };
 
     if (contentType) {
       const mergeById = (a1: any[], a2: any[]) =>
-        a1.map(item => ({
-            ...a2.find((item) => (item.id === item.id) && item),
-            ...item
+        a1.map((item) => ({
+          ...a2.find((item) => item.id === item.id && item),
+          ...item,
         }));
-      let formFields = ContentfulFormMapper.createFieldConfigFromContentType(contentType);
-      
+      let formFields = ContentfulFormMapper.createFieldConfigFromContentType(
+        contentType
+      );
+
       if (options.fields) {
         formFields = mergeById(formFields, options.fields);
       }
@@ -55,14 +59,11 @@ export function useContentfulEntryForm<TEntryType extends any>(spaceId: string, 
       if (formFields && formFields.length > 0) {
         setFormFields(formFields);
       }
-    }
-    else if (options.contentType) {
+    } else if (options.contentType) {
       setContentType(contentType);
-    }
-    else if (options.contentTypeId || entry.sys.contentType) {
+    } else if (options.contentTypeId || entry.sys.contentType) {
       getContentType(options.contentTypeId || entry.sys.contentType.sys.id);
-    }
-    else if (options.fields) {
+    } else if (options.fields) {
       setFormFields(options.fields);
     }
   }, [options.contentType, options.contentTypeId, contentType]);
@@ -71,12 +72,12 @@ export function useContentfulEntryForm<TEntryType extends any>(spaceId: string, 
 
   return useForm<Entry<TEntryType>>({
     id: entry?.sys.id, // needs to be unique
-    label: (options?.label) ? options.label : entry.sys.id || "",
+    label: options?.label ? options.label : entry.sys.id || '',
     initialValues: entry,
     fields: formFields,
     actions: options.actions || [],
-    onSubmit: function(formData) {
+    onSubmit: function (formData) {
       console.log(formData);
     },
-  });  
+  });
 }

@@ -4,39 +4,43 @@ import { useContentful } from './useContentful';
 import { useContentfulPreview } from './useContentfulPreview';
 
 export interface useContentfulEntryOptions {
-  preview?: boolean,
-  query?: any
+  preview?: boolean;
+  query?: any;
 }
 
-export function useContentfulEntry<TEntryType extends Entry<any>>(spaceId: string, entryId: string, opts: useContentfulEntryOptions): [Entry<TEntryType> | undefined, boolean, Error | undefined] {
-  const client = opts.preview ? useContentfulPreview(spaceId) : useContentful(spaceId);
+export function useContentfulEntry<TEntryType extends Entry<any>>(
+  spaceId: string,
+  entryId: string,
+  opts: useContentfulEntryOptions
+): [Entry<TEntryType> | undefined, boolean, Error | undefined] {
+  const client = opts.preview
+    ? useContentfulPreview(spaceId)
+    : useContentful(spaceId);
   const [entry, setEntry] = useState<Entry<TEntryType>>();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
 
   useEffect(() => {
     const getEntry = async () => {
-      try  {
+      try {
         setLoading(true);
-        
+
         const entry = await client.getEntry<TEntryType>(entryId, opts.query);
 
         if (entry) {
           setEntry(entry);
           setLoading(false);
         }
-      }
-      catch (error)
-      {
+      } catch (error) {
         setError(error);
         setLoading(false);
       }
-    }
+    };
 
     getEntry();
   }, [spaceId, entryId, opts.preview, opts.query]);
 
   return useMemo(() => {
     return [entry, loading, error];
-  }, [spaceId, entryId, opts.preview, opts.query]);
+  }, [loading, entry, error]);
 }
