@@ -16,7 +16,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
-    "test": "tsdx test --passWithNoTests",
+    "test": "tsdx test",
     "test:watch": "tsdx test --watch --passWithNoTests",
     "lint": "tsdx lint",
     "prepare": "tsdx build"
