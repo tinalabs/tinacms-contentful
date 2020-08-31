@@ -8,8 +8,8 @@ export interface useContentfulEntryOptions {
   query?: any
 }
 
-export function useContentfulEntry<TEntryType extends Entry<any>>(spaceId: string, entryId: string, opts: useContentfulEntryOptions): [Entry<TEntryType> | undefined, boolean, Error | undefined] {
-  const client = opts.preview ? useContentfulPreview(spaceId) : useContentful(spaceId);
+export function useContentfulEntry<TEntryType extends Entry<any>>(spaceId: string, entryId: string, opts?: useContentfulEntryOptions): [Entry<TEntryType> | undefined, boolean, Error | undefined] {
+  const client = opts?.preview ? useContentfulPreview(spaceId) : useContentful(spaceId);
   const [entry, setEntry] = useState<Entry<TEntryType>>();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
@@ -19,7 +19,7 @@ export function useContentfulEntry<TEntryType extends Entry<any>>(spaceId: strin
       try  {
         setLoading(true);
         
-        const entry = await client.getEntry<TEntryType>(entryId, opts.query);
+        const entry = await client.getEntry<TEntryType>(entryId, opts?.query);
 
         if (entry) {
           setEntry(entry);
@@ -34,9 +34,9 @@ export function useContentfulEntry<TEntryType extends Entry<any>>(spaceId: strin
     }
 
     getEntry();
-  }, [spaceId, entryId, opts.preview, opts.query]);
+  }, [spaceId, entryId, opts?.preview, opts?.query]);
 
   return useMemo(() => {
     return [entry, loading, error];
-  }, [spaceId, entryId, opts.preview, opts.query]);
+  }, [spaceId, entryId, opts?.preview, opts?.query]);
 }

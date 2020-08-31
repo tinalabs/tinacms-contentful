@@ -27,7 +27,7 @@ export class ContentfulApiService {
       })
     }
     else {
-      throw new Error(ContentfulApiService.PREVIEW_CLIENT_ERROR)
+      throw new Error(ContentfulApiService.DELIVERY_CLIENT_ERROR)
     }
     
     return this.m_DeliveryClient;

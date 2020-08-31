@@ -8,8 +8,8 @@ export interface useContentfulEntriesOptions {
   preview?: boolean,
 }
 
-export function useContentfulEntries<TEntryType = any>(spaceId: string, query: any, opts: useContentfulEntriesOptions): [Entry<TEntryType>[], boolean, Error | undefined] {
-  const client = opts.preview ? useContentfulPreview(spaceId) : useContentful(spaceId);
+export function useContentfulEntries<TEntryType = any>(spaceId: string, query: any, opts?: useContentfulEntriesOptions): [Entry<TEntryType>[], boolean, Error | undefined] {
+  const client = opts?.preview ? useContentfulPreview(spaceId) : useContentful(spaceId);
   const [entries, setEntries] = useState<Entry<TEntryType>[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error>();

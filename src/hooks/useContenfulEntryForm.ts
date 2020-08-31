@@ -4,6 +4,7 @@ import { AnyField } from '@tinacms/forms';
 import { Entry, ContentType } from 'contentful';
 import { ContentfulClient } from '../apis/contentful';
 import { ContentfulFormMapper } from '../services/contentful/formMapper';
+import { useContentfulEntry } from './useContentfulEntry';
 
 export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   query?: any,
@@ -11,13 +12,17 @@ export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   contentType?: ContentType;
   contentTypeId?: string;
   environmentId?: string;
+  preview?: boolean
 }
 
-export function useContentfulEntryForm<TEntryType extends Entry<any>>(spaceId: string, entry: Entry<any>, options: ContentfulEntryFormOptions): [Entry<TEntryType>, Form]
+export function useContentfulEntryForm<TEntryType extends Entry<any>>(spaceId: string, entryId: string, options: ContentfulEntryFormOptions): [Entry<TEntryType>, Form]
 {
   const cms = useCMS();
   const contentful: ContentfulClient = cms.api.contentful;
   const space = contentful[spaceId];
+  const [entry, loading, error] = useContentfulEntry(spaceId, entryId, {
+    preview: options?.preview || false
+  });
   const [contentType, setContentType] = useState<ContentType>();
   const [formFields, setFormFields] = useState<AnyField[]>();
 
@@ -53,9 +58,15 @@ export function useContentfulEntryForm<TEntryType extends Entry<any>>(spaceId: s
     }
   });
 
+  console.log({
+    entry,
+    contentType,
+    formFields
+  });
+
   return useForm<Entry<TEntryType>>({
-    id: entry?.sys.id, // needs to be unique
-    label: (entry) ? options.label || entry.sys.id : "",
+    id: entryId, // needs to be unique
+    label: options.label || entryId,
     initialValues: entry,
     fields: formFields || [],
     actions: options.actions || [],
