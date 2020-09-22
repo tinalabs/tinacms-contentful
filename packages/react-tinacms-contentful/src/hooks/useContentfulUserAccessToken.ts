@@ -1,11 +1,11 @@
 import { useState, useContext } from 'react';
-import { ContentfulAuthenticationService } from 'tinacms-contentful';
+import { getCachedAccessToken } from 'tinacms-contentful';
 import { ContentfulEditingContext } from '../state/ContentfulEditingContextProvider';
 
 export function useContentfulUserAuthToken(): [string | undefined] {
   const context = useContext(ContentfulEditingContext);
   const [userAccessToken, setUserAccessToken] = useState<string>();
-  const cachedToken = ContentfulAuthenticationService.getCachedAccessToken();
+  const cachedToken = getCachedAccessToken();
 
   // Use token from context if available
   if (context?.userAccessToken) {

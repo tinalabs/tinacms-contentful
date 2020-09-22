@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Entry } from 'contentful';
-import { ContentfulDeliveryService } from 'tinacms-contentful';
+import { useCMS } from 'tinacms';
 import { useContentful } from './useContentful';
-import { useContentfulPreview } from './useContentfulPreview';
 
 export interface useContentfulEntriesOptions {
   preview?: boolean;
@@ -13,9 +12,8 @@ export function useContentfulEntries<TEntryType = any>(
   query: any,
   opts?: useContentfulEntriesOptions
 ): [Entry<TEntryType>[], boolean, Error | undefined] {
-  const client = opts?.preview
-    ? useContentfulPreview(spaceId)
-    : useContentful(spaceId);
+  const { enabled } = useCMS();
+  const contentful = useContentful();
   const [entries, setEntries] = useState<Entry<TEntryType>[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
@@ -25,10 +23,9 @@ export function useContentfulEntries<TEntryType = any>(
       try {
         setLoading(true);
 
-        const entries = await ContentfulDeliveryService.getMany<TEntryType>(
-          client,
-          query
-        );
+        const entries = await contentful.getEntries<TEntryType>(query, {
+          preview: enabled
+        });
 
         if (entries) {
           setEntries(entries);

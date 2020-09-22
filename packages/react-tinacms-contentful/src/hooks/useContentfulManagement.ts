@@ -1,21 +1,18 @@
 import { useCMS } from 'tinacms';
 import type { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
-import { ContentfulClient } from 'tinacms-contentful';
 import { useContentfulUserAuthToken } from './useContentfulUserAccessToken';
+import { useContentful } from './useContentful';
 
 export function useContentfulManagement(
-  spaceId: string
+  spaceId?: string
 ): ClientAPI | undefined {
-  const cms = useCMS();
-  const contentfulClient: ContentfulClient = cms.api.contentful;
-  const contentful = contentfulClient[spaceId];
-  // TODO: FIX THIS
-  const management = contentful?.managementClient as unknown as ClientAPI;
+  const contentful = useContentful(spaceId);
+  const management = contentful.sdks.managementClient;
   const [userAccessToken] = useContentfulUserAuthToken();
 
   if (!management && userAccessToken) {
-    contentful.createManagementClientWithUserAccessToken(userAccessToken);
+    // TODO: create client on the fly...
   }
 
-  return undefined;
+  return management as unknown as ClientAPI;
 }

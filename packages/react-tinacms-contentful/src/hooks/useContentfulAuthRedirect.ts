@@ -1,7 +1,7 @@
-import { ContentfulAuthenticationService } from 'tinacms-contentful';
+import { getAccessToken } from 'tinacms-contentful';
 
 export function useContentfulAuthRedirect(): void {
   if (typeof window !== 'undefined') {
-    ContentfulAuthenticationService.waitAndEmitAccessToken(window);
+    getAccessToken(window);
   }
 }

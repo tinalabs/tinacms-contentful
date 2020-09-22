@@ -4,7 +4,7 @@ import {
   ContentfulEditingProvider,
   ContentfulEditingProps,
 } from '../state/ContentfulEditingContextProvider';
-import { ContentfulAuthenticationService, AUTH_FAILURE, AUTH_SUCCESS } from 'tinacms-contentful';
+import { AUTH_FAILURE, AUTH_SUCCESS } from 'tinacms-contentful';
 import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
 import { ContentfulErrorModal } from '../components/modals/ContentfulErrorModal';
 
@@ -25,9 +25,8 @@ export const TinaContentfulProvider = ({
 }: TinaContentfulProviderProps) => {
   const cms = useCMS();
   const [activeModal, setActiveModal] = useState<Modals>('none');
-  const [userAccessToken, setUserAccessToken] = useState<string | undefined>(
-    ContentfulAuthenticationService.getCachedAccessToken()
-  );
+  // TODO: investigate caching
+  const [userAccessToken, setUserAccessToken] = useState<string | undefined>();
   const [currentError, setCurrentError] = useState<Error>();
   const onClose = () => {
     setActiveModal('none');

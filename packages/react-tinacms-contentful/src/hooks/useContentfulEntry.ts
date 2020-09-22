@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Entry } from 'contentful';
+import { useCMS } from 'tinacms';
 import { useContentful } from './useContentful';
-import { useContentfulPreview } from './useContentfulPreview';
 
 export interface useContentfulEntryOptions {
   preview?: boolean;
@@ -13,9 +13,8 @@ export function useContentfulEntry<TEntryType extends Entry<any>>(
   entryId: string,
   opts?: useContentfulEntryOptions
 ): [Entry<TEntryType> | undefined, boolean, Error | undefined] {
-  const client = opts?.preview
-    ? useContentfulPreview(spaceId)
-    : useContentful(spaceId);
+  const { enabled } = useCMS()
+  const contentful = useContentful();
   const [entry, setEntry] = useState<Entry<TEntryType>>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error>();
@@ -23,7 +22,10 @@ export function useContentfulEntry<TEntryType extends Entry<any>>(
   useEffect(() => {
     const getEntry = async () => {
       try {
-        const entry = await client.getEntry<TEntryType>(entryId, opts?.query);
+        const entry = await contentful.getEntry<TEntryType>(entryId, {
+          query: opts?.query,
+          preview: enabled
+        });
 
         if (entry) {
           setEntry(entry);

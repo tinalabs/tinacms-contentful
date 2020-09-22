@@ -1,2 +1,2 @@
-import { ContentfulClientApi } from 'contentful';
-export declare function useContentful(spaceId: string): ContentfulClientApi;
+import { ContentfulClient } from 'tinacms-contentful';
+export declare function useContentful(spaceId?: string): ContentfulClient;

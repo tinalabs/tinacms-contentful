@@ -1,6 +1,6 @@
+import { Entry, ContentType } from 'contentful';
 import { FormOptions, Form } from 'tinacms';
 import { AnyField, Field } from '@tinacms/forms';
-import { Entry, ContentType } from 'contentful';
 export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
     name?: string;
     query?: any;

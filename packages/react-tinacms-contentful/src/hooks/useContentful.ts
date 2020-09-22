@@ -1,10 +1,13 @@
-import { ContentfulClientApi } from 'contentful';
 import { useCMS } from 'tinacms';
 import { ContentfulClient } from 'tinacms-contentful';
 
-export function useContentful(spaceId: string): ContentfulClientApi {
+export function useContentful(spaceId?: string) {
   const cms = useCMS();
-  const contentfulClient: ContentfulClient = cms.api.contentful;
+  const contentfulClient = cms.api.contentful as ContentfulClient;
 
-  return contentfulClient[spaceId]?.deliveryClient;
+  if (spaceId) {
+    return (contentfulClient as any)[spaceId] as ContentfulClient;
+  }
+
+  return contentfulClient;
 }

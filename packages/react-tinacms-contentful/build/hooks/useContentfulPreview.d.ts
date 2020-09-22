@@ -1,1 +1,1 @@
-export declare function useContentfulPreview(spaceId: string): import("contentful").ContentfulClientApi;
+export declare function useContentfulPreview(spaceId?: string): import("contentful").ContentfulClientApi;

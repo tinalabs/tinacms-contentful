@@ -1,10 +1,10 @@
-import { FormOptions, useForm, Form, useCMS } from 'tinacms';
 import { useState, useEffect } from 'react';
-import { AnyField, Field } from '@tinacms/forms';
 import { Entry, ContentType } from 'contentful';
-import { ContentfulFormMapper } from 'tinacms-contentful';
-import { useContentfulPreview } from './useContentfulPreview';
+import { FormOptions, useForm, Form, useCMS } from 'tinacms';
+import { AnyField, Field } from '@tinacms/forms';
+import { createFieldConfigFromContentType } from 'tinacms-contentful';
 import { useContentful } from '../hooks/useContentful';
+import { mergeArrayById } from '../utils/mergeArrayById';
 
 export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   name?: string;
@@ -23,9 +23,7 @@ export function useContentfulEntryForm<TEntryType extends any>(
 ): [Entry<TEntryType>, Form] {
   const cms = useCMS();
   const isEditing = cms.enabled;
-  const client = isEditing
-    ? useContentfulPreview(spaceId)
-    : useContentful(spaceId);
+  const contentful = useContentful();
   const [entry, setEntry] = useState<Entry<TEntryType>>();
   const [contentType, setContentType] = useState<ContentType>();
   const [formFields, setFormFields] = useState<Field<AnyField>[]>([]);
@@ -34,10 +32,10 @@ export function useContentfulEntryForm<TEntryType extends any>(
     const getEntry = async () => {
       try {
         if (!entry || entry.sys.id !== entryId) {
-          const entry = await client.getEntry<TEntryType>(
-            entryId,
-            options?.query
-          );
+          const entry = await contentful.getEntry<TEntryType>(entryId, {
+            query: options?.query,
+            preview: isEditing
+          });
 
           if (entry) {
             setEntry(entry);
@@ -49,7 +47,9 @@ export function useContentfulEntryForm<TEntryType extends any>(
     };
     const getContentType = async (contentTypeId: string) => {
       try {
-        const contentType = await client.getContentType(contentTypeId);
+        const contentType = await contentful.getContentType(contentTypeId, {
+          preview: isEditing
+        });
 
         if (contentType) {
           setContentType(contentType);
@@ -60,22 +60,7 @@ export function useContentfulEntryForm<TEntryType extends any>(
     };
     const handleContentType = () => {
       if (contentType) {
-        const mergeById = (a1: any[], a2: any[]) =>
-          a1.map(item => ({
-            ...a2.find(item => item.id === item.id && item),
-            ...item,
-          }));
-        let formFields = ContentfulFormMapper.createFieldConfigFromContentType(
-          contentType
-        );
-
-        if (options.fields) {
-          formFields = mergeById(formFields, options.fields);
-        }
-
-        if (formFields && formFields.length > 0) {
-          setFormFields(formFields);
-        }
+        return;
       } else if (options.contentType) {
         setContentType(contentType);
       } else if (options.contentTypeId || entry?.sys.contentType) {
@@ -91,23 +76,16 @@ export function useContentfulEntryForm<TEntryType extends any>(
       let formFields: Field<AnyField>[] = [];
 
       if (contentType && contentType.fields) {
-        formFields = ContentfulFormMapper.createFieldConfigFromContentType(
+        formFields = createFieldConfigFromContentType(
           contentType
         );
       }
 
       if (options.fields?.length === 0) {
         formFields = options.fields;
-      } else if (options.fields) {
-        formFields.map(field => {
-          const existing = options.fields?.filter(f => f.name === field.name);
-
-          if (existing?.length === 1) {
-            return existing[0];
-          }
-
-          return field;
-        });
+      }
+      else if (options.fields) {
+        mergeArrayById(formFields, options.fields);
       }
 
       setFormFields(formFields);
