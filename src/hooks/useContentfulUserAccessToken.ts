@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { ContentfulEditingContext } from '../providers/ContentfulEditingContextProvider';
+import { ContentfulEditingContext } from '../state/ContentfulEditingContextProvider';
 
 export function useContentfulUserAuthToken(): [string | undefined] {
   const context = useContext(ContentfulEditingContext);

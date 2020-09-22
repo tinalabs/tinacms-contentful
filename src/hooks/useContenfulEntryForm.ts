@@ -2,39 +2,44 @@ import { FormOptions, useForm, Form, useCMS } from 'tinacms'
 import { useState, useEffect } from 'react';
 import { AnyField, Field } from '@tinacms/forms';
 import { Entry, ContentType } from 'contentful';
-import { ContentfulClient } from '../apis/contentful';
 import { ContentfulFormMapper } from '../services/contentful/formMapper';
 import { useContentfulEntry } from './useContentfulEntry';
+import { useContentfulPreview } from './useContentfulPreview';
+import { useContentful } from '../hooks/useContentful';
 
 export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   name?: string;
   query?: any,
-  fields?: AnyField[],
   contentType?: ContentType;
   contentTypeId?: string;
   environmentId?: string;
+  fields?: AnyField[],
   preview?: boolean
 }
 
-export function useContentfulEntryForm<TEntryType extends Entry<any>>(spaceId: string, entryId: string, options: ContentfulEntryFormOptions): [Entry<TEntryType>, Form]
+export function useContentfulEntryForm<TEntryType extends Entry<any>>(
+  spaceId: string,
+  entryId: string,
+  options: ContentfulEntryFormOptions
+): [Entry<TEntryType>, Form]
 {
   const cms = useCMS();
   const isEditing = cms.enabled;
-  const contentful: ContentfulClient = cms.api.contentful;
-  const space = contentful[spaceId];
-  const [entry, loading, error] = useContentfulEntry(spaceId, entryId, {
-    preview: options?.preview || false
-  });
+  const client = isEditing ? useContentfulPreview(spaceId) : useContentful(spaceId);
+  const [entry, setEntry] = useState<TEntryType>();
   const [contentType, setContentType] = useState<ContentType>();
   const [formFields, setFormFields] = useState<Field<AnyField>[]>([]);
 
   useEffect(() => {
+    const getEntry = async () => {
+      console.log(1);
+      if (!entry || entry.sys.id !== entryId) {
+        const entry = await client.getEntry(entryId, options?.query);
+      }
+    };
     const getContentType = async (contentTypeId: string) => {
       try {
-        const client = isEditing ? space.deliveryClient : space.previewClient;
         const contentType = await client.getContentType(contentTypeId);
-
-        console.log(contentType);
 
         if (contentType) {
           setContentType(contentType);
@@ -44,6 +49,8 @@ export function useContentfulEntryForm<TEntryType extends Entry<any>>(spaceId: s
         throw err;
       }
     }
+
+    getEntry();
 
     if (contentType) {
       const mergeById = (a1: any[], a2: any[]) =>
@@ -77,6 +84,8 @@ export function useContentfulEntryForm<TEntryType extends Entry<any>>(spaceId: s
   }, [options.contentType, options.contentTypeId, contentType]);
 
   console.log({
+    spaceId,
+    entryId,
     entry,
     contentType,
     formFields

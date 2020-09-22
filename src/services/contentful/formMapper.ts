@@ -3,14 +3,13 @@ import { AnyField, Field as TinaField } from '@tinacms/forms';
 
 export class ContentfulFormMapper {
   public static createFieldConfigFromContentType(contentType: ContentType): TinaField<AnyField>[] {
-    console.log(contentType);
-
     return contentType.fields.reduce((tinaFields: TinaField<AnyField>[], field) => {
       switch (field.type) {
         case "Text":
           tinaFields.push(this.mapTextToField(field));
           break;
         case "RichText":
+          
           // TODO: markdown handling
           // break;
         case "Object":

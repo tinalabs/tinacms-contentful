@@ -1,5 +1,5 @@
 import React from 'react';
-import { TinaContentfulProviderProps } from './TinacmsContentfulProvider';
+import { TinaContentfulProviderProps } from '../providers/TinacmsContentfulProvider';
 
 export interface ContentfulEditingProps extends Omit<TinaContentfulProviderProps, 'children'> {
   userAccessToken?: string

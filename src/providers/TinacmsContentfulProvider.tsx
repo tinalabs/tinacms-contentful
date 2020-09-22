@@ -1,22 +1,23 @@
-import React, { useState } from 'react';
-import { ContentfulEditingProvider, ContentfulEditingProps } from './ContentfulEditingContextProvider';
+import React, { useEffect, useState } from 'react';
+import { TinaCMS, useCMS, useCMSEvent } from 'tinacms';
+import { ContentfulEditingProvider, ContentfulEditingProps } from '../state/ContentfulEditingContextProvider';
 import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
 import { ContentfulErrorModal } from '../components/modals/ContentfulErrorModal';
 import { ContentfulAuthenticationService } from '../services/contentful/authentication';
 
 export interface TinaContentfulProviderProps {
-  editing: {
-    enabled: boolean;
-    enterEditMode?: () => void;
-    exitEditMode?: () => void;
-  },
+  onLogin?: () => void;
+  onLogout?: () => void;
+  enabled: boolean;
   children: any;
 }
 
 type Modals = "authenticate" | "error" | "none";
 
 export const TinaContentfulProvider = ({
-  editing,
+  enabled,
+  onLogin,
+  onLogout,
   children 
 }: TinaContentfulProviderProps) => {
   const [activeModal, setActiveModal] = useState<Modals>("none");
@@ -30,11 +31,8 @@ export const TinaContentfulProvider = ({
     setActiveModal("authenticate");
     setCurrentError(undefined);
   }
-  const beginAuth = () => {
-    setActiveModal("authenticate");
-  };
   const onAuthSuccess = (userAccessToken: string) => {
-    if (editing.enterEditMode) editing.enterEditMode();
+    if (onLogin) onLogin();
     setUserAccessToken(userAccessToken);
     setActiveModal("none");
     ContentfulAuthenticationService.setCachedAccessToken(userAccessToken);
@@ -43,13 +41,18 @@ export const TinaContentfulProvider = ({
     setCurrentError(error);
     setActiveModal("error");
   }
+  const beginAuth = () => {
+    setActiveModal("authenticate");
+  }
   const editingProviderProps: ContentfulEditingProps = {
     userAccessToken: userAccessToken,
-    editing: {
-      ...editing,
-      enterEditMode: beginAuth
-    }
+    onLogin,
+    onLogout,
+    enabled
   }
+
+  useCMSEvent(TinaCMS.ENABLED.type, beginAuth, [])
+  useCMSEvent(TinaCMS.DISABLED.type, onLogout, []);
 
   return (
     <ContentfulEditingProvider
@@ -65,3 +68,11 @@ export const TinaContentfulProvider = ({
     </ContentfulEditingProvider>
   );
 };
+
+function useCMSEvent(event: string, callback: any, deps: React.DependencyList) {
+  const cms = useCMS();
+  
+  useEffect(function() {
+    return cms.events.subscribe(event, callback)
+  }, deps)
+}

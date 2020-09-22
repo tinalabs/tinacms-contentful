@@ -13,7 +13,7 @@ module.exports = {
         peerDependencies: true,
         packagePath: path.resolve(__dirname, "./package.json"),
       }),
-      isTinaDev && execute('yalc push')
+      isTinaDev && execute('yalc push --replace')
     ];
 
     return config;
