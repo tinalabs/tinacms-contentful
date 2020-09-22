@@ -1,15 +1,14 @@
 import { ContentType, Field as ContentfulField } from 'contentful';
 import { AnyField, Field as TinaField } from '@tinacms/forms';
 
-export class ContentfulFormMapper {
-  public static createFieldConfigFromContentType(
+  export function createFieldConfigFromContentType(
     contentType: ContentType
   ): TinaField<AnyField>[] {
     return contentType.fields.reduce(
       (tinaFields: TinaField<AnyField>[], field) => {
         switch (field.type) {
           case 'Text':
-            tinaFields.push(this.mapTextToField(field));
+            tinaFields.push(mapTextToField(field));
             break;
           case 'RichText':
 
@@ -32,7 +31,7 @@ export class ContentfulFormMapper {
           // TODO: handle select and multiselect
           // break;
           default:
-            tinaFields.push(this.handleUnmappedType(field));
+            tinaFields.push(handleUnmappedType(field));
         }
 
         return tinaFields;
@@ -41,30 +40,29 @@ export class ContentfulFormMapper {
     );
   }
 
-  private static mapContentfulFieldToTinaField(
-    field: ContentfulField
-  ): TinaField<AnyField> {
-    return {
-      name: field.id,
-      label: field.name,
-      component: 'text',
-    };
-  }
+function mapContentfulFieldToTinaField(
+  field: ContentfulField
+): TinaField<AnyField> {
+  return {
+    name: field.id,
+    label: field.name,
+    component: 'text',
+  };
+}
 
-  private static mapTextToField(field: ContentfulField): TinaField<AnyField> {
-    const baseField = this.mapContentfulFieldToTinaField(field);
+function mapTextToField(field: ContentfulField): TinaField<AnyField> {
+  const baseField = mapContentfulFieldToTinaField(field);
 
-    return {
-      ...baseField,
-      component: 'text',
-    };
-  }
+  return {
+    ...baseField,
+    component: 'text',
+  };
+}
   
-  private static handleUnmappedType(field: ContentfulField) {
-    console.warn(
-      `react-tinacms-contentful: Mapping for ${field.type} type not yet implemented`
-    );
+function handleUnmappedType(field: ContentfulField) {
+  console.warn(
+    `react-tinacms-contentful: Mapping for ${field.type} type not yet implemented`
+  );
 
-    return this.mapContentfulFieldToTinaField(field);
-  }
+  return mapContentfulFieldToTinaField(field);
 }
