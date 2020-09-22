@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { TinaCMS, useCMS } from 'tinacms';
-import { ContentfulEditingProvider, ContentfulEditingProps } from '../state/ContentfulEditingContextProvider';
+import {
+  ContentfulEditingProvider,
+  ContentfulEditingProps,
+} from '../state/ContentfulEditingContextProvider';
 import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
 import { ContentfulErrorModal } from '../components/modals/ContentfulErrorModal';
 import { ContentfulAuthenticationService } from '../services/contentful/authentication';
+import { AUTH_FAILURE, AUTH_SUCCESS } from '../events';
 
 export interface TinaContentfulProviderProps {
   onLogin?: () => void;
@@ -12,67 +16,77 @@ export interface TinaContentfulProviderProps {
   children: any;
 }
 
-type Modals = "authenticate" | "error" | "none";
+type Modals = 'authenticate' | 'error' | 'none';
 
 export const TinaContentfulProvider = ({
   enabled,
   onLogin,
   onLogout,
-  children 
+  children,
 }: TinaContentfulProviderProps) => {
-  const [activeModal, setActiveModal] = useState<Modals>("none");
-  const [userAccessToken, setUserAccessToken] = useState<string | undefined>(ContentfulAuthenticationService.getCachedAccessToken());
+  const cms = useCMS();
+  const [activeModal, setActiveModal] = useState<Modals>('none');
+  const [userAccessToken, setUserAccessToken] = useState<string | undefined>(
+    ContentfulAuthenticationService.getCachedAccessToken()
+  );
   const [currentError, setCurrentError] = useState<Error>();
   const onClose = () => {
-    setActiveModal("none");
+    setActiveModal('none');
     setCurrentError(undefined);
   };
   const onRetry = () => {
-    setActiveModal("authenticate");
+    setActiveModal('authenticate');
     setCurrentError(undefined);
-  }
+  };
   const onAuthSuccess = (userAccessToken: string) => {
     if (onLogin) onLogin();
+    setActiveModal('none');
     setUserAccessToken(userAccessToken);
-    setActiveModal("none");
-    ContentfulAuthenticationService.setCachedAccessToken(userAccessToken);
   };
   const onAuthFailure = (error: Error) => {
     setCurrentError(error);
-    setActiveModal("error");
-  }
+    setActiveModal('error');
+  };
   const beginAuth = () => {
-    setActiveModal("authenticate");
-  }
+    setActiveModal('authenticate');
+  };
   const editingProviderProps: ContentfulEditingProps = {
     userAccessToken: userAccessToken,
     onLogin,
     onLogout,
-    enabled
-  }
+    enabled,
+  };
 
-  useCMSEvent(TinaCMS.ENABLED.type, beginAuth, [])
+  useCMSEvent(TinaCMS.ENABLED.type, beginAuth, []);
   useCMSEvent(TinaCMS.DISABLED.type, onLogout, []);
+  useCMSEvent(AUTH_FAILURE, onAuthFailure, []);
+  useCMSEvent(AUTH_SUCCESS, onAuthSuccess, []);
 
   return (
-    <ContentfulEditingProvider
-      value={editingProviderProps}
-    >
-      {activeModal === "authenticate" && (
-        <ContentfulAuthModal onClose={onClose} onAuthSuccess={onAuthSuccess} onAuthFailure={onAuthFailure} />
+    <ContentfulEditingProvider value={editingProviderProps}>
+      {activeModal === 'authenticate' && (
+        <ContentfulAuthModal onClose={onClose} />
       )}
-      {activeModal === "error" && currentError && (
-        <ContentfulErrorModal onClose={onClose} onRetry={onRetry} error={currentError} />
+      {activeModal === 'error' && currentError && (
+        <ContentfulErrorModal
+          onClose={onClose}
+          onRetry={onRetry}
+          error={currentError}
+        />
       )}
       {children}
     </ContentfulEditingProvider>
   );
 };
 
-function useCMSEvent(event: string, callback: any, deps: React.DependencyList) {
+export function useCMSEvent(
+  event: string,
+  callback: any,
+  deps: React.DependencyList
+) {
   const cms = useCMS();
-  
+
   useEffect(function() {
-    return cms.events.subscribe(event, callback)
-  }, deps)
+    return cms.events.subscribe(event, callback);
+  }, deps);
 }

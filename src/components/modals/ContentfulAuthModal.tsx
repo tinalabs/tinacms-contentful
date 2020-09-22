@@ -1,17 +1,14 @@
-import React from 'react';
-import {
-  useCMS
-} from 'tinacms';
+import React, { useContext } from 'react';
+import { useCMS } from 'tinacms';
 import { TinaCMS } from '../../declarations';
+import { AUTH_FAILURE, AUTH_SUCCESS } from '../../events';
 import { ModalBuilder } from './ModalBuilder';
 
 export interface ContentfulAuthModalProps {
-  onAuthSuccess(userAccessToken: string): void;
-  onAuthFailure(error: Error): void;
   onClose(): void;
 }
 
-export function ContentfulAuthModal({ onAuthSuccess, onAuthFailure, onClose }: ContentfulAuthModalProps) {
+export function ContentfulAuthModal({ onClose }: ContentfulAuthModalProps) {
   const cms = useCMS();
 
   return (
@@ -33,20 +30,23 @@ export function ContentfulAuthModal({ onAuthSuccess, onAuthFailure, onClose }: C
                 const userAccessToken = await (cms as TinaCMS).api.contentful.authenticate();
 
                 if (userAccessToken) {
-                  onAuthSuccess(userAccessToken);
+                  cms.events.dispatch({
+                    type: AUTH_SUCCESS,
+                    userAccessToken: userAccessToken,
+                  });
                 }
-                else {
-                  throw new Error("No user access token was returned.")
-                }
+              } else {
+                throw new Error(
+                  'No contentful API client found. Please register a client with Tina.'
+                );
               }
-              else {
-                throw new Error("No contentful API client found. Please register a client with Tina.")
-              }
+            } catch (error) {
+              cms.events.dispatch({
+                type: AUTH_FAILURE,
+                error: error,
+              });
             }
-            catch (error) {
-              onAuthFailure(error);
-            }
-          }
+          },
         },
       ]}
     />

@@ -16,20 +16,20 @@ limitations under the License.
 
 */
 
-import * as React from "react";
+import * as React from 'react';
 import {
   Modal,
   ModalHeader,
   ModalBody,
   ModalActions,
   ModalPopup,
-} from "@tinacms/react-modals";
-import { FormBuilder, FieldsBuilder } from "@tinacms/form-builder";
-import { useMemo } from "react";
-import { Form } from "@tinacms/forms";
-import { Button } from "@tinacms/styles";
-import { useCMS } from "@tinacms/react-core";
-import { mapLocalizedValues } from "../../../utils/mapLocalizedValues";
+} from '@tinacms/react-modals';
+import { FormBuilder, FieldsBuilder } from '@tinacms/form-builder';
+import { useMemo } from 'react';
+import { Form } from '@tinacms/forms';
+import { Button } from '@tinacms/styles';
+import { useCMS } from '@tinacms/react-core';
+import { mapLocalizedValues } from '../../../utils/mapLocalizedValues';
 
 export const LinkBlockModal = ({ onSubmit, close, models }: any) => {
   const cms = useCMS();
@@ -37,36 +37,36 @@ export const LinkBlockModal = ({ onSubmit, close, models }: any) => {
   let form: Form;
 
   const getOptions = async () => {
-    const model = form.values["content-model"] || models[0];
+    const model = form.values['content-model'] || models[0];
     return cms.api.contentful.fetchEntries(model);
   };
 
   form = useMemo(
     () =>
       new Form({
-        label: "link-form",
-        id: "link-form-id",
+        label: 'link-form',
+        id: 'link-form-id',
         actions: [],
         fields: [
           {
-            name: "content-model",
-            component: "select",
-            label: "Block type",
-            description: "What type of block would you like to add?",
+            name: 'content-model',
+            component: 'select',
+            label: 'Block type',
+            description: 'What type of block would you like to add?',
             options: models,
           },
           {
-            name: "selected",
-            label: "Block",
-            component: "contentful-linked-field",
-            parse: (value) => JSON.parse(value),
+            name: 'selected',
+            label: 'Block',
+            component: 'contentful-linked-field',
+            parse: value => JSON.parse(value),
             getOptions,
           },
         ],
         onSubmit(values) {
           const localizedResult = {
             sys: values.selected.sys,
-            fields: mapLocalizedValues(values.selected.fields, "en-US"),
+            fields: mapLocalizedValues(values.selected.fields, 'en-US'),
           };
           onSubmit(localizedResult, cms);
           close();
@@ -82,7 +82,7 @@ export const LinkBlockModal = ({ onSubmit, close, models }: any) => {
             <ModalPopup>
               <ModalHeader close={close}>Link block</ModalHeader>
               <ModalBody
-                onKeyPress={(e) =>
+                onKeyPress={e =>
                   e.charCode === 13 ? (handleSubmit() as any) : null
                 }
               >

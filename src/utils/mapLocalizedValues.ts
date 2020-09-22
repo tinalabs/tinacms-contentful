@@ -1,5 +1,5 @@
 const stripLinkedData = (fieldValue: any) => {
-  if ((fieldValue.sys?.contentType.sys.type || '') == 'Link') {
+  if ((fieldValue.sys?.contentType.sys.type || '') === 'Link') {
     const { space, contentType, environment, ...sys } = fieldValue.sys;
     return { sys: { id: sys.id, type: 'Link', linkType: 'Entry' } };
   }

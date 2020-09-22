@@ -3,7 +3,9 @@ import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-
 import { ContentfulClient } from '../apis/contentful';
 import { useContentfulUserAuthToken } from './useContentfulUserAccessToken';
 
-export function useContentfulManagement(spaceId: string): ClientAPI | undefined {
+export function useContentfulManagement(
+  spaceId: string
+): ClientAPI | undefined {
   const cms = useCMS();
   const contentfulClient: ContentfulClient = cms.api.contentful;
   const contentful = contentfulClient[spaceId];

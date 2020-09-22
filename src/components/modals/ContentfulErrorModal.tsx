@@ -2,12 +2,16 @@ import React from 'react';
 import { ModalBuilder } from './ModalBuilder';
 
 export interface ContentfulAuthModalProps {
-  error: Error,
+  error: Error;
   onClose(): void;
   onRetry(): void;
 }
 
-export function ContentfulErrorModal({ error, onClose, onRetry }: ContentfulAuthModalProps) {
+export function ContentfulErrorModal({
+  error,
+  onClose,
+  onRetry,
+}: ContentfulAuthModalProps) {
   return (
     <ModalBuilder
       title="Something went wrong..."
@@ -16,13 +20,13 @@ export function ContentfulErrorModal({ error, onClose, onRetry }: ContentfulAuth
       actions={[
         {
           name: 'Cancel',
-          action: onClose
+          action: onClose,
         },
         {
           name: 'Log in again',
           primary: true,
-          action: onRetry
-        }
+          action: onRetry,
+        },
       ]}
     />
   );

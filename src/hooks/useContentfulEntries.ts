@@ -5,11 +5,17 @@ import { useContentful } from './useContentful';
 import { useContentfulPreview } from './useContentfulPreview';
 
 export interface useContentfulEntriesOptions {
-  preview?: boolean,
+  preview?: boolean;
 }
 
-export function useContentfulEntries<TEntryType = any>(spaceId: string, query: any, opts?: useContentfulEntriesOptions): [Entry<TEntryType>[], boolean, Error | undefined] {
-  const client = opts?.preview ? useContentfulPreview(spaceId) : useContentful(spaceId);
+export function useContentfulEntries<TEntryType = any>(
+  spaceId: string,
+  query: any,
+  opts?: useContentfulEntriesOptions
+): [Entry<TEntryType>[], boolean, Error | undefined] {
+  const client = opts?.preview
+    ? useContentfulPreview(spaceId)
+    : useContentful(spaceId);
   const [entries, setEntries] = useState<Entry<TEntryType>[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
@@ -18,19 +24,21 @@ export function useContentfulEntries<TEntryType = any>(spaceId: string, query: a
     const getEntries = async () => {
       try {
         setLoading(true);
-        
-        const entries = await ContentfulDeliveryService.getMany<TEntryType>(client, query);
+
+        const entries = await ContentfulDeliveryService.getMany<TEntryType>(
+          client,
+          query
+        );
 
         if (entries) {
           setEntries(entries);
           setLoading(false);
         }
-      }
-      catch (error) {
+      } catch (error) {
         setError(error);
         setLoading(false);
       }
-    }
+    };
 
     getEntries();
   }, [spaceId, query]);

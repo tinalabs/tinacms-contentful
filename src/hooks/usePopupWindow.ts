@@ -1,5 +1,4 @@
-export function usePopupWindow(args: Parameters<typeof popupWindow>): Window
-{
+export function usePopupWindow(args: Parameters<typeof popupWindow>): Window {
   const popup = popupWindow(...args);
 
   return popup;
@@ -13,8 +12,8 @@ export function popupWindow(
   w: number,
   h: number
 ): Window {
-  const y = window.top.outerHeight / 2 + window.top.screenY - h / 2
-  const x = window.top.outerWidth / 2 + window.top.screenX - w / 2
+  const y = window.top.outerHeight / 2 + window.top.screenY - h / 2;
+  const x = window.top.outerWidth / 2 + window.top.screenX - w / 2;
   return window.open(
     url,
     title,
@@ -26,7 +25,7 @@ export function popupWindow(
       y +
       ', left=' +
       x
-  )
+  );
 }
 
 export default usePopupWindow;
