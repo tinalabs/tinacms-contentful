@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TinaCMS, useCMS, useCMSEvent } from 'tinacms';
+import { TinaCMS, useCMS } from 'tinacms';
 import { ContentfulEditingProvider, ContentfulEditingProps } from '../state/ContentfulEditingContextProvider';
 import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
 import { ContentfulErrorModal } from '../components/modals/ContentfulErrorModal';
