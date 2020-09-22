@@ -1,27 +1,19 @@
 {
-  "version": "0.2.0-alpha",
-  "name": "react-tinacms-contentful",
+  "private": true,
+  "version": "0.2.0",
+  "name": "tinacms-contentful-root",
   "license": "MIT",
-  "main": "dist/index.js",
-  "module": "dist/react-tinacms-contentful.esm.js",
-  "types": "dist/index.d.ts",
-  "typings": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "engines": {
-    "node": ">=10"
-  },
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
-    "test": "tsdx test --passWithNoTests",
-    "lint": "tsdx lint",
-    "prepare": "tsdx build"
+    "postinstall": "npx lerna bootstrap",
+    "start": "npx lerna run start",
+    "dev": "npx lerna run dev",
+    "build": "npx lerna run build",
+    "test": "npx lerna run test",
+    "lint": "npx lerna run lint"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "tsdx lint"
+      "pre-commit": "npm run lint"
     }
   },
   "prettier": {
@@ -30,46 +22,9 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "peerDependencies": {
-    "react": ">=16",
-    "contentful": ">=7",
-    "contentful-management": ">=5",
-    "contentful-resolve-response": ">=1.1.0"
-  },
-  "dependencies": {
-    "js-cookie": "^2.2.1"
-  },
   "devDependencies": {
-    "@testing-library/react": "^10.4.9",
-    "@tinacms/fields": "^0.9.3-alpha.3",
-    "@tinacms/forms": "^0.4.1-alpha.0",
-    "@tinacms/icons": "^0.9.0-alpha.1",
-    "@tinacms/react-forms": "^0.1.2-alpha.3",
-    "@tinacms/react-modals": "^0.1.7",
-    "@tinacms/styles": "^0.4.2-alpha.1",
-    "@types/contentful-resolve-response": "^0.1.30",
-    "@types/js-cookie": "^2.2.5",
-    "@types/react": "^16.9.49",
-    "@types/react-beautiful-dnd": "11.0.5",
-    "@types/react-dom": "^16.9.8",
-    "@types/styled-components": "^5.1.3",
-    "contentful": "^7.14.5",
-    "contentful-management": "^5.28.0",
-    "final-form": "^4.18.7",
-    "husky": "^4.3.0",
-    "jest": "^26.4.2",
-    "react": "^16.13.0",
-    "react-beautiful-dnd": "11.0.5",
-    "react-dom": "^16.13.0",
-    "react-testing-library": "^8.0.1",
-    "rollup-plugin-auto-external": "^2.0.0",
-    "rollup-plugin-execute": "^1.1.1",
-    "rxjs": "^6.6.3",
-    "styled-components": "^5.2.0",
-    "tinacms": "^0.29.0",
-    "ts-jest": "^26.4.0",
-    "tsdx": "^0.13.3",
-    "tslib": "^2.0.1",
-    "typescript": "^3.9.5"
+    "husky": "^4.2.3",
+    "jest": "^24.9.0",
+    "lerna": "^3.22.1"
   }
 }

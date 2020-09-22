@@ -1,7 +1,4 @@
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  testMatch: [
-    "src/**/*.spec.ts"
-  ]
-};
+const { createJestConfig } = require("@tinacms/scripts");
+const pack = require("./package.json");
+
+module.exports = createJestConfig(pack);
