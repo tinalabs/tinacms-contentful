@@ -9,7 +9,8 @@
     "dev": "npx lerna run dev",
     "build": "npx lerna run build",
     "test": "npx lerna run test",
-    "lint": "npx lerna run lint"
+    "lint": "npx lerna run lint",
+    "publish": "npx lerna publish"
   },
   "husky": {
     "hooks": {
