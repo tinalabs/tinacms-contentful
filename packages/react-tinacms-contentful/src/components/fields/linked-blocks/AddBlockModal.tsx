@@ -16,16 +16,11 @@ limitations under the License.
 
 */
 
-import * as React from 'react';
+import React, { useMemo } from 'react';
 import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalPopup,
-} from '@tinacms/react-modals';
-import { useMemo } from 'react';
-import { Form } from '@tinacms/forms';
-import { useCMS } from '@tinacms/react-core';
+  Form, useCMS, Modal, ModalHeader, ModalBody,
+  ModalPopup
+} from 'tinacms';
 import { FormView } from '@tinacms/react-forms';
 
 export const AddBlockModal = ({ plugin, close }: any) => {

@@ -1,5 +1,4 @@
 import BrowserCookies from 'js-cookie';
-import ServerCookies from 'cookies';
 import { popupWindow } from '../utils/popup';
 
 export const CONTENTFUL_AUTH_TOKEN = 'TINACMS_CONTENTFUL_USER_AUTH_TOKEN';
@@ -18,19 +17,15 @@ export async function authenticateWithContentful(
     `scope=content_management_manage`;
   const popup = popupWindow(url, '_blank', window, 1000, 700);
 
-  console.log(popup);
-
   return new Promise((resolve, reject) => {
     if (typeof window !== 'undefined') {
       window.addEventListener('message', event => {
         const user_access_token = event?.data?.contentful?.userAccessToken
 
-        console.log(event);
-
         if (user_access_token) {
           resolve(user_access_token);
           setCachedAccessToken(user_access_token);
-          //popup.close();
+          popup.close();
         }
       });
     }
@@ -75,21 +70,16 @@ export function getAccessToken(window: Window) {
 }
 
 export function setCachedAccessToken(accessToken: string) {
-  console.log(accessToken);
-  
   BrowserCookies.set(
     CONTENTFUL_AUTH_TOKEN,
     accessToken,
     {
       sameSite: 'strict',
-      secure: true,
-      ['http-only']: true
+      secure: true
     }
   );
 }
 
 export function getCachedUserAccessToken(req: any, res: any) {
-  const cookies = new ServerCookies(req, res);
-
-  return cookies.get(CONTENTFUL_AUTH_TOKEN);
+  return req?.cookies[CONTENTFUL_AUTH_TOKEN];
 }

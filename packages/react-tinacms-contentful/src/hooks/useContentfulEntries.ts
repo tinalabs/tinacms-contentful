@@ -1,25 +1,25 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Entry } from 'contentful';
 import { useCMS } from 'tinacms';
 import { useContentful } from './useContentful';
+import { ContentfulClient } from '../../dist';
 
 export interface useContentfulEntriesOptions {
-  preview?: boolean;
+  spaceId?: string;
 }
 
 export function useContentfulEntries<TEntryType = any>(
-  spaceId: string,
   query: any,
-  opts?: useContentfulEntriesOptions
+  options?: useContentfulEntriesOptions
 ): [Entry<TEntryType>[], boolean, Error | undefined] {
   const { enabled } = useCMS();
-  const contentful = useContentful();
+  const contentful = useContentful(options?.spaceId);
   const [entries, setEntries] = useState<Entry<TEntryType>[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
 
   useEffect(() => {
-    const getEntries = async () => {
+    const getEntries = async (contentful: ContentfulClient) => {
       try {
         setLoading(true);
 
@@ -37,10 +37,10 @@ export function useContentfulEntries<TEntryType = any>(
       }
     };
 
-    getEntries();
-  }, [spaceId, query]);
+    if (contentful) {
+      getEntries(contentful);
+    }
+  }, [query, contentful, options?.spaceId]);
 
-  return useMemo(() => {
-    return [entries, loading, error];
-  }, [spaceId, query]);
+  return [entries, loading, error];
 }

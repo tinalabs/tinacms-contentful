@@ -1,40 +1,38 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Entry, ContentType } from 'contentful';
-import { FormOptions, useForm, Form, useCMS } from 'tinacms';
-import { AnyField, Field } from '@tinacms/forms';
-import { createFieldConfigFromContentType } from 'tinacms-contentful';
+import { Field, FormOptions, useForm, Form, useCMS } from 'tinacms';
+import { ContentfulClient, createFieldConfigFromContentType } from 'tinacms-contentful';
 import { useContentful } from '../hooks/useContentful';
 import { mergeArrayById } from '../utils/mergeArrayById';
 
 export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
+  spaceId?: string,
   name?: string;
   query?: any;
+  entry?: Entry<any>;
   contentType?: ContentType;
   contentTypeId?: string;
   environmentId?: string;
-  fields?: Field<AnyField>[];
-  preview?: boolean;
+  fields?: Field<any>[];
 }
 
 export function useContentfulEntryForm<TEntryType extends any>(
-  spaceId: string,
   entryId: string,
-  options: ContentfulEntryFormOptions
-): [Entry<TEntryType>, Form] {
-  const cms = useCMS();
-  const isEditing = cms.enabled;
-  const contentful = useContentful();
-  const [entry, setEntry] = useState<Entry<TEntryType>>();
+  options?: ContentfulEntryFormOptions
+): [Entry<TEntryType>['fields'], Form] {
+  const {enabled} = useCMS();
+  const contentful = useContentful(options?.spaceId);
+  const [entry, setEntry] = useState<Entry<TEntryType>>(options?.entry as Entry<TEntryType>);
   const [contentType, setContentType] = useState<ContentType>();
-  const [formFields, setFormFields] = useState<Field<AnyField>[]>([]);
+  const [formFields, setFormFields] = useState<Field<any>[]>([]);
 
   useEffect(() => {
-    const getEntry = async () => {
+    const getEntry = async (contentful: ContentfulClient) => {
       try {
         if (!entry || entry.sys.id !== entryId) {
           const entry = await contentful.getEntry<TEntryType>(entryId, {
             query: options?.query,
-            preview: isEditing
+            preview: enabled
           });
 
           if (entry) {
@@ -45,10 +43,10 @@ export function useContentfulEntryForm<TEntryType extends any>(
         throw error;
       }
     };
-    const getContentType = async (contentTypeId: string) => {
+    const getContentType = async (contentTypeId: string, contentful: ContentfulClient) => {
       try {
         const contentType = await contentful.getContentType(contentTypeId, {
-          preview: isEditing
+          preview: enabled
         });
 
         if (contentType) {
@@ -58,22 +56,22 @@ export function useContentfulEntryForm<TEntryType extends any>(
         throw error;
       }
     };
-    const handleContentType = () => {
+    const handleContentType = (contentful: ContentfulClient) => {
       if (contentType) {
         return;
-      } else if (options.contentType) {
+      } else if (options?.contentType) {
         setContentType(contentType);
-      } else if (options.contentTypeId || entry?.sys.contentType) {
+      } else if (options?.contentTypeId || entry?.sys.contentType) {
         const contentTypeId =
-          options.contentTypeId || entry?.sys.contentType.sys.id;
+          options?.contentTypeId || entry?.sys.contentType.sys.id;
 
         if (contentTypeId) {
-          getContentType(contentTypeId);
+          getContentType(contentTypeId, contentful);
         }
       }
     };
     const handleFormFields = () => {
-      let formFields: Field<AnyField>[] = [];
+      let formFields: Field<any>[] = [];
 
       if (contentType && contentType.fields) {
         formFields = createFieldConfigFromContentType(
@@ -81,38 +79,41 @@ export function useContentfulEntryForm<TEntryType extends any>(
         );
       }
 
-      if (options.fields?.length === 0) {
+      if (options?.fields?.length === 0) {
         formFields = options.fields;
       }
-      else if (options.fields) {
+      else if (options?.fields) {
         mergeArrayById(formFields, options.fields);
       }
 
       setFormFields(formFields);
     };
 
-    getEntry();
-    handleContentType();
-    handleFormFields();
+    if (contentful) {
+      getEntry(contentful);
+      handleContentType(contentful);
+      handleFormFields();
+    }
   }, [
-    spaceId,
     entryId,
-    options.contentType,
-    options.contentTypeId,
+    contentful,
     contentType,
+    options?.spaceId,
+    options?.contentType,
+    options?.contentTypeId,
   ]);
 
-  return useForm<Entry<TEntryType>>({
+  return useForm<Entry<TEntryType>['fields']>({
     id: entryId, // needs to be unique
-    label: options.label || entryId,
-    initialValues: entry,
-    fields: formFields || [],
-    actions: options.actions || [],
+    label: options?.label || entryId,
+    initialValues: entry?.fields as any,
+    fields: formFields ?? [],
+    actions: options?.actions || [],
     onSubmit: function(formData) {
       // TODO:
       // iterate through form links, handle updating them correctly
       // this logic can then be moved out to a helper!
       console.log(formData);
-    },
-  });
+    }
+  })
 }

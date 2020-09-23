@@ -16,19 +16,19 @@ limitations under the License.
 
 */
 
-import * as React from 'react';
+import React, { useMemo } from 'react';
 import {
+  Form,
+  FormBuilder,
+  FieldsBuilder,
   Modal,
   ModalHeader,
   ModalBody,
   ModalActions,
   ModalPopup,
-} from '@tinacms/react-modals';
-import { FormBuilder, FieldsBuilder } from '@tinacms/form-builder';
-import { useMemo } from 'react';
-import { Form } from '@tinacms/forms';
+  useCMS
+} from 'tinacms';
 import { Button } from '@tinacms/styles';
-import { useCMS } from '@tinacms/react-core';
 import { mapLocalizedValues } from '../../../utils/mapLocalizedValues';
 
 export const LinkBlockModal = ({ onSubmit, close, models }: any) => {

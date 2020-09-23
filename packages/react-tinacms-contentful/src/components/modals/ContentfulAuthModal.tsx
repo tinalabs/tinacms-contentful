@@ -43,7 +43,7 @@ export function ContentfulAuthModal({ onClose }: ContentfulAuthModalProps) {
             } catch (error) {
               cms.events.dispatch({
                 type: AUTH_FAILURE,
-                error: error,
+                error: error
               });
             }
           },

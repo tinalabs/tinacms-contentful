@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 import * as React from 'react';
-import { AnyField, Field, Form, FormOptions } from '@tinacms/forms';
+import { Field, Form, FormOptions } from 'tinacms';
 import styled, { css } from 'styled-components';
 import { AddIcon, DragIcon, ReorderIcon, TrashIcon } from '@tinacms/icons';
 import { Dismissible } from 'react-dismissible';
@@ -45,7 +45,7 @@ const GroupListHeader = styled.div``;
 const GroupListMeta = styled.div``;
 const GroupLabel = styled.div<any>``;
 
-export interface BlocksFieldDefinititon extends Field<AnyField> {
+export interface BlocksFieldDefinititon extends Field<any> {
   component: 'linked-blocks';
   templates: {
     [key: string]: BlockTemplate;

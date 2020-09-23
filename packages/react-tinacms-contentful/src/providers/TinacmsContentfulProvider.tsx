@@ -21,7 +21,6 @@ export const TinaContentfulProvider = ({
   onLogout,
   children,
 }: TinaContentfulProviderProps) => {
-  const {enabled} = useCMS();
   const [activeModal, setActiveModal] = useState<Modals>('none');
   const [currentError, setCurrentError] = useState<Error>();
   const onClose = () => {
@@ -37,8 +36,8 @@ export const TinaContentfulProvider = ({
     if (onLogin) onLogin();
     setActiveModal('none');
   };
-  const onAuthFailure = (error: Error) => {
-    setCurrentError(error);
+  const onAuthFailure = (event: any) => {
+    if (event.error) setCurrentError(event.error);
     setActiveModal('error');
   };
   const beginAuth = () => {
@@ -53,7 +52,6 @@ export const TinaContentfulProvider = ({
   useCMSEvent(TinaCMS.DISABLED.type, onLogout, []);
   useCMSEvent(AUTH_SUCCESS, onAuthSuccess, []);
   useCMSEvent(AUTH_FAILURE, onAuthFailure, []);
-  useCMSEvent(AUTH_FAILURE, onLogout, []);
 
   return (
     <ContentfulEditingProvider value={editingProviderProps}>

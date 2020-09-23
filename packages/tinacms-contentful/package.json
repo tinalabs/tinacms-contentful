@@ -28,7 +28,6 @@
     "url": "https://github.com/tinalabs/react-tinacms-contentful/issues"
   },
   "peerDependencies": {
-    "@tinacms/forms": ">0.29",
     "contentful": ">=7",
     "contentful-management": ">=5",
     "contentful-resolve-response": ">=1.1.0",
@@ -40,7 +39,6 @@
     "js-cookie": "^2.2.1"
   },
   "devDependencies": {
-    "@tinacms/forms": "^0.29.0",
     "@tinacms/scripts": "^0.26.0",
     "@types/contentful-resolve-response": "^0.1.30",
     "@types/js-cookie": "^2.2.5",

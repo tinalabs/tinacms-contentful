@@ -32,8 +32,6 @@ export class ContentfulClient {
       this.m_UserAccessToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl);
       this.sdks.createManagementClientWithUserAccessToken(this.m_UserAccessToken);
 
-      console.log(this.m_UserAccessToken);
-
       return true;
     }
     catch (error) {

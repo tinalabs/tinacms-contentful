@@ -15,7 +15,7 @@ export function ContentfulErrorModal({
   return (
     <ModalBuilder
       title="Something went wrong..."
-      message={error.message}
+      message={error.message ?? error}
       close={onClose}
       actions={[
         {
