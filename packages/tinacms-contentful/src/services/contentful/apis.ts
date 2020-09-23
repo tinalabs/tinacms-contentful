@@ -4,7 +4,7 @@ import {
 } from 'contentful';
 import { createClient as createManagementClient } from 'contentful-management';
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
-import { ContentfulClientOptions } from '../../ApiClient/contentful';
+import { ContentfulClientOptions } from '../../ApiClient';
 
 export class ContentfulApiService {
   constructor(public options: ContentfulClientOptions) {}

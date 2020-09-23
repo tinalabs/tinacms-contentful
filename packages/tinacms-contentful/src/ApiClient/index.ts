@@ -1,4 +1,4 @@
-import { ContentfulClientApi } from 'contentful';
+import { ContentfulClientApi, ContentType } from 'contentful';
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
 import { authenticateWithContentful } from '../Authentication';
 import { ContentfulApiService } from '../services/contentful/apis';
@@ -47,12 +47,12 @@ export class ContentfulClient {
     return await ContentfulDeliveryService.getMany<TEntriesType>(client, query);
   }
 
-  public async getContentType<TContentType extends any>(contentTypeId: string, options: {
+  public async getContentType<TContentType extends ContentType>(contentTypeId: string, options: {
     preview: boolean
   }) {
     const client = this.getDeliveryClient(options.preview);
 
-    return await client.getContentType(contentTypeId);
+    return await client.getContentType(contentTypeId) as TContentType;
   }
 
   public async createEntry(entryId: string) {

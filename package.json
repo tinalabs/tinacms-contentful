@@ -13,7 +13,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint"
+      "pre-commit": "npm run lint && yalc retreat --all"
     }
   },
   "prettier": {
@@ -23,6 +23,7 @@
     "trailingComma": "es5"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.14",
     "husky": "^4.2.3",
     "jest": "^24.9.0",
     "lerna": "^3.22.1"
