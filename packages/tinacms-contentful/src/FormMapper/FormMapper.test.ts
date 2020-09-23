@@ -1,6 +1,6 @@
 import type { ContentType, Field as ContentfulField } from "contentful"
 import type { Field as TinaField } from "tinacms";
-import { createFieldConfigFromContentType } from "../../dist";
+import { createFieldConfigFromContentType } from "./index";
 
 describe("FormMapper", () => {
   describe("createFieldConfigFromContentType", () => {
