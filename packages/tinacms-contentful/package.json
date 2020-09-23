@@ -1,0 +1,62 @@
+{
+  "name": "tinacms-contentful",
+  "version": "0.2.0",
+  "description": "TinaCMS API Client, Media Client, and utilities for the Contentful APIs ",
+  "author": "Chris D. MacRae <hello@chrisdmacrae.com>",
+  "homepage": "https://github.com/tinalabs/react-tinacms-contentful#readme",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tinalabs/react-tinacms-contentful.git"
+  },
+  "scripts": {
+    "start": "npm run watch",
+    "test": "jest --passWithNoTests",
+    "watch": "tinacms-scripts watch",
+    "dev": "tinacms-scripts dev",
+    "build": "tinacms-scripts build"
+  },
+  "bugs": {
+    "url": "https://github.com/tinalabs/react-tinacms-contentful/issues"
+  },
+  "peerDependencies": {
+    "@tinacms/forms": ">0.29",
+    "contentful": ">=7",
+    "contentful-management": ">=5",
+    "contentful-resolve-response": ">=1.1.0",
+    "tinacms": ">=0.29"
+  },
+  "dependencies": {
+    "js-cookie": "^2.2.1"
+  },
+  "devDependencies": {
+    "@tinacms/forms": "^0.29.0",
+    "@tinacms/scripts": "^0.26.0",
+    "@types/contentful-resolve-response": "^0.1.30",
+    "@types/js-cookie": "^2.2.5",
+    "commander": "^6.1.0",
+    "contentful": "^7.0.0",
+    "contentful-management": "^5.0.0",
+    "contentful-resolve-response": "^1.1.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "rollup": "^1.21.4",
+    "rollup-plugin-commonjs": "^10.0.1",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-typescript2": "^0.22.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "styled-components": "^5.2.0",
+    "tinacms": "^0.29.0",
+    "ts-jest": "^24.3.0",
+    "typescript": "^3.8.2",
+    "typescript-plugin-styled-components": "^1.4.4"
+  }
+}
