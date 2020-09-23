@@ -27,12 +27,12 @@ export function ContentfulAuthModal({ onClose }: ContentfulAuthModalProps) {
           action: async () => {
             try {
               if (cms.api.contentful && cms.api.contentful.authenticate) {
-                const userAccessToken = await (cms as TinaCMS).api.contentful.authenticate();
+                const res = await (cms as TinaCMS).api.contentful.authenticate();
 
-                if (userAccessToken) {
+                if (res) {
+                  // TODO: move to API client
                   cms.events.dispatch({
-                    type: AUTH_SUCCESS,
-                    userAccessToken: userAccessToken,
+                    type: AUTH_SUCCESS
                   });
                 }
               } else {

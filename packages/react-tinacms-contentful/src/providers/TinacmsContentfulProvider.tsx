@@ -11,24 +11,21 @@ import { ContentfulErrorModal } from '../components/modals/ContentfulErrorModal'
 export interface TinaContentfulProviderProps {
   onLogin?: () => void;
   onLogout?: () => void;
-  enabled: boolean;
   children: any;
 }
 
 type Modals = 'authenticate' | 'error' | 'none';
 
 export const TinaContentfulProvider = ({
-  enabled,
   onLogin,
   onLogout,
   children,
 }: TinaContentfulProviderProps) => {
-  const cms = useCMS();
+  const {enabled} = useCMS();
   const [activeModal, setActiveModal] = useState<Modals>('none');
-  // TODO: investigate caching
-  const [userAccessToken, setUserAccessToken] = useState<string | undefined>();
   const [currentError, setCurrentError] = useState<Error>();
   const onClose = () => {
+    if (onLogout) onLogout();
     setActiveModal('none');
     setCurrentError(undefined);
   };
@@ -39,7 +36,6 @@ export const TinaContentfulProvider = ({
   const onAuthSuccess = (userAccessToken: string) => {
     if (onLogin) onLogin();
     setActiveModal('none');
-    setUserAccessToken(userAccessToken);
   };
   const onAuthFailure = (error: Error) => {
     setCurrentError(error);
@@ -49,16 +45,15 @@ export const TinaContentfulProvider = ({
     setActiveModal('authenticate');
   };
   const editingProviderProps: ContentfulEditingProps = {
-    userAccessToken: userAccessToken,
     onLogin,
-    onLogout,
-    enabled,
+    onLogout
   };
 
   useCMSEvent(TinaCMS.ENABLED.type, beginAuth, []);
   useCMSEvent(TinaCMS.DISABLED.type, onLogout, []);
-  useCMSEvent(AUTH_FAILURE, onAuthFailure, []);
   useCMSEvent(AUTH_SUCCESS, onAuthSuccess, []);
+  useCMSEvent(AUTH_FAILURE, onAuthFailure, []);
+  useCMSEvent(AUTH_FAILURE, onLogout, []);
 
   return (
     <ContentfulEditingProvider value={editingProviderProps}>

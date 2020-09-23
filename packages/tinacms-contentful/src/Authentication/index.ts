@@ -1,34 +1,43 @@
-import Cookies from 'js-cookie';
+import BrowserCookies from 'js-cookie';
+import ServerCookies from 'cookies';
 import { popupWindow } from '../utils/popup';
 
-const CONTENTFUL_AUTH_TOKEN = 'TINACMS_CONTENTFUL_USER_AUTH_TOKEN';
-const CONTENTFUL_AUTH_HOSTNAME = 'be.contentful.com';
+export const CONTENTFUL_AUTH_TOKEN = 'TINACMS_CONTENTFUL_USER_AUTH_TOKEN';
+export const CONTENTFUL_AUTH_HOSTNAME = 'be.contentful.com';
 
 export async function authenticateWithContentful(
   clientId: string,
   redirectUrl: string
 ): Promise<string> {
   const url =
-    `https://be.contentful.com/oauth/authorize?` +
+    `https://${CONTENTFUL_AUTH_HOSTNAME}` +
+    `/oauth/authorize?` +
     `response_type=token&` +
     `client_id=${clientId}&` +
     `redirect_uri=${redirectUrl}&` +
     `scope=content_management_manage`;
   const popup = popupWindow(url, '_blank', window, 1000, 700);
 
+  console.log(popup);
+
   return new Promise((resolve, reject) => {
     if (typeof window !== 'undefined') {
       window.addEventListener('message', event => {
-        if (event.data.contentful.userAccessToken) {
-          resolve(event.data.contentful.userAccessToken);
-          popup.close();
+        const user_access_token = event?.data?.contentful?.userAccessToken
+
+        console.log(event);
+
+        if (user_access_token) {
+          resolve(user_access_token);
+          setCachedAccessToken(user_access_token);
+          //popup.close();
         }
       });
     }
 
     window.setInterval(() => {
       if (!popup) {
-        reject('Auth failed');
+        reject('Contentful authorization failed');
       }
     });
   });
@@ -66,16 +75,21 @@ export function getAccessToken(window: Window) {
 }
 
 export function setCachedAccessToken(accessToken: string) {
-  Cookies.set(
+  console.log(accessToken);
+  
+  BrowserCookies.set(
     CONTENTFUL_AUTH_TOKEN,
     accessToken,
     {
       sameSite: 'strict',
       secure: true,
+      ['http-only']: true
     }
   );
 }
 
-export function getCachedAccessToken() {
-  return Cookies.get(CONTENTFUL_AUTH_TOKEN);
+export function getCachedUserAccessToken(req: any, res: any) {
+  const cookies = new ServerCookies(req, res);
+
+  return cookies.get(CONTENTFUL_AUTH_TOKEN);
 }

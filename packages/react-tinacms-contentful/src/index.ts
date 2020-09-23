@@ -6,5 +6,4 @@ export * from './hooks/useContentfulEntries';
 export * from './hooks/useContenfulEntryForm';
 export * from './hooks/useContentfulAuthRedirect';
 export * from './hooks/useContentfulManagement';
-export * from './hooks/useContentfulUserAccessToken';
 export * from './providers/TinacmsContentfulProvider';

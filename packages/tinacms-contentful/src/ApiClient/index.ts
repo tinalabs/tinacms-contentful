@@ -25,9 +25,20 @@ export class ContentfulClient {
   }
 
   public sdks: ContentfulApiService;
+  private m_UserAccessToken?: string;
 
   public async authenticate() {
-    return await authenticateWithContentful(this.options.clientId, this.options.redirectUrl);
+    try {
+      this.m_UserAccessToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl);
+      this.sdks.createManagementClientWithUserAccessToken(this.m_UserAccessToken);
+
+      console.log(this.m_UserAccessToken);
+
+      return true;
+    }
+    catch (error) {
+      return false;
+    }
   }
 
   public async getEntry<TEntryType extends any>(entryId: string, options: {

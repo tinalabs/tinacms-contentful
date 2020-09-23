@@ -1,10 +1,7 @@
 import React from 'react';
 import { TinaContentfulProviderProps } from '../providers/TinacmsContentfulProvider';
 
-export interface ContentfulEditingProps
-  extends Omit<TinaContentfulProviderProps, 'children'> {
-  userAccessToken?: string;
-}
+export interface ContentfulEditingProps extends Omit<TinaContentfulProviderProps, 'children'> {}
 
 export const ContentfulEditingContext = React.createContext<ContentfulEditingProps | null>(
   null
