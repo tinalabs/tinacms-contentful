@@ -38,9 +38,9 @@ export async function authenticateWithContentful(
   });
 }
 
-export function getAccessToken(window: Window) {
-  const getAccessTokenFromWindow = (window: Window) => {
-    if (window.location.host.startsWith(CONTENTFUL_AUTH_HOSTNAME)) {
+export function getAccessToken(window: Window, hostName?: string) {
+  const getAccessTokenFromWindow = (window: Window, allowedHostName: string) => {
+    if (!window.location.host.startsWith(allowedHostName)) {
       return undefined;
     }
   
@@ -49,10 +49,12 @@ export function getAccessToken(window: Window) {
   
     return accessToken === null ? undefined : accessToken;
   }
+  const allowed_host_name = hostName ?? window.opener.location.origin;
 
   if (typeof window !== 'undefined') {
     const userAccessToken = getAccessTokenFromWindow(
-      window
+      window,
+      allowed_host_name
     );
 
     if (!window.opener || !userAccessToken) {
@@ -65,7 +67,7 @@ export function getAccessToken(window: Window) {
       },
     };
 
-    window.opener.postMessage(payload, window.opener.location.origin);
+    window.opener.postMessage(payload, allowed_host_name);
   }
 }
 
