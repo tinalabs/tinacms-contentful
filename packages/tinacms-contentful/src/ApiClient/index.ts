@@ -23,11 +23,17 @@ export interface ContentfulClientOptions {
 export class ContentfulClient {
   constructor(private options: ContentfulClientOptions) {
     this.sdks = new ContentfulApiService(this.options);
-    this.allowedOrigins = options.allowedOrigins;
+
+    if (options.allowedOrigins && Array.isArray(options.allowedOrigins)) {
+      this.allowedOrigins = [this.currentOrigin, ...options.allowedOrigins];
+    }
+    else if (options.allowedOrigins && typeof this.allowedOrigins === "string") {
+      this.allowedOrigins = [this.currentOrigin, options.allowedOrigins];
+    }
   }
 
-  public allowedOrigins?: string | string[];
   public currentOrigin: string = window.location.origin;
+  public allowedOrigins?: string[] = [this.currentOrigin];
   public sdks: ContentfulApiService;
   private m_UserAccessToken?: string;
 
