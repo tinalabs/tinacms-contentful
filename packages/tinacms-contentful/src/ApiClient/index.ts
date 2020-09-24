@@ -14,6 +14,7 @@ export interface ContentfulClientOptions {
     management?: string;
   };
   redirectUrl: string;
+  allowedHostName?: string;
   deliveryClient?: ContentfulClientApi;
   previewClient?: ContentfulClientApi;
   managementClient?: ClientAPI;
@@ -22,8 +23,10 @@ export interface ContentfulClientOptions {
 export class ContentfulClient {
   constructor(private options: ContentfulClientOptions) {
     this.sdks = new ContentfulApiService(this.options);
+    this.allowedHostName = options.allowedHostName;
   }
 
+  public allowedHostName?: string;
   public sdks: ContentfulApiService;
   private m_UserAccessToken?: string;
 
