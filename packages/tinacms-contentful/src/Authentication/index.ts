@@ -38,8 +38,9 @@ export async function authenticateWithContentful(
   });
 }
 
-export function getAccessToken(window: Window, allowedOrigins?: string | string[]) {
-  const getAccessTokenFromWindow = (window: Window, allowedOrigins: string | string[]) => {
+export function getAccessToken(window: Window, allowedOrigins?: string[]) {
+  const allowed_origins = allowedOrigins ?? [window.opener.location.origin];
+  const getAccessTokenFromWindow = (window: Window, allowedOrigins: string[]) => {
     if (allowedOrigins.indexOf(window.location.origin) === -1) {
       return undefined;
     }
@@ -49,10 +50,6 @@ export function getAccessToken(window: Window, allowedOrigins?: string | string[
   
     return accessToken === null ? undefined : accessToken;
   }
-
-  if (typeof allowedOrigins === "string") allowedOrigins = [allowedOrigins];
-
-  const allowed_origins = allowedOrigins ?? [window.opener.location.origin];
 
   if (typeof window !== 'undefined') {
     const userAccessToken = getAccessTokenFromWindow(
