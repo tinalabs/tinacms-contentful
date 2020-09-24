@@ -38,9 +38,9 @@ export async function authenticateWithContentful(
   });
 }
 
-export function getAccessToken(window: Window, hostName?: string) {
-  const getAccessTokenFromWindow = (window: Window, allowedHostName: string) => {
-    if (!window.location.host.startsWith(allowedHostName)) {
+export function getAccessToken(window: Window, allowedOrigins?: string | string[]) {
+  const getAccessTokenFromWindow = (window: Window, allowedOrigins: string | string[]) => {
+    if (allowedOrigins.indexOf(window.location.origin) === -1) {
       return undefined;
     }
   
@@ -49,12 +49,15 @@ export function getAccessToken(window: Window, hostName?: string) {
   
     return accessToken === null ? undefined : accessToken;
   }
-  const allowed_host_name = hostName ?? window.opener.location.origin;
+
+  if (typeof allowedOrigins === "string") allowedOrigins = [allowedOrigins];
+
+  const allowed_origins = allowedOrigins ?? [window.opener.location.origin];
 
   if (typeof window !== 'undefined') {
     const userAccessToken = getAccessTokenFromWindow(
       window,
-      allowed_host_name
+      allowed_origins
     );
 
     if (!window.opener || !userAccessToken) {
@@ -67,7 +70,9 @@ export function getAccessToken(window: Window, hostName?: string) {
       },
     };
 
-    window.opener.postMessage(payload, allowed_host_name);
+    allowed_origins.forEach(origin => {
+      window.opener.postMessage(payload, origin);
+    })
   }
 }
 
