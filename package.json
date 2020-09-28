@@ -20,13 +20,16 @@
   "prettier": {
     "printWidth": 80,
     "semi": true,
-    "singleQuote": true,
     "trailingComma": "es5"
   },
   "devDependencies": {
+    "@testing-library/react-hooks": "^3.4.2",
     "@types/jest": "^26.0.14",
     "husky": "^4.2.3",
     "jest": "^24.9.0",
-    "lerna": "^3.22.1"
+    "lerna": "^3.22.1",
+    "prop-types": "^15.7.2",
+    "react-beautiful-dnd": "^13.0.0",
+    "react-test-renderer": "^16.13.1"
   }
 }
