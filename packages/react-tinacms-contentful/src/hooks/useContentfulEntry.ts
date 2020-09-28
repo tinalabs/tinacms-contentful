@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Entry } from 'contentful';
 import { useCMS } from 'tinacms';
 import { useContentful } from './useContentful';
-import { ContentfulClient } from '../../dist';
+import { ContentfulClient } from 'tinacms-contentful';
 
 export interface useContentfulEntryOptions {
   spaceId?: string;
