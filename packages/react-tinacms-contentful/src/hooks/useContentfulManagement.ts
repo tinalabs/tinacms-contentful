@@ -5,7 +5,6 @@ export function useContentfulManagement(
   spaceId?: string
 ): ClientAPI | undefined {
   const contentful = useContentful(spaceId);
-  const management = contentful.sdks.managementClient;
 
-  return management as unknown as ClientAPI;
+  return contentful.sdks.managementClient as unknown as ClientAPI;
 }

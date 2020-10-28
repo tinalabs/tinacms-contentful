@@ -76,11 +76,15 @@ export class ContentfulClient {
 
   public async createEntry(entryId: string) {
     // TODO: requires management client
-    throw new Error("Not yet implemented");
+    const client = this.sdks.managementClient;
+    const space = await client.getSpace(this.options.spaceId);    
+    const env = await space.getEnvironment(this.options.defaultEnvironmentId);
+
+    //env.createAsset()
   }
 
   public async updateEntry(entryId: string) {
-      // TODO: requires management client
+    // TODO: requires management client
     throw new Error("Not yet implemented");
   }
 
