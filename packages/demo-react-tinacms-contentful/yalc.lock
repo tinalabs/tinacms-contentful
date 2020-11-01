@@ -1,0 +1,10 @@
+{
+  "version": "v1",
+  "packages": {
+    "tinacms-doc-toolkit": {
+      "signature": "10d01114b11b2e6d3498f0a77f219f24",
+      "file": true,
+      "replaced": "^0.0.4"
+    }
+  }
+}
