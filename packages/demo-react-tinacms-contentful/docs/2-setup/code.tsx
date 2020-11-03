@@ -7,12 +7,12 @@ export const CmsProvider = (props: any) => {
     enabled: true,
     apis: {
       contentful: new ContentfulClient({
-        clientId: process.env.CONTENTFUL_OAUTH_CLIENT_ID,
-        spaceId: process.env.CONTENTFUL_SPACE_ID,
+        clientId: process.env.CONTENTFUL_OAUTH_CLIENT_ID as string,
+        spaceId: process.env.CONTENTFUL_SPACE_ID as string,
         defaultEnvironmentId: "master",
         accessTokens: {
-          delivery: process.env.CONTENTFUL_DELIVERY_ACCESS_TOKEN,
-          preview: process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN
+          delivery: process.env.CONTENTFUL_DELIVERY_ACCESS_TOKEN as string,
+          preview: process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN as string
         },
         redirectUrl: "/authorize"
       })

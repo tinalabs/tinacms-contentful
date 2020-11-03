@@ -11,7 +11,7 @@ export const SlugPage = () => {
       return <div>Loading...</div>
   }
 
-  return <Layout currentSlug={'/' + currentSlug} config={Config} loadComponent={loadComponent}/>
+  return <Layout currentSlug={'/' + currentSlug} config={Config} />
 }
 
 export default SlugPage
