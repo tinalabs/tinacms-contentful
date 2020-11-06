@@ -27,9 +27,10 @@
   "peerDependencies": {
     "react": ">=16",
     "react-dom": ">=16",
-    "tinacms": ">=0.29"
+    "tinacms": ">=0.32"
   },
   "dependencies": {
+    "@tinacms/icons": "^0.31.0",
     "tinacms-contentful": "^0.2.2"
   },
   "devDependencies": {

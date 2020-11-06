@@ -4,7 +4,7 @@ import { Media, MediaStore, MediaUploadOptions, MediaList, MediaListOptions } fr
 import { ContentfulClient } from "../ApiClient";
 
 export interface ContentfulMediaStoreOptions {
-  accepts: string
+  accepts?: string
 }
 
 export interface ContentfulMedia extends Media {
@@ -13,8 +13,8 @@ export interface ContentfulMedia extends Media {
 }
 
 export class ContentfulMediaStore implements MediaStore {
-  constructor(private ContentfulClient: ContentfulClient, options: ContentfulMediaStore) {
-    this.accept = options.accept || this.accept;
+  constructor(private ContentfulClient: ContentfulClient, options: ContentfulMediaStoreOptions) {
+    this.accept = options.accepts || this.accept;
   }
 
   accept = ".jpg,.JPEG,.png";
@@ -23,10 +23,10 @@ export class ContentfulMediaStore implements MediaStore {
     const upload_actions = files
       .map(async (file) => await mediaUploadToContentfulUpload(file))
       .map(async (file) => this.ContentfulClient.createAsset(await file));
-    const asset_ids = await Promise.all(upload_actions);
-    const assets = await Promise.all(asset_ids.map(id => this.ContentfulClient.getAsset(id)));
+    const mgmt_assets = await Promise.all(upload_actions);
+    const assets = await Promise.all(mgmt_assets.map(async(asset) => await this.ContentfulClient.getAsset(asset.sys.id)));
 
-    return assets.map(assetToMedia);
+    return assets.map((asset, index) => assetToMedia(asset));
   }
 
   async previewSrc(src: string) {
