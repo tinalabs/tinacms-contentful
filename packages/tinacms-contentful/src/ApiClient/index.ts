@@ -37,7 +37,7 @@ export class ContentfulClient {
     this.environment = this.options.defaultEnvironmentId;
   }
 
-  public currentOrigin: string = window.location.origin;
+  public currentOrigin: string = window?.location?.origin;
   public allowedOrigins?: string[] = [this.currentOrigin];
   public environment: string;
   public locale!: Locale;
