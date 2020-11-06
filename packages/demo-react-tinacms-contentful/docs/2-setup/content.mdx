@@ -1,0 +1,132 @@
+import CodeSample from "!raw-loader!./code.tsx"
+
+# Setup
+
+This document outlines how to install and setup TinaCMS with `react-tinacms-contentful`.
+
+## Prerequisites
+
+This documentation assumes you already have a working react application or website setup with TinaCMS.
+
+If this is not the case, please refer to the [TinaCMS guides](https://tinacms.org/guides/).
+
+For this demo, we're using a test space from Contentful that is free to use for testing, called `the-example-app`. You are free to use it to _seed_ an environment of your own, to make it easier to follow along with this demo.
+
+To do so, install the [Contentful CLI](https://www.npmjs.com/package/contentful-cli), and then run:
+
+```bash
+contentful login
+```
+
+Once logged in, run:
+
+```bash
+contentful space create --name 'TinaCMS Demo'
+```
+
+And finally, to seed the space with example content run:
+
+```bash
+contentful space seed -s '<SPACE_ID>' -t the-example-app
+```
+
+>  Replace the `<SPACE_ID>` with the id returned from the create command executed in the last step.
+
+Finally, these docs also assume you have setup the following in Contentful for your space:
+
+1. [Created an OAuth application to allow users to authorize with Contentful](https://www.contentful.com/developers/docs/extensibility/oauth/)
+1. [Created a Delivery/Preview API Key to allow your application to read content from Contentful](https://www.contentful.com/developers/docs/references/authentication/#api-keys-in-the-contentful-web-app)
+
+## Getting Started
+
+To start, first install the plugin library:
+
+
+```bash
+npm install react-tinacms-contentful contentful contentful-management
+```
+
+Next, we need to wrap your application with TinaCMS. For now, we'll assume you have a `cms.tsx` component that implements TinaCMS:
+
+
+```ts
+import React, { useMemo } from "react";
+import { TinaCMS, TinaProvider } from "tinacms";
+
+export const CmsProvider = (props) => {
+  const cms = useMemo(() => new TinaCMS({
+    enabled: props.enabled
+  }))
+
+  return (
+    <TinaProvider cms={cms}>
+     {props.children}
+    </TinaProvider>
+  )
+}
+```
+
+
+We'll update this component to add the Contentful API Client and React context provider:
+
+
+```diff
+import React, { useMemo } from "react";
+import { TinaCMS, TinaProvider } from "tinacms";
+import { ContentfulClient, TinaContentfulProvider } from "react-tinacms-contentful";
+
+export const CmsProvider = (props) => {
+  const cms = useMemo(() => new TinaCMS({
+    enabled: props.enabled,
++   apis: {
++     contentful: new ContentfulClient({
++       clientId: process.env.CONTENTFUL_OAUTH_CLIENT_ID,
++       spaceId: process.env.CONTENTFUL_SPACE_ID,
++       defaultEnvironmentId: "master",
++       accessTokens: {
++         delivery: process.env.CONTENTFUL_DELIVERY_ACCESS_TOKEN,
++         preview: process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN
++       },
++       redirectUrl: "/authorize"
++     })
+    }
+  }))
+
+  return (
+    <TinaProvider cms={cms}>
+      <TinaContentfulProvider
+        onLogin={() => cms.enable()}
+        onLogout={() => cms.disable()}
+      >
+        {props.children}
+      </TinaContentfulProvider>
+    </TinaProvider>
+  )
+}
+```
+
+## Configuring Environment Variables
+
+Next, we need to add the following to our environment variables for the `ContentfulClient` to work.
+
+We don't want to commit them to version control, because they can change depending on your environment (development, production, etc), so we use environment variables to allow us to change them based on the environment the app is running in.
+
+To do so, we'll create a `.env` file. Here is a template you can use and fill in:
+
+```ini
+CONTENTFUL_OAUTH_CLIENT_ID=
+CONTENTFUL_SPACE_ID=
+CONTENTFUL_DELIVERY_ACCESS_TOKEN=
+CONTENTFUL_PREVIEW_ACCESS_TOKEN=       
+```
+
+### Next.js
+
+If you are using Next.js, rename your `.env` file to `.env.local` for Next.js to automatically read them in for you.
+
+
+## Next steps
+
+At this point we've made TinaCMS aware of Contentful, and now we can start adding functionality to our app.
+
+export const code = CodeSample;

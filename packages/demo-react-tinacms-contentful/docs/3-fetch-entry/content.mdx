@@ -1,0 +1,152 @@
+import GetEntry from "./code/getEntry";
+
+## Fetching Your First Entry
+
+Having set up TinaCMS with the `ContentfulClient` in the last step, we can now fetch our first entry.
+
+## Fetching A Single Entry
+
+To fetch a single entry, we can use the `useEntry` hook in our React components. It allows us to fetch a single entry asynchronously, render a loading state while it is being fetched, render it once it has returned, or render an error if something goes wrong.
+
+```tsx
+import { useEntry } from "react-tinacms-contentful";
+
+// TODO: fix this
+const ENTRY_ID = "abc123"
+
+export function ExampleComponent(props) {
+  const [entry, loading, error] = useEntry(ENTRY_ID);
+
+  return (
+    <main>
+      {entry && JSON.strigify(entry)}
+      {loading && "Loading..."}
+      {error && error.message}
+    </main>
+  )
+}
+```
+
+<GetEntry />
+
+The `useEntry` hook also takes a second optional [options argument](TODO: add url to typedocs).
+
+### Server-side Rendering
+
+If using server-side logic in a Node.js server, or at build-time with a framework like Next.js, we provide an alternative method called `getEntry`:
+
+```ts
+import { getEntry } from "react-tinacms-contentful";
+
+const ENTRY_ID = "abc123"
+
+getEntry(ENTRY_ID)
+  .then(entry => console.log(entry))
+  .catch(error => console.error(error))
+```
+
+> **Note:**
+>
+> Using getEntry in Node.js logic is preferred, as it does not depend on React.js being present.
+
+## Fetching Multiple Entries
+
+To fetch a single entry, we can use the `useEntry` hook in our React components. It allows us to fetch a single entry asynchronously, render a loading state while it is being fetched, render it once it has returned, or render an error if something goes wrong.
+
+```tsx
+import { useEntries } from "react-tinacms-contentful";
+
+// TODO: fix this
+const ENTRY_ID = "abc123"
+
+export function ExampleComponent(props) {
+  const [entries, loading, error] = useEntries();
+
+  return (
+    <main>
+      {entry && JSON.strigify(entry)}
+      {loading && "Loading..."}
+      {error && error.message}
+    </main>
+  )
+}
+```
+
+The `useEntries` hook takes an optional argument called `query`, which is a set of [search parameters](https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/search-parameters) to filter all of the entries in the space by, such as:
+
+```tsx
+const QUERY = {
+  "content_type": "post"
+}
+
+export function ExampleComponent(props) {
+  const [entries, loading, error] = useEntries(QUERY);
+
+  return (
+    <main>
+      {entry && JSON.strigify(entry)}
+      {loading && "Loading..."}
+      {error && error.message}
+    </main>
+  )
+}
+```
+
+The `useEntries` hook also takes a second optional [options argument](TODO: add url to typedocs).
+
+### Server-side Rendering
+
+If using server-side logic in a Node.js server, or at build-time with a framework like Next.js, we provide an alternative method called `getEntries`:
+
+```ts
+import { getEntries } from "react-tinacms-contentful";
+
+const QUERY = {
+  "content_type": "post"
+}
+
+const OPTIONS = {
+  accessTokens: {
+    delivery: process.env.CONTENTFUL_DELIVERY_ACCESS_TOKEN,
+    preview: process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN
+  }
+}
+
+getEntries(QUERY, OPTIONS)
+  .then(entries => console.log(entries))
+  .catch(error => console.error(error))
+```
+
+The `getEntries` method also takes an optional `query` option. More information found in the [API documenation](TODO: add link).
+
+> Note:
+>
+> If the `query` argument is set to `null`, then all entries are fetched.
+
+## Fetching Draft Content From The Preview API
+
+If you wish to fetch the latest draft for your entries from the preview API instead of the delivery API, set `preview` to `true` in the `options`.
+
+For example, fetching drafts when TinaCMS is enabled using `getEntry`:
+
+```tsx
+import { useEntry } from "react-tinacms-contentful";
+
+// TODO: fix this
+const ENTRY_ID = "abc123"
+
+export function ExampleComponent(props) {
+  const cms = useCMS();
+  const [entry, loading, error] = useEntry(ENTRY_ID, {
+    preview: cms.enabled
+  });
+
+  return (
+    <main>
+      {entry && JSON.strigify(entry)}
+      {loading && "Loading..."}
+      {error && error.message}
+    </main>
+  )
+}
+```
