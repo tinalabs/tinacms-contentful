@@ -46,6 +46,7 @@
     "contentful": "^7.0.0",
     "contentful-management": "^5.0.0",
     "contentful-resolve-response": "^1.1.0",
+    "dotenv": "^8.2.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "rollup": "^1.21.4",
@@ -54,7 +55,7 @@
     "rollup-plugin-typescript2": "^0.22.0",
     "rollup-plugin-uglify": "^6.0.4",
     "styled-components": "^5.2.0",
-    "tinacms": "^0.29.0",
+    "tinacms": "^0.32.0",
     "ts-jest": "^24.3.0",
     "typescript": "^3.8.2",
     "typescript-plugin-styled-components": "^1.4.4"

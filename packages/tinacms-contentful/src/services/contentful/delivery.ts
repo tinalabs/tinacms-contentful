@@ -35,7 +35,7 @@ export class ContentfulDeliveryService {
 
     if (
       currentCollection &&
-      currentCollection.total < currentCollection.skip + currentCollection.limit
+      currentCollection.total <= currentCollection.skip + currentCollection.limit
     ) {
       const newQuery = {
         ...query,
