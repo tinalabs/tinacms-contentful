@@ -28,17 +28,21 @@ export class ContentfulClient {
     });
 
     if (options.allowedOrigins && Array.isArray(options.allowedOrigins)) {
-      this.allowedOrigins = [this.currentOrigin, ...options.allowedOrigins];
+      this.allowedOrigins = options.allowedOrigins;
     }
     else if (options.allowedOrigins && typeof this.allowedOrigins === "string") {
-      this.allowedOrigins = [this.currentOrigin, options.allowedOrigins];
+      this.allowedOrigins = [options.allowedOrigins];
+    }
+
+    if (this.currentOrigin) {
+      this.allowedOrigins?.push(this.currentOrigin);
     }
 
     this.environment = this.options.defaultEnvironmentId;
   }
 
-  public currentOrigin: string = window?.location?.origin;
-  public allowedOrigins?: string[] = [this.currentOrigin];
+  public currentOrigin?: string = typeof window !== "undefined" ? window.location.origin : undefined;
+  public allowedOrigins?: string[] = [];
   public environment: string;
   public locale!: Locale;
   public sdks: ContentfulApiService;
