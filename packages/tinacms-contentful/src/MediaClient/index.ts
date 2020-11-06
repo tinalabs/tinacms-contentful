@@ -1,6 +1,6 @@
 import { Asset } from "contentful";
-import { Upload } from "contentful-management/dist/typings/entities/upload";
-import { Media, MediaList, MediaListOptions, MediaStore, MediaUploadOptions } from "tinacms"
+import { AssetFileProp } from "contentful-management/dist/typings/entities/asset";
+import { Media, MediaStore, MediaUploadOptions, MediaList, MediaListOptions } from "tinacms";
 import { ContentfulClient } from "../ApiClient";
 
 export interface ContentfulMediaStoreOptions {
@@ -8,7 +8,8 @@ export interface ContentfulMediaStoreOptions {
 }
 
 export interface ContentfulMedia extends Media {
-  file: Asset['fields']['file'];
+  sys: Asset['sys'];
+  fields: Asset['fields'];
 }
 
 export class ContentfulMediaStore implements MediaStore {
@@ -18,20 +19,22 @@ export class ContentfulMediaStore implements MediaStore {
 
   accept = ".jpg,.JPEG,.png";
 
-  async persist(files: MediaUploadOptions[]): Promise<Media[]> {
-    const uploaded = files.map(file => {
-      return undefined;
-    });
+  async persist(files: MediaUploadOptions[]): Promise<ContentfulMedia[]> {
+    const upload_actions = files
+      .map(async (file) => await mediaUploadToContentfulUpload(file))
+      .map(async (file) => this.ContentfulClient.createAsset(await file));
+    const asset_ids = await Promise.all(upload_actions);
+    const assets = await Promise.all(asset_ids.map(id => this.ContentfulClient.getAsset(id)));
 
-    return uploaded;
+    return assets.map(assetToMedia);
   }
 
   async previewSrc(src: string) {
     return src;
   }
 
-  async delete(media: Media) {
-    return await this.ContentfulClient.deleteEntry(media.id);
+  async delete(media: ContentfulMedia) {
+    return await this.ContentfulClient.deleteAsset(media.sys.id);
   }
 
   async list(options?: MediaListOptions): Promise<MediaList> {
@@ -54,18 +57,34 @@ const nextOffset = (offset: number, limit: number, count: number) => {
   return undefined
 }
 
+const mediaUploadToContentfulUpload = async (file: MediaUploadOptions): Promise<Pick<AssetFileProp, "fields">> => {
+  return {
+    fields: {
+      title: {
+        ["en"]: file.file.name
+      },
+      description: {
+        ["en"]: file.directory
+      },
+      file: {
+        ["en"]: {
+          file: await file.file.text(),
+          contentType: "Untitled",
+          fileName: file.file.name
+        } 
+      }
+    }
+  }
+}
+
 const assetToMedia = (asset: Asset): ContentfulMedia  => {
   return {
     type: "file",
     id: asset.sys.id,
+    previewSrc: asset.fields.file.url,
     filename: asset.fields.file.fileName,
     directory: "",
-    file: asset.fields.file
-  }
-}
-
-const fileToUpload = (file: MediaUploadOptions): Upload => {
-  return {
-    
+    sys: asset.sys,
+    fields: asset.fields,
   }
 }

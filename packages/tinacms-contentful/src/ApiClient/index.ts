@@ -1,5 +1,7 @@
-import { ContentfulClientApi, ContentType } from 'contentful';
+import { Asset, ContentfulClientApi, ContentType, Entry, Locale } from 'contentful';
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
+import { AssetFileProp } from 'contentful-management/dist/typings/entities/asset';
+import { EntryProp } from 'contentful-management/dist/typings/entities/entry';
 import { authenticateWithContentful } from '../Authentication';
 import { ContentfulApiService } from '../services/contentful/apis';
 import ContentfulDeliveryService from '../services/contentful/delivery';
@@ -11,7 +13,6 @@ export interface ContentfulClientOptions {
   accessTokens: {
     delivery: string;
     preview: string;
-    management?: string;
   };
   redirectUrl: string;
   allowedOrigins?: string | string[];
@@ -22,7 +23,9 @@ export interface ContentfulClientOptions {
 
 export class ContentfulClient {
   constructor(private options: ContentfulClientOptions) {
-    this.sdks = new ContentfulApiService(this.options);
+    this.sdks = new ContentfulApiService({
+      ...this.options
+    });
 
     if (options.allowedOrigins && Array.isArray(options.allowedOrigins)) {
       this.allowedOrigins = [this.currentOrigin, ...options.allowedOrigins];
@@ -30,17 +33,21 @@ export class ContentfulClient {
     else if (options.allowedOrigins && typeof this.allowedOrigins === "string") {
       this.allowedOrigins = [this.currentOrigin, options.allowedOrigins];
     }
+
+    this.environment = this.options.defaultEnvironmentId;
   }
 
   public currentOrigin: string = window.location.origin;
   public allowedOrigins?: string[] = [this.currentOrigin];
+  public environment: string;
+  public locale!: Locale;
   public sdks: ContentfulApiService;
   private m_UserAccessToken?: string;
 
   public async authenticate() {
     try {
       this.m_UserAccessToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl);
-      this.sdks.createManagementClientWithUserAccessToken(this.m_UserAccessToken);
+      this.sdks.createManagementWithAccessToken(this.m_UserAccessToken);
 
       return true;
     }
@@ -49,21 +56,163 @@ export class ContentfulClient {
     }
   }
 
-  public async getEntry<TEntryType extends any>(entryId: string, options: {
-    query: any
-    preview: boolean
-  }) {
-    const client = this.getDeliveryClient(options.preview);
+  public async setEnvironment(environmentId: string) {
+    try {
+      this.sdks = new ContentfulApiService({
+        ...this.options,
+        environmentId: environmentId
+      })
+    }
+    catch (error) {
+      throw error;
+    }
 
-    return await client.getEntry<TEntryType>(entryId);
+    this.environment = environmentId;
   }
 
-  public async getEntries<TEntriesType extends any>(query: any, options: {
-    preview: boolean
-  }) {
-    const client = this.getDeliveryClient(options.preview);
+  public async getDefaultLocale() {
+    const locales = await this.sdks.deliveryClient.getLocales();
 
-    return await ContentfulDeliveryService.getMany<TEntriesType>(client, query);
+    const defaultLocale = locales.items.reduce((defaultLocale: Locale | undefined, locale) => {
+      if (locale.default) {
+        defaultLocale = locale;
+      }
+      
+      return defaultLocale;
+    }, undefined);
+
+    if (!defaultLocale) {
+      throw new Error("No default locale could be found...")
+    }
+
+    this.locale = defaultLocale;
+
+    return defaultLocale;
+  }
+
+  public async getEntry<TEntry extends any>(entryId: string, options?: {
+    query?: any
+    preview?: boolean
+  }) {
+    try {
+      const client = this.getDeliveryClient(options?.preview ?? false);
+
+      console.warn(entryId);
+
+      return await client.getEntry<TEntry>(entryId);
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  public async getEntries<TEntries extends any>(query: any, options: {
+    preview?: boolean
+  }) {
+    try {
+      const client = this.getDeliveryClient(options.preview ?? false);
+
+      return await ContentfulDeliveryService.getMany<TEntries>(client, query);
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  public async createEntry<TEntry = any>(contentTypeId: string, data: Pick<EntryProp, "fields" | "metadata"> ) {
+    const client = await this.getManagementClient();
+    
+    return await client.env.createEntry(contentTypeId, data) as unknown as Entry<TEntry>;
+  }
+
+  public async updateEntry<TEntry = any>(entryId: string, data: Entry<TEntry>['fields'] | any, options?: { query?: any }) {
+    try {
+      const client = await this.getManagementClient();
+      let entry = await client.env.getEntry(entryId, options?.query);
+
+      entry.fields = {
+        ...entry.fields,
+        ...data
+      }
+
+      return await entry.update();
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  public async deleteEntry(entryId: string) {
+    try {
+      const client = await this.getManagementClient();
+      let entry = await client.env.getEntry(entryId);
+
+      return await entry.delete();
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  public async getAsset(assetId: string, options?: {
+    query?: any, preview?: boolean
+  }) {
+    try {
+      const client = this.getDeliveryClient(options?.preview ?? false);
+      
+      return await client.getAsset(assetId, options?.query);
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  public async createAsset(data: Pick<AssetFileProp, "fields">) {
+    try {
+      const client = await this.getManagementClient();
+      let asset = await client.env.createAssetFromFiles(data);
+
+      asset = await asset.processForAllLocales();
+      asset = await asset.publish();
+
+      return asset;
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  public async updateAsset(assetId: string, data: Asset['fields'], options?: { query?: any }) {
+    try {
+      const client = await this.getManagementClient();
+      let asset = await client.env.getAsset(assetId, options?.query);
+
+      asset.fields = {
+        ...asset.fields,
+        ...data as any
+      }
+
+      return await asset.update();
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  public async deleteAsset(assetId: string) {
+    try {
+      const client = await this.getManagementClient();
+      let asset = await client.env.getAsset(assetId);
+
+      if (asset.isPublished()) {
+        await asset.unpublish();
+      }
+
+      return await asset.delete();
+    }
+    catch (error) {
+      throw error;
+    }
   }
 
   public async getContentType<TContentType extends ContentType>(contentTypeId: string, options: {
@@ -74,26 +223,22 @@ export class ContentfulClient {
     return await client.getContentType(contentTypeId) as TContentType;
   }
 
-  public async createEntry(entryId: string) {
-    // TODO: requires management client
-    const client = this.sdks.managementClient;
-    const space = await client.getSpace(this.options.spaceId);    
-    const env = await space.getEnvironment(this.options.defaultEnvironmentId);
-
-    //env.createAsset()
-  }
-
-  public async updateEntry(entryId: string) {
-    // TODO: requires management client
-    throw new Error("Not yet implemented");
-  }
-
-  public async deleteEntry(entryId: string) {
-    // TODO: requires management client
-    throw new Error("Not yet implemented");
-  }
-
   private getDeliveryClient(preview: boolean) {
     return preview ? this.sdks.previewClient : this.sdks.deliveryClient;
+  }
+
+  private async getManagementClient() {
+    try {
+      const space = await this.sdks.managementClient?.getSpace(this.options.spaceId);
+      const env = await space.getEnvironment(this.environment);
+      
+      return {
+        space,
+        env
+      }
+    }
+    catch (error) {
+      throw error;
+    }
   }
 }

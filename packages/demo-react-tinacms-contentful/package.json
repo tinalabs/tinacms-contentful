@@ -16,9 +16,11 @@
     "bulma": "^0.9.1",
     "contentful": "^7.14.8",
     "contentful-management": "^6.1.2",
+    "dotenv": "^8.2.0",
     "next": "latest",
     "raw-loader": "^4.0.2",
     "react": "^16.13.1",
+    "react-beautiful-dnd": "^13.0.0",
     "react-dom": "^16.12.0",
     "react-tinacms-contentful": "^0.2.2",
     "remark-highlight.js": "^6.0.0",
@@ -27,6 +29,7 @@
     "tinacms-doc-toolkit": "file:.yalc/tinacms-doc-toolkit"
   },
   "devDependencies": {
+    "@tinacms/react-forms": "^0.32.0",
     "@types/mdx-js__react": "^1.5.3",
     "@types/node": "^12.12.21",
     "@types/react": "^16.9.16",
