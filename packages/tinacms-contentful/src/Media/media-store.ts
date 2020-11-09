@@ -148,7 +148,7 @@ const createAssetQuery = (values: any) => {
   if (!values.directory || values.directory.indexOf(possible_types)) {
     const dir = directories.find(dir => dir.filename === values.directory);
 
-    if (dir) {
+    if (dir && fileTypes[dir.id]) {
       query["mimetype_group"] = fileTypes[dir.id].mime_type_group;
     }
   }
