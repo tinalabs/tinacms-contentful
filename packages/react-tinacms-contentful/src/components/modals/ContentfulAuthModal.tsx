@@ -1,6 +1,5 @@
 import React from 'react';
 import { useCMS } from 'tinacms';
-import { TinaCMS } from 'tinacms-contentful';
 import { AUTH_FAILURE, AUTH_SUCCESS } from 'tinacms-contentful';
 import { ModalBuilder } from './ModalBuilder';
 
@@ -27,13 +26,16 @@ export function ContentfulAuthModal({ onClose }: ContentfulAuthModalProps) {
           action: async () => {
             try {
               if (cms.api.contentful && cms.api.contentful.authenticate) {
-                const res = await (cms as TinaCMS).api.contentful.authenticate();
+                const res = await cms.api.contentful.authenticate();
 
                 if (res) {
                   // TODO: move to API client
                   cms.events.dispatch({
                     type: AUTH_SUCCESS
                   });
+                }
+                else {
+                  throw Error("Authorization failed.")
                 }
               } else {
                 throw new Error(

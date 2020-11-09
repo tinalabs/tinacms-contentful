@@ -11,22 +11,29 @@ export class ContentfulDeliveryService {
     client: ContentfulClientApi,
     query: any
   ): Promise<Entry<TEntryType>[]> {
-    return await this.handleEntryPaging(client, query);
+    const [entries, remaining] = await this.handleEntryPaging(client, query);
+
+    return entries;
   }
 
   public static async getManyAssets(
     client: ContentfulClientApi,
     query: any
-  ): Promise<Asset[]> {
-    return await this.handleAssetPaging(client, query);
+  ) {
+    const [assets, remaining] = await this.handleAssetPaging(client, query);
+
+    return {
+      assets,
+      remaining
+    }
   }
 
   private static async handleEntryPaging<TEntryType extends Entry<any>>(
     client: ContentfulClientApi,
     query: any,
     items: Entry<any>[] = [],
-    currentCollection?: EntryCollection<Entry<any>>
-  ): Promise<TEntryType[]> {
+    currentCollection?: EntryCollection<TEntryType>
+  ): Promise<[TEntryType[], EntryCollection<TEntryType>]> {
     if (items.length === 0) {
       currentCollection = await client.getEntries<TEntryType>(query);
 
@@ -45,7 +52,7 @@ export class ContentfulDeliveryService {
       return this.handleEntryPaging(client, newQuery, items, currentCollection);
     }
 
-    return items as TEntryType[];
+    return [items as TEntryType[], currentCollection as EntryCollection<TEntryType>];
   }
 
   private static async handleAssetPaging<TAssetType extends Asset>(
@@ -53,7 +60,7 @@ export class ContentfulDeliveryService {
     query: any,
     items: Asset[] = [],
     currentCollection?: AssetCollection
-  ): Promise<Asset[]> {
+  ): Promise<[Asset[], AssetCollection | undefined]> {
     if (items.length === 0) {
       currentCollection = await client.getAssets(query);
 
@@ -72,7 +79,7 @@ export class ContentfulDeliveryService {
       return this.handleAssetPaging(client, newQuery, items, currentCollection);
     }
 
-    return items as TAssetType[];
+    return [items as TAssetType[], currentCollection];
   }
 }
 
