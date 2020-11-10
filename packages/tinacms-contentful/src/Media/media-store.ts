@@ -77,12 +77,6 @@ export class ContentfulMediaStore implements MediaStore {
     let items: Media[] = current_collection.items
       .map((asset) => assetToMedia(asset, options?.directory));
     
-    console.log({
-      query,
-      current_collection,
-      items
-    })
-    
     return {
       items: items,
       offset: current_collection.skip,
