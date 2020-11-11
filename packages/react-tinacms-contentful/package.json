@@ -1,6 +1,6 @@
 {
   "name": "react-tinacms-contentful",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "A React library for using Contentful with TinaCMS",
   "author": "Chris D. MacRae <hello@chrisdmacrae.com>",
   "homepage": "https://github.com/tinalabs/react-tinacms-contentful#readme",
@@ -31,7 +31,7 @@
     "tinacms": ">=0.32"
   },
   "dependencies": {
-    "tinacms-contentful": "^0.2.8"
+    "tinacms-contentful": "^0.2.9"
   },
   "devDependencies": {
     "@testing-library/react": "^10.4.9",
