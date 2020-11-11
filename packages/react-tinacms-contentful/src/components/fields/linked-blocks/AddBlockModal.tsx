@@ -46,7 +46,7 @@ export const AddBlockModal = ({ plugin, close }: any) => {
       <ModalPopup>
         <ModalHeader close={close}>{plugin.name}</ModalHeader>
         <ModalBody>
-          <FormView activeForm={form} />
+          <FormView activeForm={form as any} />
           {/* <FieldsBuilder form={form} fields={form.fields} /> */}
         </ModalBody>
       </ModalPopup>

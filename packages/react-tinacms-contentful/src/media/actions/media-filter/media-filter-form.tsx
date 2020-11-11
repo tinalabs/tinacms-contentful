@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, useCMS, useForm } from 'tinacms';
+import { FieldsBuilder, Form, useCMS, useForm } from 'tinacms';
 import { DateFieldPlugin } from "react-tinacms-date"
 import { FormView } from "@tinacms/react-forms";
 import { ContentfulMediaStore, FILE_TYPES } from 'tinacms-contentful';
@@ -29,14 +29,11 @@ export function MediaFilterFormView() {
   cms.plugins.add(DateFieldPlugin);
 
   return (
-    <FormView activeForm={form} />
+    <FieldsBuilder form={form as any} fields={form.fields} />
   )
 }
 
 export const useMediaFilterForm = (): [any, Form] => {
-  const cms = useCMS();
-  const store = cms.media.store as ContentfulMediaStore;
-
   return useForm({
     id: '_contentful-media-filter',
     label: 'Filter Media',

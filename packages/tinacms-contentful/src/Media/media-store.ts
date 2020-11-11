@@ -1,6 +1,6 @@
 import { Asset } from "contentful";
 import { AssetFileProp } from "contentful-management/dist/typings/entities/asset";
-import { Media, MediaStore, MediaUploadOptions, MediaList, MediaListOptions } from "tinacms";
+import { Media, MediaList, MediaListOptions, MediaStore, MediaUploadOptions } from "tinacms";
 import { ContentfulClient } from "../ApiClient";
 import directories, { fileTypes } from "./directories";
 

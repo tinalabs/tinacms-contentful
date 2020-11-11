@@ -17,12 +17,9 @@ limitations under the License.
 */
 
 import * as React from 'react';
-import { Field, Form, FormOptions } from 'tinacms';
 import styled, { css } from 'styled-components';
-import { AddIcon, DragIcon, ReorderIcon, TrashIcon } from '@tinacms/icons';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { Dismissible } from 'react-dismissible';
-import { IconButton } from '@tinacms/styles';
-import { AddBlockModal } from './AddBlockModal';
 import {
   useCMS,
   Modal,
@@ -30,20 +27,20 @@ import {
   ModalHeader,
   ModalBody,
   useForm,
+  Field,
+  FieldPlugin,
+  Form,
+  FormOptions,
 } from 'tinacms';
+import { IconButton } from '@tinacms/styles';
+import { AddIcon, DragIcon, ReorderIcon, TrashIcon } from '@tinacms/icons';
 import { FormView } from '@tinacms/react-forms';
+import { AddBlockModal } from './AddBlockModal';
 import {
   mapLocalizedValues,
   getLocaleValues,
 } from '../../../utils/mapLocalizedValues';
-
-import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { LinkBlockModal } from './LinkBlockModal';
-
-const FieldDescription = styled.div``;
-const GroupListHeader = styled.div``;
-const GroupListMeta = styled.div``;
-const GroupLabel = styled.div<any>``;
 
 export interface BlocksFieldDefinititon extends Field<any> {
   component: 'linked-blocks';
@@ -83,156 +80,18 @@ export interface BlockTemplate {
   };
 }
 
+export const BlocksFieldPlugin: FieldPlugin = {
+  __type: 'field',
+  name: 'linked-blocks',
+  Component: (props: any) => <Blocks {...props} />,
+};
+
 interface BlockFieldProps {
   input: any;
   meta: any;
   field: BlocksFieldDefinititon;
   form: any;
   tinaForm: Form;
-}
-
-const genRandomString = () => {
-  return (
-    Math.random()
-      .toString(36)
-      .substring(2, 15) +
-    Math.random()
-      .toString(36)
-      .substring(2, 15)
-  );
-};
-
-const AddBlockButton = styled(IconButton)`
-  width: auto;
-`;
-
-const LinkBlockForm = ({
-  field,
-  onAddBlock,
-}: {
-  field: BlocksFieldDefinititon;
-  onAddBlock: any;
-}) => {
-  const [visible, setVisible] = React.useState(false);
-
-  return (
-    <>
-      <AddBlockButton
-        onClick={() => setVisible(true)}
-        open={visible}
-        primary
-        small
-      >
-        <AddIcon />
-        Link existing block
-      </AddBlockButton>
-
-      <Dismissible
-        escape
-        onDismiss={() => setVisible(false)}
-        disabled={!visible}
-      >
-        {visible && (
-          <LinkBlockModal
-            onSubmit={(values: any) => {
-              onAddBlock(values);
-            }}
-            close={() => setVisible(false)}
-            models={Object.keys(field.templates)}
-          />
-        )}
-      </Dismissible>
-    </>
-  );
-};
-
-const AddBlockForm = ({
-  field,
-  onAddBlock,
-}: {
-  field: BlocksFieldDefinititon;
-  onAddBlock: any;
-}) => {
-  const [
-    currentAddingBlock,
-    setCurrentAddingBlock,
-  ] = React.useState<Block | null>(null); //TODO - this name is pretty poor
-
-  const [visible, setVisible] = React.useState(false);
-
-  return (
-    <>
-      <AddBlockButton
-        onClick={() => setVisible(true)}
-        open={visible}
-        primary
-        small
-      >
-        <AddIcon />
-        Add and link new block
-      </AddBlockButton>
-      <BlockMenu open={visible}>
-        <Dismissible
-          click
-          escape
-          onDismiss={() => setVisible(false)}
-          disabled={!visible}
-        >
-          <BlockMenuList>
-            {Object.entries(field.templates).map(([id, template]) => (
-              <BlockOption
-                key={id}
-                onClick={() => {
-                  // addItem(name, template);
-                  setCurrentAddingBlock({ id, template });
-                  setVisible(false);
-                }}
-              >
-                {template.label}
-              </BlockOption>
-            ))}
-          </BlockMenuList>
-        </Dismissible>
-      </BlockMenu>
-
-      <Dismissible
-        escape
-        onDismiss={() => setCurrentAddingBlock(null)}
-        disabled={!currentAddingBlock}
-      >
-        {currentAddingBlock && (
-          <AddBlockModal
-            plugin={{
-              name: `New ${currentAddingBlock.template.label}`,
-              fields: currentAddingBlock.template.fields,
-              onSubmit: (values: any, cms: any) => {
-                return cms.api.contentful
-                  .save(
-                    genRandomString(),
-                    undefined,
-                    currentAddingBlock.id,
-                    mapLocalizedValues(values, 'en-US')
-                  )
-                  .then(function(response: any) {
-                    return response.json();
-                  })
-                  .then((data: any) => {
-                    setCurrentAddingBlock(null);
-                    onAddBlock(data);
-                  });
-              },
-            }}
-            close={() => setCurrentAddingBlock(null)}
-          />
-        )}
-      </Dismissible>
-    </>
-  );
-};
-
-interface Block {
-  id: string;
-  template: BlockTemplate;
 }
 
 const Blocks = ({ tinaForm, form, field, input }: BlockFieldProps) => {
@@ -307,8 +166,6 @@ const Blocks = ({ tinaForm, form, field, input }: BlockFieldProps) => {
   );
 };
 
-const EmptyState = () => <EmptyList>There are no items</EmptyList>;
-
 interface BlockListItemProps {
   tinaForm: Form;
   field: BlocksFieldDefinititon;
@@ -376,15 +233,124 @@ const BlockListItem = ({
   );
 };
 
-interface ContentfulFormModalProps {
-  block: any;
-  label?: string;
-  close: () => void;
-  templates: { [key: string]: Partial<Field> };
+const LinkBlockForm = ({
+  field,
+  onAddBlock,
+}: {
+  field: BlocksFieldDefinititon;
+  onAddBlock: any;
+}) => {
+  const [visible, setVisible] = React.useState(false);
+
+  return (
+    <>
+      <AddBlockButton
+        onClick={() => setVisible(true)}
+        open={visible}
+        primary
+        small
+      >
+        <AddIcon />
+        Link existing block
+      </AddBlockButton>
+
+      <Dismissible
+        escape
+        onDismiss={() => setVisible(false)}
+        disabled={!visible}
+      >
+        {visible && (
+          <LinkBlockModal
+            onSubmit={(values: any) => {
+              onAddBlock(values);
+            }}
+            close={() => setVisible(false)}
+            models={Object.keys(field.templates)}
+          />
+        )}
+      </Dismissible>
+    </>
+  );
+};
+
+interface Block {
+  id: string;
+  template: BlockTemplate;
 }
 
+const AddBlockForm = ({
+  field,
+  onAddBlock,
+}: {
+  field: BlocksFieldDefinititon;
+  onAddBlock: any;
+}) => {
+  const [
+    currentAddingBlock,
+    setCurrentAddingBlock,
+  ] = React.useState<Block | null>(null); //TODO - this name is pretty poor
+
+  const [visible, setVisible] = React.useState(false);
+
+  return (
+    <>
+      <AddBlockButton
+        onClick={() => setVisible(true)}
+        open={visible}
+        primary
+        small
+      >
+        <AddIcon />
+        Add and link new block
+      </AddBlockButton>
+      <BlockMenu open={visible}>
+        <Dismissible
+          click
+          escape
+          onDismiss={() => setVisible(false)}
+          disabled={!visible}
+        >
+          <BlockMenuList>
+            {Object.entries(field.templates).map(([id, template]) => (
+              <BlockOption
+                key={id}
+                onClick={() => {
+                  // addItem(name, template);
+                  setCurrentAddingBlock({ id, template });
+                  setVisible(false);
+                }}
+              >
+                {template.label}
+              </BlockOption>
+            ))}
+          </BlockMenuList>
+        </Dismissible>
+      </BlockMenu>
+
+      <Dismissible
+        escape
+        onDismiss={() => setCurrentAddingBlock(null)}
+        disabled={!currentAddingBlock}
+      >
+        {currentAddingBlock && (
+          <AddBlockModal
+            plugin={{
+              name: `New ${currentAddingBlock.template.label}`,
+              fields: currentAddingBlock.template.fields,
+              onSubmit: (values: any) => {
+                setCurrentAddingBlock
+                onAddBlock(values);
+              },
+            }}
+            close={() => setCurrentAddingBlock(null)}
+          />
+        )}
+      </Dismissible>
+    </>
+  );
+};
+
 const LinkForm = ({ entry, close, templates }: any) => {
-  const cms = useCMS();
   const contentModel = entry.sys.contentType.sys.id;
 
   const formConfig = {
@@ -392,25 +358,20 @@ const LinkForm = ({ entry, close, templates }: any) => {
     id: entry.sys.id,
     initialValues: entry.fields,
     onSubmit: (values: any) => {
-      return cms.api.contentful
-        .save(
-          entry.sys.id,
-          entry.sys.version,
-          contentModel,
-          mapLocalizedValues(values, 'en-US')
-        )
-        .then(function(response: any) {
-          return response.json();
-        })
-        .then(() => {
-          close();
-        });
+      console.log(values);
     },
   } as FormOptions<any, any>;
   const [, form] = useForm(formConfig);
 
-  return <FormView activeForm={form} />;
+  return <FormView activeForm={form as any} />;
 };
+
+interface ContentfulFormModalProps {
+  block: any;
+  label?: string;
+  close: () => void;
+  templates: { [key: string]: Partial<Field> };
+}
 
 const ContentfulFormModal = ({
   block,
@@ -422,7 +383,7 @@ const ContentfulFormModal = ({
   const [entry, setEntry] = React.useState<any>(null);
 
   React.useEffect(() => {
-    cms.api.contentful.fetchFullEntry(block.sys.id).then((entry: any) => {
+    cms.api.contentful.getEntry(block.sys.id).then((entry: any) => {
       setEntry(entry);
     });
   }, []);
@@ -430,7 +391,7 @@ const ContentfulFormModal = ({
   return (
     <Modal>
       <ModalPopup>
-        <ModalHeader close={close}>{label as string ?? null}</ModalHeader>
+        <ModalHeader close={close}>{(label as string) ?? null}</ModalHeader>
         <ModalBody>
           {entry ? (
             <LinkForm entry={entry} close={close} templates={templates} />
@@ -483,6 +444,23 @@ const InvalidBlockListItem = ({
   );
 };
 
+const genRandomString = () => {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
+};
+
+const FieldDescription = styled.div``;
+const GroupListHeader = styled.div``;
+const GroupListMeta = styled.div``;
+const GroupLabel = styled.div<any>``;
+const EmptyState = () => <EmptyList>There are no items</EmptyList>;
+
+const AddBlockButton = styled(IconButton)`
+  width: auto;
+`;
+
 const EmptyList = styled.div`
   text-align: center;
   border-radius: var(--tina-radius-small);
@@ -511,7 +489,7 @@ const BlockMenu = styled.div<{ open: boolean }>`
   background-color: white;
   overflow: hidden;
   z-index: var(--tina-z-index-1);
-  ${props =>
+  ${(props) =>
     props.open &&
     css`
       opacity: 1;
@@ -615,7 +593,7 @@ const ItemHeader = styled.div<{ isDragging: boolean }>`
     }
   }
 
-  ${p =>
+  ${(p) =>
     p.isDragging &&
     css<any>`
       border-radius: var(--tina-radius-small);
@@ -693,8 +671,3 @@ const DragHandle = styled(function DragHandle({ ...styleProps }) {
     }
   }
 `;
-
-export const BlocksFieldPlugin = {
-  name: 'linked-blocks',
-  Component: Blocks,
-};
