@@ -73,6 +73,8 @@ export class ContentfulMediaStore implements MediaStore {
       ...query,
       limit: limit,
       skip: offset
+    }, {
+      preview: true
     });
     let items: Media[] = current_collection.items
       .map((asset) => assetToMedia(asset, options?.directory));
