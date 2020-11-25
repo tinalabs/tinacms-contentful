@@ -6,7 +6,10 @@ export interface Space {
   accessTokens: {
     delivery: string;
     preview: string;
-  }
+  },
+  deliveryClient?: ContentfulClientApi;
+  previewClient?: ContentfulClientApi;
+  managementClient?: ClientAPI;
 }
 
 export interface Options extends Omit<ContentfulClientOptions, "spaceId" | "defaultEnvironmentId" | "accessTokens">  { }
@@ -19,7 +22,10 @@ export function createContentfulClientForSpaces(spaces: Space[], options: Option
   let client: any = {};
   
   spaces.forEach(space => {
-    if (space.id && space.accessTokens.delivery && space.accessTokens.preview) {
+    const hasAccessTokens = space.accessTokens.delivery && space.accessTokens.preview;
+    const hasClients = typeof space?.deliveryClient !== "undefined" && typeof space?.previewClient !== "undefined";
+    
+    if (space.id && (hasAccessTokens || hasClients)) {
       const space_client = new ContentfulClient({
         ...options,
         defaultEnvironmentId: space.defaultEnvironmentId,
@@ -28,6 +34,9 @@ export function createContentfulClientForSpaces(spaces: Space[], options: Option
           delivery: space.accessTokens.delivery,
           preview: space.accessTokens.preview,
         },
+        deliveryClient: space.deliveryClient,
+        previewClient: space.previewClient,
+        managementClient: space.managementClient
       });
 
       client[space.id] = space_client;
