@@ -1,3 +1,5 @@
+import { ContentfulClientApi } from "contentful";
+import { ClientAPI } from "contentful-management/dist/typings/create-contentful-api";
 import { ContentfulClient, ContentfulClientOptions } from "./ApiClient";
 
 export interface Space {
