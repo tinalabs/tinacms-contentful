@@ -35,9 +35,11 @@ describe("ContentfulClient", () => {
       },
       defaultEnvironmentId: "5",
       redirectUrl: "6",
-      deliveryClient: mockClient,
-      previewClient: mockClient,
-      managementClient: mockClient
+      options: {
+        deliveryClient: mockClient,
+        previewClient: mockClient,
+        managementClient: mockClient
+      }
     });
 
     expect(contentful.sdks.deliveryClient).toEqual(mockClient);

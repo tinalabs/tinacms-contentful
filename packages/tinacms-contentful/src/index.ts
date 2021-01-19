@@ -4,4 +4,4 @@ export * from "./ApiClient";
 export * from "./Media";
 export * from "./Authentication";
 export * from "./FormMapper";
-export * from "./utils/popup";
+export * from "./Authentication/popup";
