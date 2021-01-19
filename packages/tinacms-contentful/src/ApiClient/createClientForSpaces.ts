@@ -36,9 +36,11 @@ export function createContentfulClientForSpaces(spaces: Space[], options: Option
           delivery: space.accessTokens.delivery,
           preview: space.accessTokens.preview,
         },
-        deliveryClient: space.deliveryClient,
-        previewClient: space.previewClient,
-        managementClient: space.managementClient
+        options: {
+          deliveryClient: space.deliveryClient,
+          previewClient: space.previewClient,
+          managementClient: space.managementClient
+        }
       });
 
       client[space.id] = space_client;

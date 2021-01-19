@@ -1,10 +1,17 @@
-import { Asset, ContentfulClientApi, ContentType, Entry, Locale } from 'contentful';
+import { Asset, CreateClientParams, ContentfulClientApi, ContentType, Entry, Locale } from 'contentful';
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
 import { AssetFileProp } from 'contentful-management/dist/typings/entities/asset';
 import { EntryProp } from 'contentful-management/dist/typings/entities/entry';
 import { authenticateWithContentful } from '../Authentication';
-import { ContentfulApiService } from '../services/contentful/apis';
-import ContentfulDeliveryService from '../services/contentful/delivery';
+import { ContentfulApiService } from '../ContentfulRestApi/apis';
+import ContentfulDeliveryService from '../ContentfulRestApi/delivery';
+
+export type ContentfulClientOptionalOptions = Partial<Omit<CreateClientParams, "accessToken" | "space" | "environment">> & {
+  allowedOrigins?: string | string[];
+  deliveryClient?: ContentfulClientApi;
+  previewClient?: ContentfulClientApi;
+  managementClient?: ClientAPI;
+}
 
 export interface ContentfulClientOptions {
   clientId: string;
@@ -15,23 +22,22 @@ export interface ContentfulClientOptions {
     preview: string;
   };
   redirectUrl: string;
-  allowedOrigins?: string | string[];
-  deliveryClient?: ContentfulClientApi;
-  previewClient?: ContentfulClientApi;
-  managementClient?: ClientAPI;
+  options?: ContentfulClientOptionalOptions
 }
 
 export class ContentfulClient {
   constructor(private options: ContentfulClientOptions) {
+    const opts = options.options;
+
     this.sdks = new ContentfulApiService({
       ...this.options
     });
 
-    if (options.allowedOrigins && Array.isArray(options.allowedOrigins)) {
-      this.allowedOrigins = options.allowedOrigins;
+    if (opts?.allowedOrigins && Array.isArray(opts?.allowedOrigins)) {
+      this.allowedOrigins = opts.allowedOrigins;
     }
-    else if (options.allowedOrigins && typeof this.allowedOrigins === "string") {
-      this.allowedOrigins = [options.allowedOrigins];
+    else if (opts?.allowedOrigins && typeof opts?.allowedOrigins === "string") {
+      this.allowedOrigins = [opts.allowedOrigins];
     }
 
     if (this.currentOrigin) {
