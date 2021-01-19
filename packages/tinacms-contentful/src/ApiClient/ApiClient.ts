@@ -4,7 +4,8 @@ import { AssetFileProp } from 'contentful-management/dist/typings/entities/asset
 import { EntryProp } from 'contentful-management/dist/typings/entities/entry';
 import { authenticateWithContentful } from '../Authentication';
 import { ContentfulApiService } from '../ContentfulRestApi/apis';
-import ContentfulDeliveryService from '../ContentfulRestApi/delivery';
+import { ContentfulDeliveryService } from '../ContentfulRestApi/delivery';
+import { createContentfulOperationsForEntry, Operation } from "../ContentfulRestApi/management"
 
 export type ContentfulClientOptionalOptions = Partial<Omit<CreateClientParams, "accessToken" | "space" | "environment">> & {
   allowedOrigins?: string | string[];
@@ -109,8 +110,6 @@ export class ContentfulClient {
     try {
       const client = this.getDeliveryClient(options?.preview ?? false);
 
-      console.warn(entryId);
-
       return await client.getEntry<TEntry>(entryId);
     }
     catch (error) {
@@ -131,20 +130,33 @@ export class ContentfulClient {
     }
   }
 
-  public async createEntry<TEntry = any>(contentTypeId: string, data: Pick<EntryProp, "fields" | "metadata"> ) {
+  public async createEntry<TEntry = any>(contentTypeId: string, data: Pick<EntryProp, "fields" | "metadata">, options?: { expand?: true }) {
     const client = await this.getManagementClient();
+    const entry = await client.env.createEntry(contentTypeId, data) as unknown as Entry<TEntry>;
+
+    if (options?.expand) {
+      await this.updateEntryRecursive(entry, null)
+    }
     
-    return await client.env.createEntry(contentTypeId, data) as unknown as Entry<TEntry>;
+    return entry;
   }
 
-  public async updateEntry<TEntry = any>(entryId: string, data: Entry<TEntry>['fields'] | any, options?: { query?: any }) {
+  public async updateEntry<TEntry = any>(entryId: string, data: Entry<TEntry>['fields'] | any, options?: { query?: any, initial?: Entry<any> }) {
     try {
       const client = await this.getManagementClient();
       let entry = await client.env.getEntry(entryId, options?.query);
 
-      entry.fields = {
-        ...entry.fields,
-        ...data
+      if (options?.initial?.sys) {
+        const updated = {
+          ...options?.initial,
+          fields: data
+        }
+        
+      } else {
+        entry.fields = {
+          ...entry.fields,
+          ...data
+        }
       }
 
       return await entry.update();
@@ -152,6 +164,19 @@ export class ContentfulClient {
     catch (error) {
       throw error;
     }
+  }
+
+  private async updateEntryRecursive(initial: Entry<any>, updated: Entry<any> | null) {
+    const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated)
+        
+    await Promise.allSettled([
+      // TODO: better typing
+      create.map(operation => this.createEntry(operation.sys.id, operation.fields as any))
+    ])
+    await Promise.allSettled([
+      update.map(operation => this.updateEntry(operation.sys.id, operation.fields)),
+      dereference.map(operation => this.updateEntry(operation.sys.id, operation.fields)),
+    ]);
   }
 
   public async archiveEntry(entryId: string) {
