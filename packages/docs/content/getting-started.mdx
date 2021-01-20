@@ -1,0 +1,117 @@
+# Getting Started
+
+## Pre-requisites
+
+This documentation assumes you:
+
+- Are comfortable with [TinaCMS](https://tinacms.org/docs)
+- Have a working [Tina site](https://tinacms.org/guides) ready to setup with Contentful
+- Have a Contentful account and have setup access tokens to your space
+
+## Usage
+
+First add the package to your site, along with the necessary contentful libraries:
+
+`npm install react-tinacms-contentful contentful contentful-management`
+
+Then wrap the CMS with the provider:
+
+```
+const cms = new TinaCMS();
+
+export const Cms({children}) {
+  return (
+    <TinaProvider cms={cms}>
+      <ContentfulProvider>
+        {children}
+      </ContentfulProvider>
+    </TinaProvider>
+  )
+}
+```
+
+Then we'll need to configure the CMS to talk to contentful. We'll pull any "secret" values out of environment variables[^1].
+
+```diff
++ import { ContentfulApiClient } from 'react-tinacms-contentful'
++
+-const cms = new TinaCMS();
++const cms = new TinaCMS({
++  enabled: false,
++  sidebar: true,
++  apis: {
++    contentful: new ContentfulApiClient({
++      spaceId: process.env.CONTENTFUL_SPACE_ID,
++      defaultEnvironmentId: process.env.CONTENTFUL_DEFAULT_ENVIRONMENT_ID,
++      accessTokens: {
++       delivery: process.env.CONTENTFUL_DELIVERY_ACCESS_TOKEN,
++       preview: process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN
++      },
++      redirectUrl: "/"
++    })
++  }
++});
+
+export const Cms({children}) {
+  return (
+    <TinaProvider cms={cms}>
+      <ContentfulProvider>
+        {children}
+      </ContentfulProvider>
+    </TinaProvider>
+  )
+}
+```
+
+You'll need to create a `.env` file to store these "secrets" in the root of the project and fill in the blanks:
+
+```ini
+CONTENTFUL_SPACE_ID=
+CONTENTFUL_DEFAULT_ENVIRONMENT_ID=master
+CONTENTFUL_DELIVERY_ACCESS_TOKEN=
+CONTENTFUL_PREVIEW_ACCESS_TOKEN=
+```
+
+Finally, you'll need to setup you'll need to setup your editing route(s) to receive the redirect back from Contentful to finish the login workflow.
+For the purposes of this demo, we'll assume it's the root route, or `"/"`
+
+```diff
++import { useContentfulAuthRedirect } from 'react-tinacms-contentful'
+
+export const App() {
++  useContentfulAuthRedirect()
+  ...
+}
+```
+
+Now you should be able to enable the CMS and login with Contentful, either by:
+
+```
+const cms = new TinaCMS({
+-  enabled: false,
++  enabled: true,
+```
+
+or:
+
+```diff
++ import { useCallback } from 'react'
++ import { useCMS } from 'tina-cms'
+import { useContentfulAuthRedirect } from 'react-tinacms-contentful'
+
+export const App() {
++  const cms = useCMS()
++  const enableCMS = useCallback(() => cms.enable())
++
+  useContentfulAuthRedirect() 
+  ...
++    return ( 
++    ...
++      <Button onClick={enableCMS}>Enable CMS
++    ...
++    )
+  )
+}
+```
+
+[^1]: we store "secrets" in environment variables so they can be changed dynamically at deploy time. This also keeps them out of source code, which can cause problems.

@@ -1,0 +1,115 @@
+# Fetching Entries
+
+In this guide, we'll cover how to fetch entries with `react-tinacms-contentful`.
+
+## Fetching An Entry
+
+You can fetch any entry in the space by ID.
+
+### Vanilla JS
+
+To fetch an entry with Vanilla JS, use the `cms.api` object.
+
+```
+const cms = new TinaCMS(...)
+
+cms.api.contentful.getEntry("ENTRY_ID")
+  .then(entry => console.log(entry))
+```
+
+_To fetch only drafts, set `preview` to true in the [options](TODO: API DOCS)._
+
+### React
+
+To fetch an entry with React, use the `useContentfulEntry` hook:
+
+```
+import { useContentfulEntry } from 'react-tinacms-contentful'
+
+export const Example () => {
+  const [entry, loading, error] = useContentfulEntry(ENTRY_ID)
+
+  if (error) {
+    return (
+      <>
+        <h2>Something went wrong...</h2>
+        <pre>
+          <code>{JSON.stringify(error.message)}</code>
+        </pre>
+      </>
+    )
+  }
+
+  return (
+    <>
+      {loading && "Loading..."}
+      {entry && JSON.stringify(entry)}
+  )
+}
+```
+
+_To fetch only drafts, set `preview` to true in the [options](TODO: API DOCS)._
+
+## Fetching Many Entries
+
+You can fetch all entries in the space, or search for entries by providing a query object with [search parameters](https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/search-parameters/order):
+
+### Vanilla JS
+
+```
+const cms = new TinaCMS(...)
+
+// Get all entries
+cms.api.contentful.getEntries()
+  .then(allEntries => console.log(allEntries))
+
+// Search for entries
+cms.api.contentful.getEntries({
+  content_type: 'post',
+  order: 'sys.createdAt'
+})
+  .then(posts => console.log(posts))
+```
+
+_To fetch only drafts, set `preview` to true in the [options](TODO: API DOCS)._
+
+### React
+
+To fetch an entry with React, use the `useContentfulEntry` hook:
+
+```
+import { useContentfulEntry } from 'react-tinacms-contentful'
+
+export const Example () => {
+  const [allEntries, allLoading, errorA] = useContenfulEntries()
+  const [posts, postsLoading, errorB] = useContentfulEntries({
+    content_type: 'post',
+    order: 'sys.createdAt'
+  })
+
+  if (errorA || error B) {
+    return (
+      <>
+        <h2>Something went wrong...</h2>
+        <pre>
+          <code>{JSON.stringify(errorA.message || errorB.message)}</code>
+        </pre>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <ol>
+        {allLoading && "Loading..."}
+        {allEntries && allEntries.map(entry => <li>{JSON.stringify(entry)})}</li>)}
+      </ol>
+      <ol>
+        {postsLoading && "Loading..."}
+        {posts && posts.map(entry => <li>{JSON.stringify(entry)})}</li>)}
+      </ol>
+  )
+}
+```
+
+_To fetch only drafts, set `preview` to true in the [options](TODO: API DOCS)._

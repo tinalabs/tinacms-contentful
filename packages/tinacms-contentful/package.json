@@ -22,7 +22,7 @@
     "test": "jest --passWithNoTests",
     "watch": "tinacms-scripts watch",
     "dev": "tinacms-scripts dev",
-    "build": "tinacms-scripts build"
+    "build": "tinacms-scripts build && typedoc --tsconfig tsconfig.docs.json"
   },
   "bugs": {
     "url": "https://github.com/tinalabs/react-tinacms-contentful/issues"
@@ -34,12 +34,13 @@
     "tinacms": ">=0.29"
   },
   "dependencies": {
-    "@types/cookies": "^0.7.4",
     "cookies": "^0.8.0",
     "js-cookie": "^2.2.1",
+    "typedoc": "^0.20.16",
     "uuid-base62": "^0.1.0"
   },
   "devDependencies": {
+    "@types/cookies": "^0.7.4",
     "@tinacms/scripts": "^0.26.0",
     "@types/contentful-resolve-response": "^0.1.30",
     "@types/js-cookie": "^2.2.5",

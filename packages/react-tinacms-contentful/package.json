@@ -18,7 +18,7 @@
     "start": "npm run watch",
     "watch": "tinacms-scripts watch",
     "dev": "tinacms-scripts dev",
-    "build": "tinacms-scripts build",
+    "build": "tinacms-scripts build && typedoc --tsconfig tsconfig.docs.json",
     "test": "jest --passWithNoTests"
   },
   "bugs": {
@@ -31,7 +31,8 @@
     "tinacms": ">=0.32"
   },
   "dependencies": {
-    "tinacms-contentful": "^0.3.1"
+    "tinacms-contentful": "^0.3.1",
+    "typedoc": "^0.20.16"
   },
   "devDependencies": {
     "@testing-library/react": "^10.4.9",
