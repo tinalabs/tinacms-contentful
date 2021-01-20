@@ -5,7 +5,7 @@ import { EntryProp } from 'contentful-management/dist/typings/entities/entry';
 import { authenticateWithContentful } from '../Authentication';
 import { ContentfulApiService } from '../ContentfulRestApi/apis';
 import { ContentfulDeliveryService } from '../ContentfulRestApi/delivery';
-import { createContentfulOperationsForEntry, Operation } from "../ContentfulRestApi/management"
+import { createContentfulOperationsForEntry } from "../ContentfulRestApi/management"
 
 export type ContentfulClientOptionalOptions = Partial<Omit<CreateClientParams, "accessToken" | "space" | "environment">> & {
   allowedOrigins?: string | string[];
@@ -151,7 +151,6 @@ export class ContentfulClient {
           ...options?.initial,
           fields: data
         }
-        
       } else {
         entry.fields = {
           ...entry.fields,
