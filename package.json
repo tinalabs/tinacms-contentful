@@ -13,7 +13,8 @@
     "build": "npx lerna run build --stream",
     "test": "npx lerna run test --stream",
     "lint": "npx lerna run lint --stream",
-    "publish": "npx lerna publish"
+    "publish": "npx lerna publish",
+    "gh-pages": "npx lerna run gh-pages"
   },
   "husky": {
     "hooks": {
