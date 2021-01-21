@@ -6,7 +6,6 @@ import { Layout, Loader } from 'tinacms-doc-toolkit'
 import Config from '../tina-demo.config'
 import { GetStaticPaths, GetStaticProps } from 'next'
 
-
 export function SlugHandler() {
   const router = useRouter()
   const slug = typeof router.query.slug == 'undefined' ? "/" : router.query.slug 
@@ -25,13 +24,30 @@ export function SlugHandler() {
   )
 }
 
+const Heading = ({ as, text }) => {
+  const H = as || 'h1'
+  const id = typeof text === "string"
+    ? text
+      .replace(/[!@#$%^&*()?'`]/gm, '')
+      .replace(/[ ]{1,}/gm, '-')
+      .toLowerCase()
+    : ""
+
+  return <H id={id}>{text}</H>
+}
 
 const components = {
+  h1: ({children}: any) => <Heading as="h1" text={children} />,
+  h2: ({children}: any) => <Heading as="h2" text={children} />,
+  h3: ({children}: any) => <Heading as="h3" text={children} />,
+  h4: ({children}: any) => <Heading as="h4" text={children} />,
   pre: (props: any) => {
     return <pre {...props} />
   },
-  code: (props: any) => {
-    return <code {...props} />
+  code: ({className, children}: any) => {
+    return <CodeBlock className={["code", className].join(" ")}>
+      {children}
+    </CodeBlock>
   }
 }
 
@@ -41,8 +57,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
       slug: [page.slug.replace(/^\//, '')]
     }
   }))
-
-  console.log(paths)
 
   return {
     paths,
@@ -57,7 +71,5 @@ export const getStaticProps: GetStaticProps = async ({params}) => {
     props: {}
   }
 }
-
-
 
 export default SlugHandler;

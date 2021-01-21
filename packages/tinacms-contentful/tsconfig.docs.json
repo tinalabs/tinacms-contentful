@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
+  "typedocOptions": {
+    "name": "tinacms-contentful",
+    "entryPoints": ["src/index.ts"],
+    "out": "../docs/public/api/tinacms-contentful",
+    "excludeNotDocumented": true,
+    "excludeExternals": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeInternal": true
+  }
+}

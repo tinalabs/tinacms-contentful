@@ -2,5 +2,18 @@
   "packages": [
     "packages/*"
   ],
-  "version": "0.3.1"
+  "version": "0.3.1",
+  "npmClient": "yarn",
+  "useWorkspaces": true,
+  "command": {
+    "publish": {
+      "ignoreChanges": [
+        "docs",
+        "packages/example-*"
+      ]
+    },
+    "run": {
+      "ignore": []
+    }
+  }
 }

@@ -1,1 +1,36 @@
 # Using Contentful in TinaCMS Plugins
+---
+
+To use Contentful in [TinaCMS plugins](https://tina.io/docs/plugins/), you can either use the [`cms.api`](#cms-api) object, or the [react utility hooks](#react-utility-hooks).
+
+## CMS API
+
+Inside various plugins types you will be given access to the `cms` object. You can access the `ContentfulAPIClient` from this. For example, in a [content creator plugin])():
+
+```
+const PostCreatorPlugin = {
+  __type: 'content-creator',
+  fields: [
+    { name: "fields.title", label: "Title", component: "text" }
+  ],
+  onSubmit: aysnc(values, cms) {
+    try {
+      await cms.api.contentful.createEntry(values.fields)
+
+      cms.alerts.success("Created entry")
+    }
+    catch (error) {
+      cms.alerts.error(error.message)
+    }
+```
+
+## React Utility Hooks
+
+There are a variety of React utility hooks for interacting with Contentful:
+
+- `useContentful`: returns the `ContentfulAPIClient` instance
+- `useContentfulDelivery`: returns an instance of the Contentful JS SDK to retreive drafts from the delivery API.
+- `useContentfulPreview`: returns an instance of the Contentful JS SDK to retreive drafts from the preview API.
+- `useContentfulPreview`: returns an instance of the Contentful JS SDK to retreive drafts from the preview API.
+- `useContentfulManagement`: returns an instance of the Contentful Management API for the current logged in Contentful user.
+  > **Note:** do not use this in contexts where the CMS is not enabled and a user is not logged in.

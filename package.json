@@ -1,6 +1,9 @@
 {
   "private": true,
   "version": "0.2.0",
+  "workspaces": [
+    "packages/*"
+  ],
   "name": "tinacms-contentful-root",
   "license": "MIT",
   "scripts": {

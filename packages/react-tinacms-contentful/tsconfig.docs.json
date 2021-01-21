@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
+  "typedocOptions": {
+    "name": "react-tinacms-contentful",
+    "entryPoints": ["src/index.ts"],
+    "out": "../docs/public/api/react-tinacms-contentful",
+    "excludeNotDocumented": true,
+    "excludeExternals": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeInternal": true
+  }
+}

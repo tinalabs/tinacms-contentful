@@ -1,0 +1,193 @@
+# Editing Entries
+---
+
+On this page, we'll cover how to edit entries with `react-tinacms-contentful`. There is also a list of [Frequently Asked Questions (FAQs)](#faqs).
+
+## Editing A Single Entry
+
+Editing a single entry can be done via the `useContentfulEntryForm` hook.
+
+Fetch an entry and pass it to `useContentfulEntryForm`, and you will receive a `modifiedEntry` and `form` object.
+
+```
+export function Page() {
+  const [entry, loading, error] = useContentfulEntry(entryId);
+  const [modifiedEntry, form] = useContentfulEntryForm(entry, {
+    fields: [
+      { name: "fields.title", label: "Title", component: "text" }
+    ]
+  });
+
+  if (error) {
+    return <div>Error: {error.message}</div>
+  }
+
+  return (
+    <main>
+      {loading && "Loading..."}
+      {entry && entry.fields.title}
+    </main>
+  )
+}
+```
+
+| name            | description                                                                       |
+| --------------- | --------------------------------------------------------------------------------- |
+| `modifiedEntry` | The entry data returned from the form, to re-render the page with draft form data |
+| `form`          | A TinaCMS `Form` object to be used with `usePlugin` or `InlineForm`               |
+
+
+You can also pass [`FormOptions`](https://tina.io/docs/plugins/forms/#form-configuration) to the hook to further customize the form:
+
+```diff
+export function Page() {
+  const [entry, loading, error] = useContentfulEntry(entryId);
+  const [modifiedEntry, form] = useContentfulEntryForm(entry, {
++   id: "page",
+    fields: [
+      { name: "fields.title", label: "Title", component: "text" }
+    ]
++   onChange: (values) => console.log(values)
++ });
+
+  if (error) {
+    return <div>Error: {error.message}</div>
+  }
+
+  return (
+    <main>
+      {loading && "Loading..."}
+      {entry && entry.fields.title}
+    </main>
+  )
+}
+```
+
+Finally, you can also create a custom form altogether if you need full control:
+
+```
+export function Page() {
+  const contentful = useContentful();
+  const [entry, loading, error] = useContentfulEntry(entryId);
+  const [modifiedEntry, form] = useForm({
+    id: "page",
+    fields: [
+      { name: "fields.title", label: "Title", component: "text" }
+    ],
+    onChange: (values) => console.log(values),
+    onSubmit: (values) => contentful.updateEntry(entryId, values)
+  });
+
+  if (error) {
+    return <div>Error: {error.message}</div>
+  }
+
+  return (
+    <main>
+      {loading && "Loading..."}
+      {entry && entry.fields.title}
+    </main>
+  )
+}
+```
+
+> ### Pro Tips
+> See the [TinaCMS form documentation for more info](https://tina.io/docs/plugins/forms/).
+> See the API documentation for [`useContentful`] and [`useContentfulEntry`].
+  
+
+## Editing Referenced Entries
+
+You can also create a form that will edit an entry and allow editing of its children, up to 10 levels of nesting.
+
+This is done by passing `references: true` in the form's options.
+
+```diff
+export function Page() {
+  const contentful = useContentful();
+  const [entry, loading, error] = useContentfulEntry(entryId);
+  const [modifiedEntry, form] = useForm({
+    id: "page",
+    fields: [
+      { name: "fields.title", label: "Title", component: "text" }
+    ]
+    onChange: (values) => console.log(values),
+    onSubmit: (values) => contentful.updateEntry(entryId, values),
++   references: true 
+  });
+
+  if (error) {
+    return <div>Error: {error.message}</div>
+  }
+
+  return (
+    <main>
+      {loading && "Loading..."}
+      {entry && entry.fields.title}
+    </main>
+  )
+}
+```
+
+This will then allow the form fields to edit the fields of references. For example, if we had a post content type:
+
+```
+type PostEntry {
+  title: string
+  created: Date
+  edited: Date
+  author: AuthorEntry
+}
+
+type AuthorEntry {
+  firstName: string
+  lastName: string
+  bio: string
+  photo: Asset
+}
+```
+
+We can edit the the author data by setting up form fields to access them:
+
+```diff
+export function Page() {
+  const contentful = useContentful();
+  const [entry, loading, error] = useContentfulEntry(entryId);
+  const [modifiedEntry, form] = useForm({
+    id: "page",
+    fields: [
+      { name: "fields.title", label: "Title", component: "text" },
+      { name: "fields.author", label: "Author", component: "group", fields: [
+        { name: "fields.firstName", label: "First Name", component: "text" },
+        { name: "fields.lastName", label: "First Name", component: "text" },
+        { name: "fields.bio", label: "Bio", label: "Keep it short. 250 words or less", component: "textarea" },
+        { name: "fields.photo", label: "Photo", component: "image" }
+      ]}
+    ]
+    onChange: (values) => console.log(values),
+    onSubmit: (values) => contentful.updateEntry(entryId, values),
+    references: true 
+  });
+
+  if (error) {
+    return <div>Error: {error.message}</div>
+  }
+
+  return (
+    <main>
+      {loading && "Loading..."}
+      {entry && entry.fields.title}
+    </main>
+  )
+}
+```
+
+If the entry being edited already has an author, then you'll be able to update that author, otherwise, it will create a new author.
+
+## FAQs
+
+1. What happens on write?
+   > That depends. If you're looking to write back a single entry, then write back updates only the fields on that entry, and none of its relationships.
+   > However, if you're looking to update an entry and its children, then see [Editing Nested & Referenced Entries](#editing-nested-referenced-entries)
+2. What happens to references?
+   > See [Editing Nested & Referenced Entries](#editing-nested-referenced-entries)

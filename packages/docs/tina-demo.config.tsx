@@ -1,36 +1,26 @@
 import React from 'react'
 import Link from "next/link";
-import { Config  } from "tinacms-doc-toolkit";
+import { Config } from "tinacms-doc-toolkit";
 
+const PAGE_PATHS: string[] = Array.isArray(process.env.pagePaths) ? process.env.pagePaths : [];
 
 export const DemoConfig: Config = {
-  pages: [
-    {
-      label: "Introduction",
-      slug: "/",
-      loadPage: import("./content/introduction.mdx"),
-    },
-    {
-      label: "Getting Started",
-      slug: "/getting-started",
-      loadPage: import("./content/getting-started.mdx")
-    },
-    {
-      label: "Fetching Entries",
-      slug: "/fetching-entries",
-      loadPage: import("./content/fetching-entries.mdx")
-    },
-    {
-      label: "Editing Entries",
-      slug: "/editing-entries",
-      loadPage: import("./content/editing-entries.mdx")
-    },
-    {
-      label: "Using in Plugins",
-      slug: "/plugins",
-      loadPage: import("./content/plugins.mdx")
+  pages: PAGE_PATHS.map(pagePath => {
+    const slug = pagePath.replace(/(index)$/, '')
+    const name = slug
+      .replace(/^\/\d-|^\//, '') // Remove leading slash and number
+      .replace(/[\-_]/, " ")
+      .replace(/^([a-z])/, value => value.toUpperCase()) // Capitalize
+      .replace(/[ ]([a-z])/, (_value, match) => ` ${match.toUpperCase()}`) // Title case
+    const label = name.length > 0 ? name : "Introduction"
+    const loadPage = import("./content" + pagePath + ".mdx");
+ 
+    return {
+      label,
+      slug,
+      loadPage
     }
-  ],
+  }),
   tinaConfig: {
     enabled: true,
   },

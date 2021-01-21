@@ -1,5 +1,5 @@
 {
-  "name": "example-site-next",
+  "name": "docs",
   "version": "0.0.5",
   "scripts": {
     "dev": "next",
@@ -18,7 +18,7 @@
     "styled-components": "^5.2.0",
     "tinacms": "^0.31.0",
     "tinacms-contentful": "^0.3.1",
-    "tinacms-doc-toolkit": "^0.0.5",
+    "tinacms-doc-toolkit": "^0.1.1",
     "typedoc": "^0.20.16"
   },
   "devDependencies": {
