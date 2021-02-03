@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Entry, ContentType } from 'contentful';
 import { Field, FormOptions, useForm, Form, useCMS } from 'tinacms';
 import { ContentfulClient, createFieldConfigFromContentType } from 'tinacms-contentful';
@@ -14,35 +14,20 @@ export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   contentTypeId?: string;
   environmentId?: string;
   fields?: Field<any>[];
+  saveOnChange?: boolean;
+  publishOnSave?: boolean;
 }
 
-export function useContentfulEntryForm<TEntryType extends any>(
-  entryId: string,
+export function useContentfulEntryForm<EntryShape extends any>(
+  entry: Entry<EntryShape>,
   options?: ContentfulEntryFormOptions
-): [Entry<TEntryType>['fields'], Form] {
-  const {enabled} = useCMS();
+): [Entry<EntryShape>['fields'], Form] {
+  const {enabled, ...cms} = useCMS();
   const contentful = useContentful(options?.spaceId);
-  const [entry, setEntry] = useState<Entry<TEntryType>>(options?.entry as Entry<TEntryType>);
   const [contentType, setContentType] = useState<ContentType>();
   const [formFields, setFormFields] = useState<Field<any>[]>([]);
 
   useEffect(() => {
-    const getEntry = async (contentful: ContentfulClient) => {
-      try {
-        if (!entry || entry.sys.id !== entryId) {
-          const entry = await contentful.getEntry<TEntryType>(entryId, {
-            query: options?.query,
-            preview: enabled
-          });
-
-          if (entry) {
-            setEntry(entry);
-          }
-        }
-      } catch (error) {
-        throw error;
-      }
-    };
     const getContentType = async (contentTypeId: string, contentful: ContentfulClient) => {
       try {
         const contentType = await contentful.getContentType(contentTypeId, {
@@ -90,30 +75,53 @@ export function useContentfulEntryForm<TEntryType extends any>(
     };
 
     if (contentful) {
-      getEntry(contentful);
       handleContentType(contentful);
       handleFormFields();
     }
   }, [
-    entryId,
+    JSON.stringify(entry),
     contentful,
     contentType,
     options?.spaceId,
     options?.contentType,
     options?.contentTypeId,
   ]);
+  const updateEntry = useCallback(async (modifiedValues: any, form: any) => {
+    try {
+      const updatedEntry = await contentful.updateEntry(entry.sys.id, modifiedValues, { initial: entry });
 
-  return useForm<Entry<TEntryType>['fields']>({
-    id: entryId, // needs to be unique
-    label: options?.label || entryId,
+      form.updateInitialValues(updatedEntry);
+
+      // TODO: events
+      cms._alerts?.success(`Saved ${options?.label || entry.sys.id}`)
+
+      if (options?.publishOnSave) {
+        await updatedEntry.publish();
+
+        // TODO: events
+        cms._alerts?.success(`Published ${options?.label || entry.sys.id}`)
+      }
+    } catch (error) {
+      // TODO: events
+      cms._alerts?.error(`Updating ${options?.label || entry.sys.id} failed...`);
+    }
+  }, []);
+  const [modifiedValues, form] = useForm<Entry<EntryShape>['fields']>({
+    id: entry.sys.id,
+    label: options?.label || entry.sys.id,
     initialValues: entry?.fields as any,
     fields: formFields ?? [],
     actions: options?.actions || [],
-    onSubmit: function(formData) {
-      // TODO:
-      // iterate through form links, handle updating them correctly
-      // this logic can then be moved out to a helper!
-      console.log(formData);
-    }
-  })
+    onSubmit: async (modifiedValues, form) => updateEntry(modifiedValues, form)
+  });
+
+  useEffect(() => {
+    form.subscribe(() => {
+      if (options?.saveOnChange) {
+        updateEntry(modifiedValues, form)
+      }
+    }, { values: true })
+  });
+
+  return [modifiedValues, form];
 }

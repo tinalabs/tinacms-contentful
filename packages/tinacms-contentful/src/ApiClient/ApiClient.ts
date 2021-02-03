@@ -1,17 +1,21 @@
-import { Asset, CreateClientParams, ContentfulClientApi, ContentType, Entry, Locale } from 'contentful';
+import { CreateClientParams, ContentfulClientApi, ContentType, Entry as DeliveryEntry, Asset } from 'contentful';
+import { Space } from 'contentful-management/dist/typings/entities/space';
+import { Environment } from 'contentful-management/dist/typings/entities/environment';
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
+import { Entry as ManagementEntry } from 'contentful-management/dist/typings/entities/entry';
 import { AssetFileProp } from 'contentful-management/dist/typings/entities/asset';
-import { EntryProp } from 'contentful-management/dist/typings/entities/entry';
 import { authenticateWithContentful } from '../Authentication';
 import { ContentfulApiService } from '../ContentfulRestApi/apis';
-import { ContentfulDeliveryService } from '../ContentfulRestApi/delivery';
-import { createContentfulOperationsForEntry } from "../ContentfulRestApi/management"
+import { ContentfulPaginationService } from '../ContentfulRestApi/pagination';
+import { createContentfulOperationsForEntry, Entry, GraphOptions, Operation } from "../ContentfulRestApi/management"
+import { MetaLinkProps } from 'contentful-management/dist/typings/common-types';
 
 export type ContentfulClientOptionalOptions = Partial<Omit<CreateClientParams, "accessToken" | "space" | "environment">> & {
   allowedOrigins?: string | string[];
   deliveryClient?: ContentfulClientApi;
   previewClient?: ContentfulClientApi;
   managementClient?: ClientAPI;
+  rateLimit?: number;
 }
 
 export interface ContentfulClientOptions {
@@ -46,14 +50,18 @@ export class ContentfulClient {
     }
 
     this.environment = this.options.defaultEnvironmentId;
+    this.rateLimit = options.options?.rateLimit || 4;
   }
 
-  public currentOrigin?: string = typeof window !== "undefined" ? window.location.origin : undefined;
   public allowedOrigins?: string[] = [];
   public environment: string;
-  public locale!: Locale;
   public sdks: ContentfulApiService;
+  public rateLimit: number;
   private m_UserAccessToken?: string;
+
+  public get currentOrigin() {
+    return typeof window !== "undefined" ? window.location.origin : undefined;
+  }
 
   public async authenticate() {
     try {
@@ -83,99 +91,162 @@ export class ContentfulClient {
     this.environment = environmentId;
   }
 
-  public async getDefaultLocale() {
-    const locales = await this.sdks.deliveryClient.getLocales();
+  public async getEntry<EntryShape extends any, Management extends boolean = false>(entryId: string, options?: {
+    query?: any,
+    preview?: Management extends true ? false : true,
+    management?: Management,
+  }): Promise<Management extends true ? ManagementEntry : DeliveryEntry<EntryShape>> {
+    try {
+      const client = this.getDeliveryClient(options?.preview ?? false);
 
-    const defaultLocale = locales.items.reduce((defaultLocale: Locale | undefined, locale) => {
-      if (locale.default) {
-        defaultLocale = locale;
+      if (options?.management) {
+        const { env } = await this.getManagementClient();
+        const entry = env.getEntry(entryId, options.query);
+
+        // TODO: fix types
+        return entry as any;
       }
+
+      // TODO: fix types
+      return client.getEntry<EntryShape>(entryId) as any;
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  public async getEntries<EntryShape extends any, Management extends boolean = false>(query?: any, options?: {
+    preview?: Management extends true ? false : true,
+    management?: Management extends true ? true : false
+  }): Promise<Management extends true ? ManagementEntry[] : DeliveryEntry<EntryShape>[]> {
+    try {
+      const client = this.getDeliveryClient(options?.preview ?? false);
+
+      if (options?.management) {
+        const { env } = await this.getManagementClient();
+
+        // TODO: fix types
+        return ContentfulPaginationService.getMany<EntryShape>(env, query) as any;
+      }
+
+      // TODO: fix types
+      return ContentfulPaginationService.getMany<EntryShape>(client, query) as any;
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  public async createEntry<EntryShape = any>(contentTypeId: string, fields: Entry<EntryShape>['fields'], options: {
+    locale: string,
+    references?: boolean
+  }) {
+    const previewClient = await this.getDeliveryClient(true);
+    const { env } = await this.getManagementClient();
+    const localizedFields = this.getLocalizedFields(fields, {
+      locale: options.locale,
+      references: false
+    });
+    const createdEntry = await env.createEntry(contentTypeId, {
+      fields: localizedFields
+    });
+
+    if (options?.references) {
+      const deliveryEntry = await previewClient.getEntry(createdEntry.sys.id);
+
+      return await this.updateEntryRecursive(deliveryEntry, null, options)
+    }
+    else {
+      const localizedReferenceFields = this.getLocalizedFields(fields, {
+        locale: options.locale,
+        references: true
+      });
+
+      createdEntry.fields = localizedReferenceFields;
+
+      createdEntry.update();
+    }
+
+    return createdEntry;
+  }
+
+  public async updateEntry<EntryShape = any>(entryId: string, fields: Entry<EntryShape>['fields'], options: {
+    locale: string,
+    initial?: Entry<EntryShape>
+  }) {
+    try {
+      const locale = options?.locale;
+      let entry = await this.getEntry<EntryShape, true>(entryId, {
+        management: true
+      });
+
+      if (options?.initial) {
+        return this.updateEntryRecursive(options.initial, {
+          ...options.initial,
+          fields: fields
+        }, {
+          locale
+        });
+      }
+      else {
+        entry.fields = this.getLocalizedFields(fields, { locale });
+        entry.update();
+      }
+
+      return entry;
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  /** 
+   * Recurses an entry and its references, comparing it against the initial, to compute a graph of operations
+   * Then runs those operations in batches according to the rate limit.
+   * 
+   * It expects each nested entry to have a `sys` object with `contentType` defined, otherwise it's ignored.
+   * 
+   * It does not reverse partially failed transactions, instead tracking them and retrying them.
+   */
+  private async updateEntryRecursive(initial: Entry<unknown>, updated: Entry<unknown> | null = null, options: GraphOptions) {
+    const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated, options);
+    // const failures = [];
+    // const createBatches = (items: any): Operation[][] => items.reduce((batches: Operation[][], item: any, i: number) => {
+    //   const batchSize = this.rateLimit
+    //   const batchNumber = i < batchSize ? 0 : Math.floor(i / batchSize);
       
-      return defaultLocale;
-    }, undefined);
+    //   batches[batchNumber] = typeof batches[batchNumber] !== "undefined" ? batches[batchNumber] : [];  
+    //   batches[batchNumber].push(item);
+      
+    //   return batches;
+    // }, []);
+    // const runBatches = (batches: Operation[][], operation: (operation: Operation) => void) => {
+    //   return Promise.allSettled(batches.map(
+    //     batch => Promise.allSettled(batch.map(
+    //       operation => {
+    //         const locale = options.locale ?? operation.sys.locale
 
-    if (!defaultLocale) {
-      throw new Error("No default locale could be found...")
-    }
-
-    this.locale = defaultLocale;
-
-    return defaultLocale;
-  }
-
-  public async getEntry<TEntry extends any>(entryId: string, options?: {
-    query?: any
-    preview?: boolean
-  }) {
-    try {
-      const client = this.getDeliveryClient(options?.preview ?? false);
-
-      return await client.getEntry<TEntry>(entryId);
-    }
-    catch (error) {
-      throw error;
-    }
-  }
-
-  public async getEntries<TEntries extends any>(query?: any, options?: {
-    preview?: boolean
-  }) {
-    try {
-      const client = this.getDeliveryClient(options?.preview ?? false);
-
-      return await ContentfulDeliveryService.getMany<TEntries>(client, query);
-    }
-    catch (error) {
-      throw error;
-    }
-  }
-
-  public async createEntry<TEntry = any>(contentTypeId: string, data: Pick<EntryProp, "fields" | "metadata">, options?: { expand?: true }) {
-    const client = await this.getManagementClient();
-    const entry = await client.env.createEntry(contentTypeId, data) as unknown as Entry<TEntry>;
-
-    if (options?.expand) {
-      await this.updateEntryRecursive(entry, null)
-    }
-    
-    return entry;
-  }
-
-  public async updateEntry<TEntry = any>(entryId: string, data: Entry<TEntry>['fields'] | any, options?: { query?: any, initial?: Entry<any> }) {
-    try {
-      const client = await this.getManagementClient();
-      let entry = await client.env.getEntry(entryId, options?.query);
-
-      if (options?.initial?.sys) {
-        const updated = {
-          ...options?.initial,
-          fields: data
-        }
-      } else {
-        entry.fields = {
-          ...entry.fields,
-          ...data
-        }
-      }
-
-      return await entry.update();
-    }
-    catch (error) {
-      throw error;
-    }
-  }
-
-  private async updateEntryRecursive(initial: Entry<any>, updated: Entry<any> | null) {
-    const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated)
-        
-    await Promise.allSettled([
-      // TODO: better typing
-      create.map(operation => this.createEntry(operation.sys.id, operation.fields as any))
-    ])
-    await Promise.allSettled([
-      update.map(operation => this.updateEntry(operation.sys.id, operation.fields)),
-      dereference.map(operation => this.updateEntry(operation.sys.id, operation.fields)),
-    ]);
+    //         switch (operation.type) {
+    //           case "create":
+    //             if (!operation.sys) break;
+    //             return this.createEntry(operation.sys.contentType?.sys.id, operation.fields, { locale });
+    //           case "delete":
+    //             if (!options.shouldDelete) break;
+    //             return this.deleteEntry(operation.sys.id);
+    //           case "update":
+    //             return this.updateEntry(operation.sys.id, operation.fields, { locale: operation.sys.locale })
+    //         }
+    //       }
+    //     ))
+    //   ));
+    // }
+    // const queues = {
+    //   create: createBatches(create),
+    //   update: createBatches(update),
+    //   dereference: createBatches(dereference)
+    // }
+  
+    return this.getEntry(initial.sys.id, { management: true });
   }
 
   public async archiveEntry(entryId: string) {
@@ -203,7 +274,8 @@ export class ContentfulClient {
   }
 
   public async getAsset(assetId: string, options?: {
-    query?: any, preview?: boolean
+    query?: any,
+    preview?: boolean
   }) {
     try {
       const client = this.getDeliveryClient(options?.preview ?? false);
@@ -221,7 +293,7 @@ export class ContentfulClient {
     try {
       const client = this.getDeliveryClient(options?.preview ?? false);
 
-      return await ContentfulDeliveryService.getManyAssets(client, query);
+      return await ContentfulPaginationService.getManyAssets(client, query);
     }
     catch (error) {
       throw error;
@@ -229,7 +301,7 @@ export class ContentfulClient {
   }
 
   public async getAssetCollection(query?: any, options?: {
-    preview?: boolean;
+    preview: boolean;
   }) {
     try {
       const client = this.getDeliveryClient(options?.preview ?? false);
@@ -305,12 +377,12 @@ export class ContentfulClient {
     }
   }
 
-  public async getContentType<TContentType extends ContentType>(contentTypeId: string, options: {
-    preview: boolean
+  public async getContentType<ContentTypeShape extends ContentType>(contentTypeId: string, options?: {
+    preview?: boolean
   }) {
-    const client = this.getDeliveryClient(options.preview);
+    const client = this.getDeliveryClient(options?.preview ?? false);
 
-    return await client.getContentType(contentTypeId) as TContentType;
+    return await client.getContentType(contentTypeId) as ContentTypeShape;
   }
 
   private getDeliveryClient(preview: boolean) {
@@ -330,18 +402,62 @@ export class ContentfulClient {
     }
   }
 
-  private async getManagementClient() {
+  public async getManagementClient(): Promise<{
+    client: ClientAPI,
+    space: Space,
+    env: Environment
+  }> {
     try {
+      const client: ClientAPI = this.sdks.managementClient;
       const space = await this.sdks.managementClient?.getSpace(this.options.spaceId);
       const env = await space.getEnvironment(this.environment);
       
       return {
+        client,
         space,
         env
-      }
+      };
     }
     catch (error) {
       throw error;
     }
+  }
+ 
+  private getLocalizedFields<EntryShape = Record<string, any>>(fields: EntryShape, options: {
+    locale: string,
+    references?: boolean
+  }) {
+    const createReference = (item: any): Record<"sys", MetaLinkProps> => ({
+      sys: {
+        type: "Link",
+        id: item.sys.id,
+        linkType: item.sys.type === "asset" ? "Asset" : "Entry"
+      }
+    });
+
+    return Object.keys(fields).reduce((localizedFields: any, key) => {
+      const value = (fields as any)[key];
+      const isReference = typeof value.sys !== "undefined" ||
+        Array.isArray(value) &&
+        typeof (value as any[]).find((item: any) => item.sys !== "undefined") !== "undefined"
+
+      if (!isReference) {
+        localizedFields[key] = {
+          [options.locale]: value
+        }
+      }
+      else if (options.references && Array.isArray(value)) {
+        localizedFields[key] = {
+          [options.locale]: value.map((item: any) => createReference(item))
+        }
+      }
+      else if (options.references) {
+        localizedFields[key] = {
+          [options.locale]: createReference(value)
+        }
+      }
+
+      return localizedFields;
+    }, {});
   }
 }

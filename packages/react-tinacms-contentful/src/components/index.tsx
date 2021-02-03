@@ -1,1 +1,1 @@
-export * from './fields/linked-blocks';
+export default {}

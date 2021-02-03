@@ -25,7 +25,7 @@ export function useContentfulEntry<TEntryType extends Entry<any>>(
         const entry = await contentful.getEntry<TEntryType>(entryId, {
           query: options?.query,
           preview: enabled
-        });
+        }) as Entry<TEntryType>;
 
         if (entry) {
           setEntry(entry);
