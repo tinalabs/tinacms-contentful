@@ -2,7 +2,7 @@ import { Entry } from "contentful";
 import { createContentfulOperationsForEntry, createContentfulOperationsForEntries, Operation, OperationsGraph } from "./operationsGraph";
 
 describe("operationsGraph", () => {
-  const locale = "en-CA";
+  const locale = "en-US";
 
   describe("createContentfulOperationForEntry", () => {
     it("should create an update operation for a simple entry with different fields", () => {
@@ -19,9 +19,9 @@ describe("operationsGraph", () => {
         }
       } as unknown as Entry<any>;
 
-      const {graph} = createContentfulOperationsForEntry(entry_initial, entry_updated);
+      const { graph } = createContentfulOperationsForEntry(entry_initial, entry_updated, { locale });
       const expected: OperationsGraph = {
-        nodes: [{ type: "update", fields: { test: { [locale]: "updated" } }, sys: {} }],
+        nodes: [{ type: "update", fields: { test: { [locale]: "updated" } }, sys: { } as any }],
         edges: {}
       }
 
@@ -34,7 +34,7 @@ describe("operationsGraph", () => {
         fields: {}
       } as unknown as Entry<any>;
 
-      const {graph} = createContentfulOperationsForEntry(entry, entry);
+      const {graph} = createContentfulOperationsForEntry(entry, entry, { locale });
       const expected: OperationsGraph = {
         nodes: [],
         edges: {}
@@ -59,9 +59,9 @@ describe("operationsGraph", () => {
         }
       } as unknown as Entry<any>;
 
-    const {graph} = createContentfulOperationsForEntry(entry_initial, entry_updated);
+    const {graph} = createContentfulOperationsForEntry(entry_initial, entry_updated, { locale });
       const expected: OperationsGraph = {
-        nodes: [{ type: "update", fields: { test: { [locale]: "updated" } }, sys: {} }],
+        nodes: [{ type: "update", fields: { test: { [locale]: "updated" } }, sys: {} as any }],
         edges: {}
       }
 
@@ -74,7 +74,7 @@ describe("operationsGraph", () => {
         fields: {}
       } as unknown as Entry<any>;
   
-      const {graph} = createContentfulOperationsForEntries([], [entry], null);
+      const {graph} = createContentfulOperationsForEntries([], [entry], null, { locale });
   
       expect(graph.nodes.length).toBe(1);
       expect(graph.nodes[0].type).toEqual("create");
@@ -89,7 +89,7 @@ describe("operationsGraph", () => {
         fields: {}
       } as unknown as Entry<any>;
   
-      const {graph} = createContentfulOperationsForEntries([entry], [], null, true);
+      const {graph} = createContentfulOperationsForEntries([entry], [], null, { locale, shouldDelete: true });
   
       expect(graph.nodes.length).toBe(1);
       expect(graph.nodes[0].type).toEqual("delete");

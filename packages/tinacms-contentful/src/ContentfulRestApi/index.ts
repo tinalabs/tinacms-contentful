@@ -1,2 +1,2 @@
-export * from "./delivery"
+export * from "./pagination"
 export * from "./apis"

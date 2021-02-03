@@ -1,4 +1,4 @@
-import { Entry } from "contentful";
+import { ContentTypeLink, Sys } from "contentful";
 import uuidBase62 from "uuid-base62";
 
 export interface OperationsGraph {
@@ -10,23 +10,31 @@ export interface OperationsGraph {
 
 export type OperationType = "create" | "update" | "delete";
 
-export type Operation<Type = OperationType> = Type extends "create"
-  ? {
-      type: Type;
-      fields: Record<string, any>;
-      sys: { id: string };
-    }
-  : Type extends "delete" ?
-    {
-      type: Type,
-      fields?: undefined,
-      sys: { id: string }
-    }
-  : {
-      type: Type;
-      fields: Record<string, any>;
-      sys: Record<string, any>;
+export type Entry<EntryShape extends any> = {
+  fields: EntryShape;
+  sys: Partial<Sys> & {
+    id: string,
+    contentType: {
+      sys: ContentTypeLink
+    },
+    locale: string
   };
+}
+
+type BaseOperation<Type = OperationType> = Entry<unknown> & {
+  type: Type;
+}
+
+export type Operation<Type = OperationType> =
+  Type extends "delete"
+  ? BaseOperation<"delete"> & { fields: undefined }
+  : BaseOperation<Type>
+
+
+export type GraphOptions = {
+  shouldDelete?: boolean;
+  locale: string;
+}
 
 const isEntry = (entry: Entry<any>) => typeof entry.sys !== "undefined"
 const isEntries = (entries: Entry<any>[]) => entries.filter(entry => isEntry(entry)).length > 0
@@ -57,17 +65,17 @@ const findReferenceKeys = (entry: Entry<any>) => {
     })
 }
 
-const createNode = (graph: OperationsGraph, initial: Entry<any> | null, updated: Entry<any> | null, parent?: Entry<any> | null, shouldDelete: boolean = false) => {  
+const createNode = (graph: OperationsGraph, initial: Entry<any> | null, updated: Entry<any> | null, parent: Entry<any> | null = null, options: GraphOptions) => {  
   let operation: Operation;
   const childKeys = updated && findReferenceKeys(updated) || [];
 
   if (initial === null && updated === null) return;
   
   if (typeof initial === null || typeof initial?.sys === undefined) {
-    operation = createContentfulOperation(null, updated, childKeys, false) as Operation<"create">
+    operation = createContentfulOperation(null, updated, childKeys, options) as Operation<"create">
   }
   else {
-    operation = createContentfulOperation(initial, updated, childKeys, shouldDelete)  as Operation<"update">
+    operation = createContentfulOperation(initial, updated, childKeys, options)  as Operation<"update">
   }
 
   if (operation) {
@@ -87,12 +95,16 @@ const createEdge = (graph: OperationsGraph, a: string, b: string) => {
   return graph;
 }
 
-export const createContentfulOperationsForEntry = (initial: Entry<any>, updated: Entry<any> | null, shouldDelete: boolean = false) => {
+export const createContentfulOperationsForEntry = (initial: Entry<any>, updated: Entry<any> | null, options: GraphOptions) => {
+  const { shouldDelete, locale } = options;
   const graph: OperationsGraph = {
     nodes: [],
     edges: {}
   }
-  const operations = _createContentfulOperationsForEntry(graph, initial, updated, null, shouldDelete);
+  const operations = _createContentfulOperationsForEntry(graph, initial, updated, null, {
+    locale,
+    shouldDelete: shouldDelete ?? false
+  });
 
   return {
     create: operations.nodes.filter(operation => operation.type === "create") as Operation<"create">[],
@@ -102,22 +114,22 @@ export const createContentfulOperationsForEntry = (initial: Entry<any>, updated:
   }
 }
 
-function _createContentfulOperationsForEntry(operations: OperationsGraph, initial: Entry<any>, updated: Entry<any> | null, parent?: Entry<any> | null, shouldDelete: boolean = false) { 
+function _createContentfulOperationsForEntry(operations: OperationsGraph, initial: Entry<any>, updated: Entry<any> | null, parent: Entry<any> | null = null, options: GraphOptions) { 
   const childKeys = findReferenceKeys(initial ?? updated)
   const initialReferences = [].concat.apply([], childKeys.map(childKey => initial?.fields[childKey])) as Entry<any>[]
   const updatedReferences = [].concat.apply([], childKeys.map(childKey => updated?.fields[childKey])) as Entry<any>[]
 
-  createNode(operations, initial, updated, parent)
+  createNode(operations, initial, updated, parent, options)
 
-  return _createContentfulOperationsForEntries(operations, initialReferences, updatedReferences, parent ?? null, shouldDelete)
+  return _createContentfulOperationsForEntries(operations, initialReferences, updatedReferences, parent, options)
 }
 
-export const createContentfulOperationsForEntries = (initial: Entry<any>[], updated: Entry<any>[], parent?: Entry<any> | null, shouldDelete: boolean = false) => {
+export const createContentfulOperationsForEntries = (initial: Entry<any>[], updated: Entry<any>[], parent: Entry<any> | null = null, options: GraphOptions) => {
   const graph: OperationsGraph = {
     nodes: [],
     edges: {}
   } 
-  const operations = _createContentfulOperationsForEntries(graph, initial, updated, parent, shouldDelete);
+  const operations = _createContentfulOperationsForEntries(graph, initial, updated, parent, options);
 
   return {
     create: operations.nodes.filter(operation => operation.type === "create") as Operation<"create">[],
@@ -127,28 +139,28 @@ export const createContentfulOperationsForEntries = (initial: Entry<any>[], upda
   }
 }
 
-function _createContentfulOperationsForEntries(operations: OperationsGraph, initial: Entry<any>[], updated: Entry<any>[], parent?: Entry<any> | null, shouldDelete: boolean = false) {
+function _createContentfulOperationsForEntries(operations: OperationsGraph, initial: Entry<any>[], updated: Entry<any>[], parent: Entry<any> | null = null, options: GraphOptions) {
   // Queue operations
   for (const updatedEntry of updated) {
     const initialEntry = initial.find(entry => entry.sys?.id === entry?.sys?.id) ?? null
 
-    createNode(operations, initialEntry, updatedEntry, null, shouldDelete);
+    createNode(operations, initialEntry, updatedEntry, null, options);
   }
 
   // Find dereferenced entries and queue them to be deleted
-  if (shouldDelete) {
+  if (options.shouldDelete) {
     const dereferencedEntries = findDereferenced(initial, updated)
 
     for (const dereferencedEntry of dereferencedEntries) {
-      createNode(operations, dereferencedEntry, null, parent, shouldDelete)
+      createNode(operations, dereferencedEntry, null, parent, options)
     }
   }
 
   return operations
 }
 
-export function createContentfulOperation(initial: Entry<any> | null, updated: Entry<any> | null, childKeys: string[] = [], shouldDelete?: boolean): Operation | null {
-  const locale = "en-CA";
+export function createContentfulOperation(initial: Entry<any> | null, updated: Entry<any> | null, childKeys: string[] = [], options: GraphOptions): Operation | null {
+  const { shouldDelete, locale } = options;
   const isFresh = initial === null;
   const isDereference = updated === null;
   const isChanged = initial && hasChanged(initial, updated)
@@ -157,7 +169,7 @@ export function createContentfulOperation(initial: Entry<any> | null, updated: E
     return {
       type: "delete",
       sys: initial.sys
-    } 
+    } as Operation<"delete">
   }
   if (updated && isFresh) {
     const fields = Object.keys(updated.fields).filter(key => childKeys.indexOf(key) === -1).reduce((fields, key) => {
@@ -171,10 +183,11 @@ export function createContentfulOperation(initial: Entry<any> | null, updated: E
     return {
       type: "create",
       sys: {
+        ...updated.sys,
         id: uuidBase62.v4()
       },
       fields: fields
-    }
+    } as Operation<"create">
   }
   else if (updated && isChanged) {
     const fields = Object.keys(updated.fields).filter(key => childKeys.indexOf(key) === -1).reduce((fields, key) => {
@@ -189,7 +202,7 @@ export function createContentfulOperation(initial: Entry<any> | null, updated: E
       type: "update",
       sys: updated.sys,
       fields: fields
-    }
+    } as Operation<"update">
   }
 
   return null

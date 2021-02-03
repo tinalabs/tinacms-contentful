@@ -3,7 +3,7 @@ import { TinaCMS, useCMS } from 'tinacms';
 import {
   ContentfulEditingProvider,
   ContentfulEditingProps,
-} from '../state/ContentfulEditingContextProvider';
+} from './ContentfulEditingContextProvider';
 import { AUTH_FAILURE, AUTH_SUCCESS } from 'tinacms-contentful';
 import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
 import { ContentfulErrorModal } from '../components/modals/ContentfulErrorModal';
