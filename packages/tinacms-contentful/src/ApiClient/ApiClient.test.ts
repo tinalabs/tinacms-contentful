@@ -99,7 +99,7 @@ describe("ContentfulClient", () => {
     })
 
     afterEach(async () => {
-      return await Promise.allSettled(entryIds.map(async(id, index) =>
+      return await Promise.all(entryIds.map(async(id, index) =>
         await contentful.deleteEntry(id)
           .finally(() => entryIds.splice(index, 1))
       ))
@@ -327,7 +327,7 @@ describe("ContentfulClient", () => {
     })
 
     afterEach(async () => {
-      return await Promise.allSettled(assetIds.map(async(id, index) =>
+      return await Promise.all(assetIds.map(async(id, index) =>
         await contentful.deleteAsset(id)
           .finally(() => assetIds.splice(index, 1))
       ))
