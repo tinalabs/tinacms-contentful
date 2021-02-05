@@ -117,11 +117,6 @@ export function useContentfulEntryForm<EntryShape = any>(
         // initial: entry
       });
 
-      console.log({
-        updatedFields,
-        resField: updatedEntry.fields
-      })
-
       // TODO: events
       cms._alerts?.success(`Saved ${options?.label || entry.sys.id}`)
 
@@ -143,7 +138,7 @@ export function useContentfulEntryForm<EntryShape = any>(
   }, [entry, options.locale]);
   const [modifiedValues, form] = useForm<Entry<EntryShape>['fields']>({
     ...options,
-    id: entry.sys.id,
+    id: options.id ?? entry.sys.id,
     label: options?.label || entry.sys.id,
     initialValues: entry,
     fields: [],
