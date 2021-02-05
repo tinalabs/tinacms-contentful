@@ -3,6 +3,7 @@ import {
   ContentfulClientApi,
 } from 'contentful';
 import { createClient as createManagementClient } from 'contentful-management';
+import { ClientParams } from 'contentful-management/dist/typings/create-cma-http-client';
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
 import { ContentfulClientOptions } from '../ApiClient';
 
@@ -34,6 +35,7 @@ export class ContentfulApiService {
         accessToken: this.options.accessTokens.delivery,
         host: 'cdn.contentful.com',
         environment: this.options.environmentId ?? this.options.defaultEnvironmentId ?? undefined,
+        ...this.options.options
       });
     }
     else if (!this.m_DeliveryClient) {
@@ -52,7 +54,8 @@ export class ContentfulApiService {
         space: this.options.spaceId,
         accessToken: this.options.accessTokens.preview,
         host: 'preview.contentful.com',
-        environment: this.options.environmentId ?? this.options.defaultEnvironmentId ?? undefined
+        environment: this.options.environmentId ?? this.options.defaultEnvironmentId ?? undefined,
+        ...this.options.options
       });
     }
     else if (!this.m_PreviewClient) {
@@ -76,8 +79,13 @@ export class ContentfulApiService {
   public createManagementWithAccessToken(
     accessToken: string
   ): ClientAPI {
+    const managementOptions: Partial<Record<keyof ClientParams, any>> = {
+      ...this.options.options
+    }
+
     this.m_ManagementClient = createManagementClient({
-      accessToken: accessToken,
+      ...managementOptions,
+      accessToken
     });
 
     return this.m_ManagementClient;

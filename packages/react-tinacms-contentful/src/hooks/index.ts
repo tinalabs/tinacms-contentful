@@ -4,5 +4,5 @@ export * from './useContentfulPreview';
 export * from './useContentfulManagement';
 export * from './useContentfulEntry';
 export * from './useContentfulEntries';
-export * from './useContenfulEntryForm';
+export * from './useContentfulEntryForm';
 export * from './useContentfulAuthRedirect';
