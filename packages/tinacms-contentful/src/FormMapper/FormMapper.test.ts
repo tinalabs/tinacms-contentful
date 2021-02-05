@@ -28,7 +28,7 @@ describe("FormMapper", () => {
         validations: []
       }
       const tina_field: TinaField<any> = {
-        name: contentful_field.name,
+        name: `fields.${contentful_field.name}`,
         label: contentful_field.name,
         component: "text"
       }
@@ -41,7 +41,7 @@ describe("FormMapper", () => {
 
     it("should convert an unsupported field type to a text field", () => {
       const contentful_field: ContentfulField = {
-        type: "Link",
+        type: "Symbol",
         id: "test",
         name: "test",
         disabled: false,
@@ -51,7 +51,7 @@ describe("FormMapper", () => {
         validations: []
       }
       const tina_field: TinaField<any> = {
-        name: contentful_field.name,
+        name: `fields.${contentful_field.name}`,
         label: contentful_field.name,
         component: "text"
       }
@@ -60,6 +60,24 @@ describe("FormMapper", () => {
       const res = createFieldConfigFromContentType(content_type as ContentType);
 
       expect(res[0]).toEqual(tina_field);
+    })
+
+    it("should ignore reference fields", () => {
+      const contentful_field: ContentfulField = {
+        type: "Link",
+        id: "test",
+        name: "test",
+        disabled: false,
+        omitted: false,
+        localized: false,
+        required: true,
+        validations: []
+      }
+
+      content_type.fields.push(contentful_field);
+      const res = createFieldConfigFromContentType(content_type as ContentType);
+
+      expect(res[0]).toBeUndefined();
     })
   })
 })

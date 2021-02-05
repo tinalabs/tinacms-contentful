@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { TinaCMS, useCMS } from 'tinacms';
+import React, { useState } from 'react';
+import { TinaCMS, useCMS, useCMSEvent } from 'tinacms';
+import { AUTH_FAILURE, AUTH_SUCCESS, ON_LOGIN, ON_LOGOUT } from 'tinacms-contentful';
 import {
   ContentfulEditingProvider,
   ContentfulEditingProps,
 } from './ContentfulEditingContextProvider';
-import { AUTH_FAILURE, AUTH_SUCCESS } from 'tinacms-contentful';
 import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
 import { ContentfulErrorModal } from '../components/modals/ContentfulErrorModal';
 
 export interface TinaContentfulProviderProps {
-  onLogin?: () => void;
-  onLogout?: () => void;
+  onLogin?: () => Promise<void>;
+  onLogout?: () => Promise<void>;
   children: any;
 }
 
@@ -21,6 +21,7 @@ export const TinaContentfulProvider = ({
   onLogout,
   children,
 }: TinaContentfulProviderProps) => {
+  const cms = useCMS();
   const [activeModal, setActiveModal] = useState<Modals>('none');
   const [currentError, setCurrentError] = useState<Error>();
   const onClose = () => {
@@ -32,9 +33,13 @@ export const TinaContentfulProvider = ({
     setActiveModal('authenticate');
     setCurrentError(undefined);
   };
-  const onAuthSuccess = (userAccessToken: string) => {
-    if (onLogin) onLogin();
-    setActiveModal('none');
+  const onAuthSuccess = (_event: any) => {
+    setActiveModal('none')
+
+    if (onLogin) {
+      onLogin()
+        .then(() => cms.events.dispatch({ type: ON_LOGIN }))
+    }
   };
   const onAuthFailure = (event: any) => {
     if (event.error) setCurrentError(event.error);
@@ -47,11 +52,16 @@ export const TinaContentfulProvider = ({
     onLogin,
     onLogout
   };
-
+  
   useCMSEvent(TinaCMS.ENABLED.type, beginAuth, []);
-  useCMSEvent(TinaCMS.DISABLED.type, onLogout, []);
   useCMSEvent(AUTH_SUCCESS, onAuthSuccess, []);
   useCMSEvent(AUTH_FAILURE, onAuthFailure, []);
+  useCMSEvent(TinaCMS.DISABLED.type, () => {
+    if (onLogout) {
+      onLogout()
+        .then(() => cms.events.dispatch({ type: ON_LOGOUT }))
+    }
+  }, []);
 
   return (
     <ContentfulEditingProvider value={editingProviderProps}>
@@ -69,15 +79,3 @@ export const TinaContentfulProvider = ({
     </ContentfulEditingProvider>
   );
 };
-
-export function useCMSEvent(
-  event: string,
-  callback: any,
-  deps: React.DependencyList
-) {
-  const cms = useCMS();
-
-  useEffect(function() {
-    return cms.events.subscribe(event, callback);
-  }, deps);
-}

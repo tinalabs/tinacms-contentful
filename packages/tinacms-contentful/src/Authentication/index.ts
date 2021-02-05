@@ -1,2 +1,2 @@
-export * from "./authenticateWithContentful"
-export * from "./popup"
+export * from "./authentication"
+export * from "./oauth";

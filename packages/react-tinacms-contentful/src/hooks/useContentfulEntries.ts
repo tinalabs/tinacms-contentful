@@ -23,9 +23,9 @@ export function useContentfulEntries<TEntryType = any>(
       try {
         setLoading(true);
 
-        const entries = await contentful.getEntries<TEntryType>(query, {
+        const entries = await contentful.getEntries<TEntryType, typeof enabled>(query, {
           preview: enabled
-        });
+        }) as Entry<TEntryType>[];
 
         if (entries) {
           setEntries(entries);

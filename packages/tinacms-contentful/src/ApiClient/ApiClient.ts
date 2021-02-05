@@ -4,11 +4,11 @@ import { Environment } from 'contentful-management/dist/typings/entities/environ
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
 import { Entry as ManagementEntry } from 'contentful-management/dist/typings/entities/entry';
 import { AssetFileProp } from 'contentful-management/dist/typings/entities/asset';
-import { authenticateWithContentful } from '../Authentication';
 import { ContentfulApiService } from '../ContentfulRestApi/apis';
 import { ContentfulPaginationService } from '../ContentfulRestApi/pagination';
-import { createContentfulOperationsForEntry, Entry, GraphOptions, Operation } from "../ContentfulRestApi/management"
+import { createContentfulOperationsForEntry, Entry, getLocalizedFields, GraphOptions } from "../ContentfulRestApi/management"
 import { MetaLinkProps } from 'contentful-management/dist/typings/common-types';
+import { authenticateWithContentful, getCachedBearerToken, setCachedBearerToken } from '../Authentication';
 
 export type ContentfulClientOptionalOptions = Partial<Omit<CreateClientParams, "accessToken" | "space" | "environment">> & {
   allowedOrigins?: string | string[];
@@ -25,6 +25,11 @@ export interface ContentfulClientOptions {
   accessTokens: {
     delivery: string;
     preview: string;
+    /**
+     * Do not use a personal access token in the browser; 
+     * this should only be set with an in-memory bearer token
+     */
+    management?: string;
   };
   redirectUrl: string;
   options?: ContentfulClientOptionalOptions
@@ -45,28 +50,38 @@ export class ContentfulClient {
       this.allowedOrigins = [opts.allowedOrigins];
     }
 
-    if (this.currentOrigin) {
-      this.allowedOrigins?.push(this.currentOrigin);
+    if (typeof window !== "undefined") {
+      this.allowedOrigins?.push(window.location.origin);
     }
 
     this.environment = this.options.defaultEnvironmentId;
     this.rateLimit = options.options?.rateLimit || 4;
+    this.m_BearerToken = getCachedBearerToken();
+
+    if (this.m_BearerToken) {
+      this.sdks.createManagementWithAccessToken(this.m_BearerToken);
+    }
   }
 
   public allowedOrigins?: string[] = [];
   public environment: string;
   public sdks: ContentfulApiService;
   public rateLimit: number;
-  private m_UserAccessToken?: string;
+  private m_BearerToken?: string;
 
-  public get currentOrigin() {
-    return typeof window !== "undefined" ? window.location.origin : undefined;
-  }
-
-  public async authenticate() {
+  public async authenticate(popup?: Window) {
     try {
-      this.m_UserAccessToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl);
-      this.sdks.createManagementWithAccessToken(this.m_UserAccessToken);
+      if (!this.m_BearerToken) {
+        this.m_BearerToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl, popup);
+        this.sdks.createManagementWithAccessToken(this.m_BearerToken);
+        
+        if (this.options.options?.insecure) {
+          setCachedBearerToken(this.m_BearerToken, !this.options?.options.insecure);
+        }
+      }
+      else if (popup) {
+        popup.close();
+      }
 
       return true;
     }
@@ -143,7 +158,7 @@ export class ContentfulClient {
   }) {
     const previewClient = await this.getDeliveryClient(true);
     const { env } = await this.getManagementClient();
-    const localizedFields = this.getLocalizedFields(fields, {
+    const localizedFields = getLocalizedFields(fields, {
       locale: options.locale,
       references: false
     });
@@ -157,7 +172,7 @@ export class ContentfulClient {
       return await this.updateEntryRecursive(deliveryEntry, null, options)
     }
     else {
-      const localizedReferenceFields = this.getLocalizedFields(fields, {
+      const localizedReferenceFields = getLocalizedFields(fields, {
         locale: options.locale,
         references: true
       });
@@ -189,7 +204,8 @@ export class ContentfulClient {
         });
       }
       else {
-        entry.fields = this.getLocalizedFields(fields, { locale });
+        entry.fields = getLocalizedFields(fields, { locale, references: true });
+
         entry.update();
       }
 
@@ -421,43 +437,5 @@ export class ContentfulClient {
     catch (error) {
       throw error;
     }
-  }
- 
-  private getLocalizedFields<EntryShape = Record<string, any>>(fields: EntryShape, options: {
-    locale: string,
-    references?: boolean
-  }) {
-    const createReference = (item: any): Record<"sys", MetaLinkProps> => ({
-      sys: {
-        type: "Link",
-        id: item.sys.id,
-        linkType: item.sys.type === "asset" ? "Asset" : "Entry"
-      }
-    });
-
-    return Object.keys(fields).reduce((localizedFields: any, key) => {
-      const value = (fields as any)[key];
-      const isReference = typeof value.sys !== "undefined" ||
-        Array.isArray(value) &&
-        typeof (value as any[]).find((item: any) => item.sys !== "undefined") !== "undefined"
-
-      if (!isReference) {
-        localizedFields[key] = {
-          [options.locale]: value
-        }
-      }
-      else if (options.references && Array.isArray(value)) {
-        localizedFields[key] = {
-          [options.locale]: value.map((item: any) => createReference(item))
-        }
-      }
-      else if (options.references) {
-        localizedFields[key] = {
-          [options.locale]: createReference(value)
-        }
-      }
-
-      return localizedFields;
-    }, {});
   }
 }

@@ -1,6 +1,8 @@
 export const ERROR = 'contentful:error';
 export const AUTH_SUCCESS = 'contentful:auth:success';
 export const AUTH_FAILURE = 'contentful:auth:failure';
+export const ON_LOGIN = 'contentful:login';
+export const ON_LOGOUT = 'contentful:logout';
 export const CHANGE_ENVIRONMENT = 'contentful:environment:change';
 export const CREATE_ENVIRONMENT = 'contentful:environment:create';
 export const ENTRY_UPDATE = 'contentful:entry:update';

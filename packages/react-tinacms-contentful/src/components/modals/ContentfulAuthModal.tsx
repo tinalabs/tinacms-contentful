@@ -29,7 +29,6 @@ export function ContentfulAuthModal({ onClose }: ContentfulAuthModalProps) {
                 const res = await cms.api.contentful.authenticate();
 
                 if (res) {
-                  // TODO: move to API client
                   cms.events.dispatch({
                     type: AUTH_SUCCESS
                   });

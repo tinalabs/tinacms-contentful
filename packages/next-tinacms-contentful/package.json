@@ -1,0 +1,58 @@
+{
+  "name": "next-tinacms-contentful",
+  "version": "0.3.1",
+  "description": "> TODO: description",
+  "author": "Chris D. MacRae <hello@chrisdmacrae.com>",
+  "homepage": "https://github.com/tinalabs/tinacms-contentful#readme",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tinalabs/tinacms-contentful.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tinalabs/tinacms-contentful/issues"
+  },
+  "scripts": {
+    "start": "npm run watch",
+    "watch": "tinacms-scripts watch",
+    "dev": "tinacms-scripts dev",
+    "build": "tinacms-scripts build",
+    "test": "jest --passWithNoTests"
+  },
+  "peerDependencies": {
+    "react": ">=16",
+    "react-dom": ">=16",
+    "react-tinacms-date": ">=0.32",
+    "tinacms": ">=0.32"
+  },
+  "dependencies": {
+    "react-tinacms-contentful": "^0.3.1"
+  },
+  "devDependencies": {
+    "@tinacms/scripts": "^0.26.0",
+    "commander": "^6.1.0",
+    "contentful": "^7.14.6",
+    "contentful-management": "^6.1.2",
+    "dotenv": "^8.2.0",
+    "next": "^10.0.6",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0",
+    "react-testing-library": "^8.0.1",
+    "react-tinacms-date": "^0.32.0",
+    "rollup": "^1.21.4",
+    "rollup-plugin-commonjs": "^10.0.1",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-typescript2": "^0.22.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "styled-components": "^5.2.0",
+    "tinacms": "^0.33.0-alpha.1",
+    "ts-jest": "^24.3.0",
+    "typescript": "^3.8.2",
+    "typescript-plugin-styled-components": "^1.4.4"
+  }
+}
