@@ -81,7 +81,6 @@ export const useMediaFilterForm = (): [any, Form] => {
         label: 'Updated at',
         component: 'group-list',
         itemProps: (item: any) => {
-          console.log(item);
           return { label: `a` }
         },
         fields: [
@@ -235,7 +234,6 @@ export const useMediaFilterForm = (): [any, Form] => {
     ],
     onSubmit: (values: any) => {
       console.log(values);
-      //store.setFilter(values)
     }
   });
 }

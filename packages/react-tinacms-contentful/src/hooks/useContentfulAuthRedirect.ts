@@ -1,10 +1,11 @@
-import { getAccessToken } from 'tinacms-contentful';
+import { ContentfulClient, getBearerToken } from 'tinacms-contentful';
 import { useContentful } from './useContentful';
 
 export function useContentfulAuthRedirect(): void {
-  const { allowedOrigins } = useContentful();
+  const contentful: ContentfulClient | Record<string, ContentfulClient> = useContentful();
+  let allowedOrigins = contentful.allowedOrigins ?? [];
 
   if (typeof window !== 'undefined') {
-    getAccessToken(window, allowedOrigins);
+    getBearerToken(window, allowedOrigins);
   }
 }
