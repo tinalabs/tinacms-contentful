@@ -24,17 +24,12 @@
     "build": "tinacms-scripts build",
     "test": "jest --passWithNoTests"
   },
-  "peerDependencies": {
-    "react": ">=16",
-    "react-dom": ">=16",
-    "react-tinacms-date": ">=0.32",
-    "tinacms": ">=0.32"
-  },
   "dependencies": {
     "react-tinacms-contentful": "^0.5.2"
   },
   "devDependencies": {
     "@tinacms/scripts": "^0.26.0",
+    "@types/react": "^16.0.0",
     "commander": "^6.1.0",
     "contentful": "^7.14.6",
     "contentful-management": "^6.1.2",
@@ -50,9 +45,12 @@
     "rollup-plugin-typescript2": "^0.22.0",
     "rollup-plugin-uglify": "^6.0.4",
     "styled-components": "^5.2.0",
-    "tinacms": "^0.33.0-alpha.1",
+    "tinacms": "^0.36.1",
     "ts-jest": "^24.3.0",
     "typescript": "^3.8.2",
     "typescript-plugin-styled-components": "^1.4.4"
+  },
+  "peerDependencies": {
+    "tinacms": "^0.36.1"
   }
 }

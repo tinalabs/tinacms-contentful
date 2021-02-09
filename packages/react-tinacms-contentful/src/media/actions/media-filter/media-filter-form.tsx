@@ -1,8 +1,6 @@
 import React from 'react';
-import { FieldsBuilder, Form, useCMS, useForm } from 'tinacms';
-import { DateFieldPlugin } from "react-tinacms-date"
-import { FormView } from "@tinacms/react-forms";
-import { ContentfulMediaStore, FILE_TYPES } from 'tinacms-contentful';
+import { FieldsBuilder, Form, useForm } from 'tinacms';
+import { FILE_TYPES } from 'tinacms-contentful';
 
 const STATUSES = [
   'All (Not archived)',
@@ -23,19 +21,16 @@ const OPERATORS = [
 export interface MediaFilterFormProps {}
 
 export function MediaFilterFormView() {
-  const cms = useCMS();
   const [, form] = useMediaFilterForm();
-
-  cms.plugins.add(DateFieldPlugin);
 
   return (
     <FieldsBuilder form={form as any} fields={form.fields} />
   )
 }
 
-export const useMediaFilterForm = (): [any, Form] => {
+export const useMediaFilterForm = (): [any, Form, boolean] => {
   return useForm({
-    id: '_contentful-media-filter',
+    id: 'contentful:contentful-media-filter',
     label: 'Filter Media',
     fields: [
       {
