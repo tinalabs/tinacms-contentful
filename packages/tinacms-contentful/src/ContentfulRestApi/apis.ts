@@ -5,9 +5,9 @@ import {
 import { createClient as createManagementClient } from 'contentful-management';
 import { ClientParams } from 'contentful-management/dist/typings/create-cma-http-client';
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
-import { ContentfulClientOptions } from '../ApiClient';
+import { SpaceOptions } from '../ApiClient';
 
-export interface ContentfulApiServiceOptions extends ContentfulClientOptions {
+export interface ContentfulApiServiceOptions extends SpaceOptions {
   environmentId?: string;
 }
 
@@ -26,7 +26,7 @@ export class ContentfulApiService {
   private m_ManagementClient!: ClientAPI;
 
   get deliveryClient(): ContentfulClientApi {
-    if (!this.m_DeliveryClient && this.options.options?.deliveryClient) {
+    if (!this.m_DeliveryClient && this.options?.options?.deliveryClient) {
       this.m_DeliveryClient = this.options.options?.deliveryClient;
     }
     else if (!this.m_DeliveryClient && this.options?.accessTokens?.delivery) {
@@ -66,14 +66,15 @@ export class ContentfulApiService {
   }
 
   get managementClient(): ClientAPI {
-    if (!this.m_ManagementClient && this.options.options?.managementClient) {
-      this.m_ManagementClient = this.options.options?.managementClient;
-    }
-    else if (!this.m_ManagementClient) {
+    if (!this.m_ManagementClient) {
       throw new Error(ContentfulApiService.MANAGEMENT_CLIENT_ERROR);
     }
 
     return this.m_ManagementClient as ClientAPI;
+  }
+
+  public setManagementClient(client: ClientAPI) {
+    this.m_ManagementClient = client;
   }
 
   public createManagementWithAccessToken(

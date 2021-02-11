@@ -1,53 +1,54 @@
 import { CreateClientParams, ContentfulClientApi, ContentType, Entry as DeliveryEntry, Asset } from 'contentful';
-import { Space } from 'contentful-management/dist/typings/entities/space';
 import { Environment } from 'contentful-management/dist/typings/entities/environment';
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
+import { Space as ManagementSpace } from 'contentful-management/dist/typings/entities/space';
 import { Entry as ManagementEntry } from 'contentful-management/dist/typings/entities/entry';
 import { AssetFileProp } from 'contentful-management/dist/typings/entities/asset';
 import { ContentfulApiService } from '../ContentfulRestApi/apis';
 import { ContentfulPaginationService } from '../ContentfulRestApi/pagination';
-import { createContentfulOperationsForEntry, Entry, getLocalizedFields, GraphOptions } from "../ContentfulRestApi/management"
-import { MetaLinkProps } from 'contentful-management/dist/typings/common-types';
+import { createContentfulOperationsForEntry, Entry, getLocalizedFields, GraphOptions, Operation } from "../ContentfulRestApi/management"
 import { authenticateWithContentful, getCachedBearerToken, setCachedBearerToken } from '../Authentication';
 
-export type ContentfulClientOptionalOptions = Partial<Omit<CreateClientParams, "accessToken" | "space" | "environment">> & {
-  allowedOrigins?: string | string[];
-  deliveryClient?: ContentfulClientApi;
-  previewClient?: ContentfulClientApi;
-  managementClient?: ClientAPI;
-  rateLimit?: number;
-}
+/**
+ * @deprecated Use SpaceOptions type instead
+ */
+export type Space = SpaceOptions;
 
-export interface ContentfulClientOptions {
-  clientId: string;
+export interface SpaceOptions {
   spaceId: string;
   defaultEnvironmentId: string;
   accessTokens: {
     delivery: string;
     preview: string;
-    /**
-     * Do not use a personal access token in the browser; 
-     * this should only be set with an in-memory bearer token
-     */
-    management?: string;
   };
+  options?: OptionalSpaceOptions
+}
+
+export type OptionalSpaceOptions = Partial<Omit<CreateClientParams, "accessToken" | "space" | "environment">> & {
+  deliveryClient?: ContentfulClientApi;
+  previewClient?: ContentfulClientApi;
+}
+
+export interface ContentfulClientOptions {
+  clientId: string;
   redirectUrl: string;
-  options?: ContentfulClientOptionalOptions
+  rateLimit?: number
+  allowedOrigins?: string | string[];
 }
 
 export class ContentfulClient {
-  constructor(private options: ContentfulClientOptions) {
-    const opts = options.options;
+  constructor(private options: SpaceOptions & ContentfulClientOptions) {
+    const spaceOptions = options.options;
 
     this.sdks = new ContentfulApiService({
       ...this.options
     });
 
-    if (opts?.allowedOrigins && Array.isArray(opts?.allowedOrigins)) {
-      this.allowedOrigins = opts.allowedOrigins;
+    if (this.options.allowedOrigins && Array.isArray(this.options.allowedOrigins)) {
+      this.allowedOrigins = this.options.allowedOrigins;
     }
-    else if (opts?.allowedOrigins && typeof opts?.allowedOrigins === "string") {
-      this.allowedOrigins = [opts.allowedOrigins];
+    else if (this.options.allowedOrigins && typeof this.options.allowedOrigins === "string") {
+      this.allowedOrigins = [this.options.allowedOrigins];
     }
 
     if (typeof window !== "undefined") {
@@ -55,7 +56,7 @@ export class ContentfulClient {
     }
 
     this.environment = this.options.defaultEnvironmentId;
-    this.rateLimit = options.options?.rateLimit || 4;
+    this.rateLimit = this.options?.rateLimit || 4;
     this.m_BearerToken = getCachedBearerToken();
 
     if (this.m_BearerToken) {
@@ -130,7 +131,7 @@ export class ContentfulClient {
     }
   }
 
-  public async getEntries<EntryShape extends any, Management extends boolean = false>(query?: any, options?: {
+  public async getEntries<EntryShape extends any, Management extends boolean = false>(query?: any | null, options?: {
     preview?: Management extends true ? false : true,
     management?: Management extends true ? true : false
   }): Promise<Management extends true ? ManagementEntry[] : DeliveryEntry<EntryShape>[]> {
@@ -141,11 +142,11 @@ export class ContentfulClient {
         const { env } = await this.getManagementClient();
 
         // TODO: fix types
-        return ContentfulPaginationService.getMany<EntryShape>(env, query) as any;
+        return ContentfulPaginationService.getMany<EntryShape>(env, query ?? undefined) as any;
       }
 
       // TODO: fix types
-      return ContentfulPaginationService.getMany<EntryShape>(client, query) as any;
+      return ContentfulPaginationService.getMany<EntryShape>(client, query ?? undefined) as any;
     }
     catch (error) {
       throw error;
@@ -226,41 +227,41 @@ export class ContentfulClient {
    */
   private async updateEntryRecursive(initial: Entry<unknown>, updated: Entry<unknown> | null = null, options: GraphOptions) {
     const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated, options);
-    // const failures = [];
-    // const createBatches = (items: any): Operation[][] => items.reduce((batches: Operation[][], item: any, i: number) => {
-    //   const batchSize = this.rateLimit
-    //   const batchNumber = i < batchSize ? 0 : Math.floor(i / batchSize);
+    const failures = [];
+    const createBatches = (items: any): Operation[][] => items.reduce((batches: Operation[][], item: any, i: number) => {
+      const batchSize = this.rateLimit
+      const batchNumber = i < batchSize ? 0 : Math.floor(i / batchSize);
       
-    //   batches[batchNumber] = typeof batches[batchNumber] !== "undefined" ? batches[batchNumber] : [];  
-    //   batches[batchNumber].push(item);
+      batches[batchNumber] = typeof batches[batchNumber] !== "undefined" ? batches[batchNumber] : [];  
+      batches[batchNumber].push(item);
       
-    //   return batches;
-    // }, []);
-    // const runBatches = (batches: Operation[][], operation: (operation: Operation) => void) => {
-    //   return Promise.allSettled(batches.map(
-    //     batch => Promise.allSettled(batch.map(
-    //       operation => {
-    //         const locale = options.locale ?? operation.sys.locale
+      return batches;
+    }, []);
+    const runBatches = (batches: Operation[][], operation: (operation: Operation) => void) => {
+      return Promise.allSettled(batches.map(
+        batch => Promise.allSettled(batch.map(
+          operation => {
+            const locale = options.locale ?? operation.sys.locale
 
-    //         switch (operation.type) {
-    //           case "create":
-    //             if (!operation.sys) break;
-    //             return this.createEntry(operation.sys.contentType?.sys.id, operation.fields, { locale });
-    //           case "delete":
-    //             if (!options.shouldDelete) break;
-    //             return this.deleteEntry(operation.sys.id);
-    //           case "update":
-    //             return this.updateEntry(operation.sys.id, operation.fields, { locale: operation.sys.locale })
-    //         }
-    //       }
-    //     ))
-    //   ));
-    // }
-    // const queues = {
-    //   create: createBatches(create),
-    //   update: createBatches(update),
-    //   dereference: createBatches(dereference)
-    // }
+            switch (operation.type) {
+              case "create":
+                if (!operation.sys) break;
+                return this.createEntry(operation.sys.contentType?.sys.id, operation.fields, { locale });
+              case "delete":
+                if (!options.shouldDelete) break;
+                return this.deleteEntry(operation.sys.id);
+              case "update":
+                return this.updateEntry(operation.sys.id, operation.fields, { locale: operation.sys.locale })
+            }
+          }
+        ))
+      ));
+    }
+    const queues = {
+      create: createBatches(create),
+      update: createBatches(update),
+      dereference: createBatches(dereference)
+    }
   
     return this.getEntry(initial.sys.id, { management: true });
   }
@@ -420,7 +421,7 @@ export class ContentfulClient {
 
   public async getManagementClient(): Promise<{
     client: ClientAPI,
-    space: Space,
+    space: ManagementSpace,
     env: Environment
   }> {
     try {

@@ -38,6 +38,12 @@ describe("FormMapper", () => {
 
       expect(res[0]).toEqual(tina_field);
     })
+  
+    it.skip("should convert a Contentful Array field to a Tina list field", () => {})
+    it.skip("should convert a Contentful Boolean field to a Tina toggle field", () => {})
+    it.skip("should convert a Contentful Integer field to a Tina number field", () => {})
+    it.skip("should convert a Contentful Number field to a Tina number field", () => {})
+    it.skip("should convert a Contentful Date field to a Tina date field", () => {})
 
     it("should convert an unsupported field type to a text field", () => {
       const contentful_field: ContentfulField = {
