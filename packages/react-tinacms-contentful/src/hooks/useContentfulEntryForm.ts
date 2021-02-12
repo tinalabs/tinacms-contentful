@@ -10,6 +10,7 @@ export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   contentType?: ContentType | false;
   saveOnChange?: boolean;
   publishOnSave?: boolean;
+  references?: boolean;
 }
 
 export function useContentfulEntryForm<EntryShape = any>(
@@ -114,14 +115,14 @@ export function useContentfulEntryForm<EntryShape = any>(
       }
       const updatedEntry = await contentful.updateEntry(entry.sys.id, updatedFields, {
         locale: options?.locale,
-        // initial: entry
+        initial: options?.references ? form.initialValues : undefined
       });
 
       // TODO: events
       cms._alerts?.success(`Saved ${options?.label || entry.sys.id}`)
 
       if (options?.publishOnSave) {
-        await updatedEntry.publish();
+        //await updatedEntry.publish();
 
         // TODO: events
         cms._alerts?.success(`Published ${options?.label || entry.sys.id}`)

@@ -1,4 +1,3 @@
-import { Entry } from "contentful-management/dist/typings/entities/entry";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { ContentfulClient } from ".";
@@ -51,14 +50,12 @@ describe("ContentfulClient", () => {
       redirectUrl: "6",
       options: {
         deliveryClient: mockClient,
-        previewClient: mockClient,
-        managementClient: mockClient
+        previewClient: mockClient
       }
     });
 
     expect(contentful.sdks.deliveryClient).toEqual(mockClient);
     expect(contentful.sdks.previewClient).toEqual(mockClient);
-    expect(contentful.sdks.managementClient).toEqual(mockClient);
   })
 
   it("should have a management client when it is set up with a token", async () => {
@@ -117,7 +114,7 @@ describe("ContentfulClient", () => {
   
       it("should return the latest draft of an entry when provided a valid entryId and options.preview is true", async () => {   
         const res = await contentful.getEntry<any>(entryId, {
-          preview: true
+          mode: "preview"
         });
   
         expect(res.sys.id).toBe(entryId);
@@ -125,8 +122,8 @@ describe("ContentfulClient", () => {
       })
   
       it("should return a management entry when provided a valid entryId and options.management is true", async () => {  
-        const res = await contentful.getEntry<any, true>(entryId, {
-          management: true
+        const res = await contentful.getEntry<any>(entryId, {
+          mode: "management"
         });
 
         expect(res.sys.id).toBe(entryId);
@@ -136,11 +133,28 @@ describe("ContentfulClient", () => {
 
     describe("getEntries", () => {
       const query = {
-        content_type: "course"
+        content_type: "course",
+        limit: 1
       }
 
-      it("should return an array of all entries when not provided a query", async () => { 
+      it("should return an array of all published entries when not provided a query", async () => { 
         const res = await contentful.getEntries()
+        
+        expect(res.length).toBe(37);
+      })
+
+      it("should return an array of all draft entries when not provided a query", async () => { 
+        const res = await contentful.getEntries(null, {
+          mode: "preview"
+        })
+        
+        expect(res.length).toBe(37);
+      })
+
+      it("should return an array of all entries when not provided a query", async () => { 
+        const res = await contentful.getEntries<unknown>(null, {
+          mode: "management"
+        })
         
         expect(res.length).toBe(37);
       })
@@ -154,14 +168,14 @@ describe("ContentfulClient", () => {
       it("should return an array of the latest draft of entries when provided a valid query and options.preview is true", async () => { 
         const res = await contentful.getEntries(query, { preview: true });
  
-        expect(res.length).toBe(3);
+        expect(res.length).toBe(2);
       })
 
       it("should return an array of management entries when provided a valid query", async () => { 
-        const res = await contentful.getEntries<any, true>(query, { management: true });
+        const res = await contentful.getEntries<any>(query, { mode: "management" });
         const hasInvalidEntry = typeof res.find(item => typeof item.sys.version === "undefined") !== "undefined";
         
-        expect(res.length).toBe(3);
+        expect(res.length).toBe(2);
         expect(hasInvalidEntry).toBeFalsy();
       })
     })
@@ -178,11 +192,13 @@ describe("ContentfulClient", () => {
         }
 
         const res = await contentful.createEntry("course", entry.fields, { locale });
-        entryIds.push(res.sys.id);
 
         expect(res.fields.title[locale]).toEqual(entry.fields.title);
         expect(res.fields.slug[locale]).toEqual(entry.fields.slug);
         expect(res.sys.id).toBeDefined();
+
+        // We do this at the end to avoid premature cleanup
+        entryIds.push(res.sys.id);
       })
 
       it("should create an entry, including updating simple references", async () => {
@@ -199,27 +215,7 @@ describe("ContentfulClient", () => {
                   title: `Test - ${randomId} - Lesson`
                 }
               }
-            ]
-          }
-        }
-
-        const res = await contentful.createEntry("course", entry.fields, {
-          locale
-        });
-        entryIds.push(res.sys.id);
-
-        expect(res.fields.title[locale]).toEqual(entry.fields.title);
-        expect(res.fields.slug[locale]).toEqual(entry.fields.slug);
-        expect(res.sys.id).toBeDefined();
-      })
-
-      it("should create an entry with asset references", async () => {
-        const randomId = Math.floor(Math.random() * 100);
-        const entry = {
-          fields: {
-            title: `Test - ${randomId}`,
-            slug: `test-${randomId}`,
-            description: expect.getState().currentTestName,
+            ],
             image: {
               sys: {
                 id: "5o1Zu7UJheEGGQUC6gYEmS",
@@ -233,15 +229,16 @@ describe("ContentfulClient", () => {
         const res = await contentful.createEntry("course", entry.fields, {
           locale
         });
-        entryIds.push(res.sys.id);
 
         expect(res.fields.title[locale]).toEqual(entry.fields.title);
         expect(res.fields.slug[locale]).toEqual(entry.fields.slug);
-        expect(res.fields.image).toBeDefined();
         expect(res.sys.id).toBeDefined();
-      }, 10000);
 
-      it.skip("should create an entry with nested references when provided a valid content type id and data", async () => {
+        // We do this at the end to avoid premature cleanup
+        entryIds.push(res.sys.id);
+      })
+
+      it("should create an entry with nested references when provided a valid content type id and data", async () => {
         const randomId = Math.floor(Math.random() * 100);
         const entry = {
           fields: {
@@ -263,33 +260,95 @@ describe("ContentfulClient", () => {
           locale,
           references: true
         })
-        entryIds.push(res.sys.id)
 
         expect(res.fields.title[locale]).toEqual(entry.fields.title);
         expect(res.fields.slug[locale]).toEqual(entry.fields.slug);
         expect(res.sys.id).toBeDefined();
+
+        // We do this at the end to avoid premature cleanup
+        entryIds.push(res.sys.id);
       })
     })
 
-    it("updateEntry should update an entry when provided a valid entryId and new data", async () => {
-      const randomId = Math.floor(Math.random() * 100);
-      const entry = {
-        fields: {
-          title: `Test - ${randomId}`,
-          slug: `test-${randomId}`,
-          description: expect.getState().currentTestName
+    describe("updateEntry", () => {
+      it("should update an entry when provided a valid entryId and new data", async () => {
+        const randomId = Math.floor(Math.random() * 100);
+        const entry = {
+          fields: {
+            title: `Test - ${randomId}`,
+            slug: `test-${randomId}`,
+            description: expect.getState().currentTestName
+          }
         }
-      }
-      const update = {
-        title:`Updated: Test - ${randomId}`
-      }
+        const update = {
+          title:`Updated: Test - ${randomId}`
+        }
+  
+        const new_entry = await contentful.createEntry("course", entry.fields, { locale });
+        const res = await contentful.updateEntry(new_entry.sys.id, update, { locale });
+        entryIds.push(res.sys.id);
+  
+        expect(res.fields.title[locale]).toEqual(update.title);
+      }, 10000);
 
-      const new_entry = await contentful.createEntry("course", entry.fields, { locale });
-      const res = await contentful.updateEntry(new_entry.sys.id, update, { locale });
-      entryIds.push(res.sys.id);
+      it("should update an entry when provided a valid entryId, new data, and new simple references", async () => {
+        const randomId = Math.floor(Math.random() * 100);
+        const entry = {
+          fields: {
+            title: `Test - ${randomId}`,
+            slug: `test-${randomId}`,
+            lessons: [
+              {
+                sys: { id: '3KinTi83FecuMeiUo0qGU4', contentType: { sys: { id: "lesson" }} },
+                fields: {
+                  title: `Test - ${randomId} - Lesson`
+                }
+              }
+            ],
+            image: {
+              sys: {
+                id: "5o1Zu7UJheEGGQUC6gYEmS",
+                type: 'Asset'
+              },
+              fields: {}
+            }
+          }
+        }
+        const update = {
+          title:`Updated: Test - ${randomId}`
+        }
+  
+        const new_entry = await contentful.createEntry("course", entry.fields, { locale });
+        const res = await contentful.updateEntry(new_entry.sys.id, update, { locale });
+  
+        expect(res.fields.title[locale]).toEqual(update.title);
 
-      expect(res.fields.title[locale]).toEqual(update.title);
-    }, 10000);
+        // We do this at the end to avoid premature cleanup
+        entryIds.push(res.sys.id);
+      }, 10000);
+
+      it("should update an entry when provided a valid entryId, new data, and simple references", async () => {
+        const randomId = Math.floor(Math.random() * 100);
+        const entry = {
+          fields: {
+            title: `Test - ${randomId}`,
+            slug: `test-${randomId}`,
+            description: expect.getState().currentTestName
+          }
+        }
+        const update = {
+          title:`Updated: Test - ${randomId}`
+        }
+  
+        const new_entry = await contentful.createEntry("course", entry.fields, { locale });
+        const res = await contentful.updateEntry(new_entry.sys.id, update, { locale });
+  
+        expect(res.fields.title[locale]).toEqual(update.title);
+
+        // We do this at the end to avoid premature cleanup
+        entryIds.push(res.sys.id);
+      }, 10000);
+    })
 
     it("deleteEntry should delete an entry when provided a valid entryId", async () => {
       const randomId = Math.floor(Math.random() * 100);
@@ -333,8 +392,36 @@ describe("ContentfulClient", () => {
       ))
     });
 
-    it.skip("getAsset should return an asset when provided a valid assetId", async () => { })
-    it.skip("getAssets should return an array of assets when provided a valid query", async () => { })
+    it("getAsset should return an asset when provided a valid assetId", async () => {
+      const assetId = "5o1Zu7UJheEGGQUC6gYEmS";
+      const res = await contentful.getAsset(assetId);
+  
+      expect(res.sys.id).toBe(assetId);
+      expect(res.fields?.title).toBe("Diagram: Content model of \"The example app\"");
+    })
+
+    describe("getAssets", () => {
+      it("getAssets should return an array of all published assets when provided no query", async () => {
+        const res = await contentful.getAssets();
+  
+        expect(res.length).toBe(2);
+      })
+
+      it("getAssets should return an array of published assets when provided a valid query", async () => {
+        const query = {
+          "fields.file.contentType": "image/png"
+        }
+        const res = await contentful.getAssets(query);
+  
+        expect(res.length).toBe(1);
+      })
+
+      it("getAssets should return an array of all assets when provided no query", async () => {
+        const res = await contentful.getAssets(null, { preview: true});
+  
+        expect(res.length).toBe(10);
+      })
+    })
 
     it("createAsset should create an asset when provided a valid file to upload", async () => {
       const randomId = Math.floor(Math.random() * 100);
@@ -360,8 +447,9 @@ describe("ContentfulClient", () => {
 
       expect(res.fields.title['en-US']).toBe(asset.fields.title["en-US"]);
 
+      // We do this at the end to avoid premature cleanup
       assetIds.push(res.sys.id);
-    }, 20000);
+    }, 30000);
 
     it.skip("updateAsset should update an asset when provided a valid assetId and new data", async () => { })
     
@@ -389,6 +477,6 @@ describe("ContentfulClient", () => {
       const new_asset = await contentful.createAsset(asset);
 
       expect(await contentful.deleteAsset(new_asset.sys.id)).toBeUndefined();
-    }, 20000)
+    }, 30000)
   })
 });

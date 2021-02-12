@@ -1,52 +1,32 @@
-import { ContentfulClientApi } from "contentful";
 import { openOauthWindow } from "../Authentication";
-import { ClientAPI } from "contentful-management/dist/typings/create-contentful-api";
-import { ContentfulClient, ContentfulClientOptions } from "./ApiClient";
-
-export interface Space {
-  id: string;
-  defaultEnvironmentId: string;
-  accessTokens: {
-    delivery: string;
-    preview: string;
-  },
-  deliveryClient?: ContentfulClientApi;
-  previewClient?: ContentfulClientApi;
-  managementClient?: ClientAPI;
-}
-
-export interface Options extends Omit<ContentfulClientOptions, "spaceId" | "defaultEnvironmentId" | "accessTokens">  { }
+import { SpaceOptions, ContentfulClient, ContentfulClientOptions } from "./ApiClient";
 
 export type ContentfulMultiClient = Pick<ContentfulClient, "authenticate" | "allowedOrigins"> & {
   [key: string]: ContentfulClient;
 }
 
-export function createContentfulClientForSpaces(spaces: Space[], options: Options) {
+export function createContentfulClientForSpaces(spaces: SpaceOptions[], options: ContentfulClientOptions) {
   let client: ContentfulMultiClient;
 
   client = {} as any;
   
   spaces.forEach(space => {
     const hasAccessTokens = space.accessTokens.delivery && space.accessTokens.preview;
-    const hasClients = typeof space?.deliveryClient !== "undefined" && typeof space?.previewClient !== "undefined";
+    const hasClients = typeof space?.options?.deliveryClient !== "undefined" && typeof space?.options?.previewClient !== "undefined";
     
-    if (space.id && (hasAccessTokens || hasClients)) {
+    if (space.spaceId && (hasAccessTokens || hasClients)) {
       const space_client = new ContentfulClient({
         ...options,
         defaultEnvironmentId: space.defaultEnvironmentId,
-        spaceId: space.id,
+        spaceId: space.spaceId,
         accessTokens: {
           delivery: space.accessTokens.delivery,
           preview: space.accessTokens.preview,
         },
-        options: {
-          deliveryClient: space.deliveryClient,
-          previewClient: space.previewClient,
-          managementClient: space.managementClient
-        }
+        options: space.options
       });
 
-      client[space.id] = space_client;
+      client[space.spaceId] = space_client;
     }
   }, {});
 
