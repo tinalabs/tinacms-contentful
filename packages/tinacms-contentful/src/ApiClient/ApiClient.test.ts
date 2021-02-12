@@ -114,7 +114,7 @@ describe("ContentfulClient", () => {
   
       it("should return the latest draft of an entry when provided a valid entryId and options.preview is true", async () => {   
         const res = await contentful.getEntry<any>(entryId, {
-          preview: true
+          mode: "preview"
         });
   
         expect(res.sys.id).toBe(entryId);
@@ -122,8 +122,8 @@ describe("ContentfulClient", () => {
       })
   
       it("should return a management entry when provided a valid entryId and options.management is true", async () => {  
-        const res = await contentful.getEntry<any, true>(entryId, {
-          management: true
+        const res = await contentful.getEntry<any>(entryId, {
+          mode: "management"
         });
 
         expect(res.sys.id).toBe(entryId);
@@ -133,7 +133,8 @@ describe("ContentfulClient", () => {
 
     describe("getEntries", () => {
       const query = {
-        content_type: "course"
+        content_type: "course",
+        limit: 1
       }
 
       it("should return an array of all published entries when not provided a query", async () => { 
@@ -144,15 +145,15 @@ describe("ContentfulClient", () => {
 
       it("should return an array of all draft entries when not provided a query", async () => { 
         const res = await contentful.getEntries(null, {
-          preview: true
+          mode: "preview"
         })
         
         expect(res.length).toBe(37);
       })
 
       it("should return an array of all entries when not provided a query", async () => { 
-        const res = await contentful.getEntries<unknown, true>(null, {
-          management: true
+        const res = await contentful.getEntries<unknown>(null, {
+          mode: "management"
         })
         
         expect(res.length).toBe(37);
@@ -171,7 +172,7 @@ describe("ContentfulClient", () => {
       })
 
       it("should return an array of management entries when provided a valid query", async () => { 
-        const res = await contentful.getEntries<any, true>(query, { management: true });
+        const res = await contentful.getEntries<any>(query, { mode: "management" });
         const hasInvalidEntry = typeof res.find(item => typeof item.sys.version === "undefined") !== "undefined";
         
         expect(res.length).toBe(2);
@@ -391,8 +392,36 @@ describe("ContentfulClient", () => {
       ))
     });
 
-    it.skip("getAsset should return an asset when provided a valid assetId", async () => { })
-    it.skip("getAssets should return an array of assets when provided a valid query", async () => { })
+    it("getAsset should return an asset when provided a valid assetId", async () => {
+      const assetId = "5o1Zu7UJheEGGQUC6gYEmS";
+      const res = await contentful.getAsset(assetId);
+  
+      expect(res.sys.id).toBe(assetId);
+      expect(res.fields?.title).toBe("Diagram: Content model of \"The example app\"");
+    })
+
+    describe("getAssets", () => {
+      it("getAssets should return an array of all published assets when provided no query", async () => {
+        const res = await contentful.getAssets();
+  
+        expect(res.length).toBe(2);
+      })
+
+      it("getAssets should return an array of published assets when provided a valid query", async () => {
+        const query = {
+          "fields.file.contentType": "image/png"
+        }
+        const res = await contentful.getAssets(query);
+  
+        expect(res.length).toBe(1);
+      })
+
+      it("getAssets should return an array of all assets when provided no query", async () => {
+        const res = await contentful.getAssets(null, { preview: true});
+  
+        expect(res.length).toBe(10);
+      })
+    })
 
     it("createAsset should create an asset when provided a valid file to upload", async () => {
       const randomId = Math.floor(Math.random() * 100);
@@ -448,6 +477,6 @@ describe("ContentfulClient", () => {
       const new_asset = await contentful.createAsset(asset);
 
       expect(await contentful.deleteAsset(new_asset.sys.id)).toBeUndefined();
-    }, 20000)
+    }, 30000)
   })
 });

@@ -1,16 +1,16 @@
-import { CreateClientParams, ContentfulClientApi, ContentType, Entry as DeliveryEntry, Asset } from 'contentful';
+import { CreateClientParams, ContentfulClientApi, ContentType, Entry as DeliveryEntry, Asset, ContentfulCollection } from 'contentful';
 import { Environment } from 'contentful-management/dist/typings/entities/environment';
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
 import { Space as ManagementSpace } from 'contentful-management/dist/typings/entities/space';
 import { Entry as ManagementEntry } from 'contentful-management/dist/typings/entities/entry';
 import { AssetFileProp } from 'contentful-management/dist/typings/entities/asset';
 import { ContentfulApiService } from '../ContentfulRestApi/apis';
-import { ContentfulPaginationService } from '../ContentfulRestApi/pagination';
+import { handleCollection } from '../ContentfulRestApi/pagination';
 import { createContentfulOperationsForEntry, Entry, getLocalizedFields, GraphOptions, Operation } from "../ContentfulRestApi/management"
 import { authenticateWithContentful, getCachedBearerToken, setCachedBearerToken } from '../Authentication';
 
 /**
- * @deprecated Use SpaceOptions type instead
+ * @deprecated Renamed to SpaceOptions. This type will be removed in v1.0.0.
  */
 export type Space = SpaceOptions;
 
@@ -34,12 +34,22 @@ export interface ContentfulClientOptions {
   redirectUrl: string;
   rateLimit?: number
   allowedOrigins?: string | string[];
+  insecure?: boolean;
 }
+
+export type ClientMode = "delivery" | "preview" | "management"
+
+export type getEntryOptions<Mode extends ClientMode> = {
+  query?: any,
+  /** @deprecated Use mode instead. Will be removed in 1.0.0 */
+  preview?: boolean,
+  mode?: Mode
+}
+
+export type getEntriesOptions<Mode extends ClientMode> = Omit<getEntryOptions<Mode>, 'query'>
 
 export class ContentfulClient {
   constructor(private options: SpaceOptions & ContentfulClientOptions) {
-    const spaceOptions = options.options;
-
     this.sdks = new ContentfulApiService({
       ...this.options
     });
@@ -57,10 +67,11 @@ export class ContentfulClient {
 
     this.environment = this.options.defaultEnvironmentId;
     this.rateLimit = this.options?.rateLimit || 4;
-    this.m_BearerToken = getCachedBearerToken();
 
-    if (this.m_BearerToken) {
-      this.sdks.createManagementWithAccessToken(this.m_BearerToken);
+    const bearerToken = getCachedBearerToken();
+
+    if (bearerToken) {
+      this.sdks.createManagementWithAccessToken(bearerToken);
     }
   }
 
@@ -68,17 +79,19 @@ export class ContentfulClient {
   public environment: string;
   public sdks: ContentfulApiService;
   public rateLimit: number;
-  private m_BearerToken?: string;
 
   public async authenticate(popup?: Window) {
     try {
-      if (!this.m_BearerToken) {
-        this.m_BearerToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl, popup);
-        this.sdks.createManagementWithAccessToken(this.m_BearerToken);
+      let bearerToken = getCachedBearerToken();
+
+      if (!bearerToken) {
+        bearerToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl, popup);
         
-        if (this.options.options?.insecure) {
-          setCachedBearerToken(this.m_BearerToken, !this.options?.options.insecure);
+        if (this.options.insecure) {
+          setCachedBearerToken(bearerToken, !this.options?.insecure);
         }
+
+        this.sdks.createManagementWithAccessToken(bearerToken);
       }
       else if (popup) {
         popup.close();
@@ -107,46 +120,52 @@ export class ContentfulClient {
     this.environment = environmentId;
   }
 
-  public async getEntry<EntryShape extends any, Management extends boolean = false>(entryId: string, options?: {
-    query?: any,
-    preview?: Management extends true ? false : true,
-    management?: Management,
-  }): Promise<Management extends true ? ManagementEntry : DeliveryEntry<EntryShape>> {
+  public async getEntry<EntryShape extends any, Mode = "unknown">(entryId: string, options?: getEntryOptions<"delivery">): Promise<DeliveryEntry<any>>
+  public async getEntry<EntryShape extends any, Mode extends ClientMode = "delivery" | "preview">(entryId: string, options?: getEntryOptions<Mode>): Promise<DeliveryEntry<any>>
+  public async getEntry<EntryShape extends any, Mode extends ClientMode = "management">(entryId: string, options?: getEntryOptions<Mode>): Promise<ManagementEntry>
+  public async getEntry<EntryShape extends any, Mode extends ClientMode>(entryId: string, options?: getEntryOptions<Mode>): Promise<DeliveryEntry<EntryShape> | ManagementEntry> {
     try {
-      const client = this.getDeliveryClient(options?.preview ?? false);
-
-      if (options?.management) {
+      if (options?.mode === "management") {
         const { env } = await this.getManagementClient();
-        const entry = env.getEntry(entryId, options.query);
+        const entry = env.getEntry(entryId, options.query ?? undefined);
 
-        // TODO: fix types
-        return entry as any;
+        return entry;
       }
+      else {
+        const preview = options?.mode === "preview" || options?.preview === true ? true : false;
+        const client = this.getDeliveryClient(preview);
 
-      // TODO: fix types
-      return client.getEntry<EntryShape>(entryId) as any;
+        return client.getEntry<EntryShape>(entryId);
+      }
     }
     catch (error) {
       throw error;
     }
   }
 
-  public async getEntries<EntryShape extends any, Management extends boolean = false>(query?: any | null, options?: {
-    preview?: Management extends true ? false : true,
-    management?: Management extends true ? true : false
-  }): Promise<Management extends true ? ManagementEntry[] : DeliveryEntry<EntryShape>[]> {
+
+  public async getEntries<EntryShape extends any, Mode = unknown>(query?: any | null, options?: getEntriesOptions<"delivery">): Promise<DeliveryEntry<EntryShape>[]>;
+  public async getEntries<EntryShape extends any, Mode extends ClientMode = "delivery" | "preview">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<DeliveryEntry<EntryShape>[]>;
+  public async getEntries<EntryShape extends any, Mode extends ClientMode = "management">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<ManagementEntry[]>;
+  public async getEntries<EntryShape extends any, Mode extends ClientMode = "delivery">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<DeliveryEntry<EntryShape>[] | ManagementEntry[]> {
     try {
-      const client = this.getDeliveryClient(options?.preview ?? false);
-
-      if (options?.management) {
+      if (options?.mode === "management") {
         const { env } = await this.getManagementClient();
+        const collection = await env.getEntries(query ?? {});
+        const [entries, finalCollection] = await handleCollection<ManagementEntry>(query ?? {}, collection, [], async (query) => await env.getEntries(query));
 
-        // TODO: fix types
-        return ContentfulPaginationService.getMany<EntryShape>(env, query ?? undefined) as any;
+        return entries;
       }
+      else {
+        const preview = options?.mode === "preview" || options?.preview === true ? true : false;
+        const client = this.getDeliveryClient(preview);
+        const collection = await client.getEntries<EntryShape>(query ?? {}) as unknown as ContentfulCollection<DeliveryEntry<EntryShape>>;
+        const [entries, finalCollection] = await handleCollection<DeliveryEntry<EntryShape>>(query ?? {}, collection, [], async (query) => {
+          return await client.getEntries(query) as unknown as Promise<ContentfulCollection<DeliveryEntry<EntryShape>>>
+        });
 
-      // TODO: fix types
-      return ContentfulPaginationService.getMany<EntryShape>(client, query ?? undefined) as any;
+        return entries;
+      }
     }
     catch (error) {
       throw error;
@@ -192,8 +211,8 @@ export class ContentfulClient {
   }) {
     try {
       const locale = options?.locale;
-      let entry = await this.getEntry<EntryShape, true>(entryId, {
-        management: true
+      let entry = await this.getEntry<EntryShape>(entryId, {
+        mode: "management"
       });
 
       if (options?.initial) {
@@ -263,7 +282,19 @@ export class ContentfulClient {
       dereference: createBatches(dereference)
     }
   
-    return this.getEntry(initial.sys.id, { management: true });
+    return this.getEntry(initial.sys.id, { mode: "management" });
+  }
+
+  public async publishEntry(entryId: string) {
+    try {
+      const client = await this.getManagementClient();
+      const entry = await client.env.getEntry(entryId);
+
+      return await entry.publish();
+    }
+    catch (error) {
+      throw error;
+    }
   }
 
   public async archiveEntry(entryId: string) {
@@ -297,7 +328,7 @@ export class ContentfulClient {
     try {
       const client = this.getDeliveryClient(options?.preview ?? false);
       
-      return await client.getAsset(assetId, options?.query);
+      return await client.getAsset(assetId, options?.query ?? {});
     }
     catch (error) {
       throw error;
@@ -309,8 +340,10 @@ export class ContentfulClient {
   }) {
     try {
       const client = this.getDeliveryClient(options?.preview ?? false);
+      const collection = await client.getAssets(query ?? {});
+      const [assets, finalCollection] = await handleCollection(query ?? {}, collection, [], (query) => client.getAssets(query));
 
-      return await ContentfulPaginationService.getManyAssets(client, query);
+      return assets;
     }
     catch (error) {
       throw error;
@@ -323,7 +356,7 @@ export class ContentfulClient {
     try {
       const client = this.getDeliveryClient(options?.preview ?? false);
 
-      return await client.getAssets(query);
+      return await client.getAssets(query ?? {});
     }
     catch (error) {
       throw error;
@@ -348,7 +381,7 @@ export class ContentfulClient {
   public async updateAsset(assetId: string, data: Asset['fields'], options?: { query?: any }) {
     try {
       const client = await this.getManagementClient();
-      let asset = await client.env.getAsset(assetId, options?.query);
+      let asset = await client.env.getAsset(assetId, options?.query ?? {});
 
       asset.fields = {
         ...asset.fields,
@@ -412,7 +445,7 @@ export class ContentfulClient {
     try {
       const client = this.getDeliveryClient(options?.preview ?? false);
 
-      return await client.sync(query);
+      return await client.sync(query ?? {});
     }
     catch (error) {
       throw error

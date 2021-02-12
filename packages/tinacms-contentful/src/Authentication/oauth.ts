@@ -69,11 +69,11 @@ export function getBearerToken(window: Window, allowedOrigins?: string[]) {
   }
 }
 
-export function setCachedBearerToken(accessToken: string, secure: boolean) {
+export function setCachedBearerToken(bearerToken: string, secure: boolean) {
   if (typeof window !== "undefined") {
-    Cookies.set(CONTENTFUL_AUTH_TOKEN, accessToken, {
+    Cookies.set(CONTENTFUL_AUTH_TOKEN, bearerToken, {
       expires: 60 * 60,
-      domain: window.location.port ? `${window.location.origin}:${window.location.port}` : window.location.origin,
+      domain: window.location.origin.includes("localhost:") ? undefined : window.location.origin,
       secure: true,
       sameSite: 'strict',
       ['http-only']: secure

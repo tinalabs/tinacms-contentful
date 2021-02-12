@@ -28,20 +28,21 @@
     "url": "https://github.com/tinalabs/tinacms-contentful/issues"
   },
   "peerDependencies": {
-    "contentful": ">=7",
-    "contentful-management": ">=5",
-    "tinacms": ">=0.29"
+    "contentful": ">=8",
+    "contentful-management": ">=7",
+    "tinacms": ">=3"
   },
   "dependencies": {
     "js-cookie": "^2.2.1",
-    "uuid-base62": "^0.1.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@tinacms/scripts": "^0.26.0",
     "@types/js-cookie": "^2.2.6",
+    "@types/uuid": "^8.3.0",
     "commander": "^6.1.0",
-    "contentful": "^7.0.0",
-    "contentful-management": "^5.0.0",
+    "contentful": "^8.1.7",
+    "contentful-management": "^7.8.0",
     "contentful-resolve-response": "^1.1.0",
     "dotenv": "^8.2.0",
     "react": "^16.13.1",
@@ -52,7 +53,7 @@
     "rollup-plugin-typescript2": "^0.22.0",
     "rollup-plugin-uglify": "^6.0.4",
     "styled-components": "^5.2.0",
-    "tinacms": "^0.33.0-alpha.1",
+    "tinacms": "^0.37.0",
     "ts-jest": "^24.3.0",
     "typescript": "^3.8.2",
     "typescript-plugin-styled-components": "^1.4.4"

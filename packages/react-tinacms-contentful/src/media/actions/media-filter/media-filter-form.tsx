@@ -32,7 +32,7 @@ export function MediaFilterFormView() {
   )
 }
 
-export const useMediaFilterForm = (): [any, Form] => {
+export const useMediaFilterForm = (): [any, Form, boolean] => {
   return useForm({
     id: '_contentful-media-filter',
     label: 'Filter Media',

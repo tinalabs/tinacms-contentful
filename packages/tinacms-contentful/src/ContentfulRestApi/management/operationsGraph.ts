@@ -1,5 +1,5 @@
 import { ContentTypeLink, Sys } from "contentful";
-import uuidBase62 from "uuid-base62";
+import { v4 } from 'uuid';
 
 export interface OperationsGraph {
   nodes: Operation[];
@@ -184,7 +184,7 @@ export function createContentfulOperation(initial: Entry<any> | null, updated: E
       type: "create",
       sys: {
         ...updated.sys,
-        id: uuidBase62.v4()
+        id: v4()
       },
       fields: fields
     } as Operation<"create">
