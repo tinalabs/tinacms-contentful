@@ -1,3 +1,4 @@
+import { ContentType } from "contentful";
 import { MetaLinkProps } from "contentful-management/dist/typings/common-types";
 
 /**
@@ -10,6 +11,7 @@ import { MetaLinkProps } from "contentful-management/dist/typings/common-types";
  */
 export function getLocalizedFields<EntryShape = Record<string, any>>(fields: EntryShape, options: {
   locale: string,
+  contentType?: ContentType
   references?: boolean
 }) {
   const createReference = (item: any): Record<"sys", MetaLinkProps> => ({
@@ -25,18 +27,24 @@ export function getLocalizedFields<EntryShape = Record<string, any>>(fields: Ent
     const hasReferences = Array.isArray(value) &&
       value.findIndex(item => item && item.sys) !== -1
     const isReference = typeof value?.sys !== "undefined";
+    const fieldDefinition = options?.contentType?.fields.find(field => field.name === key);
+    let shouldLocalize = true;
 
-    if (!isReference && !hasReferences) {
+    if (fieldDefinition && !fieldDefinition.localized) {
+      shouldLocalize = false;
+    }
+
+    if (!isReference && !hasReferences && shouldLocalize) {
       localizedFields[key] = {
         [options.locale]: value
       }
     }
-    else if (hasReferences && options.references) {
+    else if (hasReferences && options.references && shouldLocalize) {
       localizedFields[key] = {
         [options.locale]: value.map((item: any) => createReference(item))
       }
     }
-    else if (isReference && options.references) {
+    else if (isReference && options.references && shouldLocalize) {
       localizedFields[key] = {
         [options.locale]: createReference(value)
       }

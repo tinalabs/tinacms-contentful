@@ -176,9 +176,11 @@ export class ContentfulClient {
     locale: string,
     references?: boolean
   }) {
+    const contentType = await this.getContentType(contentTypeId);
     const previewClient = await this.getDeliveryClient(true);
     const { env } = await this.getManagementClient();
     const localizedFields = getLocalizedFields(fields, {
+      contentType,
       locale: options.locale,
       references: false
     });
@@ -193,6 +195,7 @@ export class ContentfulClient {
     }
     else {
       const localizedReferenceFields = getLocalizedFields(fields, {
+        contentType,
         locale: options.locale,
         references: true
       });
@@ -210,21 +213,25 @@ export class ContentfulClient {
     initial?: Entry<EntryShape>
   }) {
     try {
-      const locale = options?.locale;
-      let entry = await this.getEntry<EntryShape>(entryId, {
+      const entry = await this.getEntry<EntryShape>(entryId, {
         mode: "management"
       });
+      const contentType = await this.getContentType(entry.sys.contentType.sys.id);
 
       if (options?.initial) {
         return this.updateEntryRecursive(options.initial, {
           ...options.initial,
           fields: fields
         }, {
-          locale
+          locale: options.locale
         });
       }
       else {
-        entry.fields = getLocalizedFields(fields, { locale, references: true });
+        entry.fields = getLocalizedFields(fields, {
+          contentType,
+          locale: options.locale,
+          references: true
+        });
 
         entry.update();
       }
