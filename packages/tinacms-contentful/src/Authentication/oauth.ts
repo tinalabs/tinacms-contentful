@@ -17,13 +17,13 @@ export function openOauthWindow(clientId: string, redirectUrl: string) {
   return auth_window;
 }
 
-export function onBearerToken(): Promise<string> {
+export function onBearerToken(allowedOrigins?: string[]): Promise<string> {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined') {
       let listener = (event: MessageEvent) => {
         const bearer_token = event?.data?.contentful?.bearerToken
 
-        if (bearer_token) {
+        if (bearer_token && allowedOrigins?.includes(event.origin)) {
           resolve(bearer_token);
           window.removeEventListener('message', listener);
         }
@@ -36,11 +36,15 @@ export function onBearerToken(): Promise<string> {
 
 export function getBearerToken(window: Window, allowedOrigins?: string[]) {
   const allowed_origins = allowedOrigins ?? [];
-  const getAccessTokenFromWindow = (window: Window, allowedOrigins: string[]) => {  
-    const urlParams = new URLSearchParams(window.location.hash);
-    const accessToken = urlParams.get('#access_token');
-  
-    return accessToken === null ? undefined : accessToken;
+  const getAccessTokenFromWindow = (window: Window, allowedOrigins: string[]) => {
+    if (allowedOrigins.includes(window.origin)) {
+      const urlParams = new URLSearchParams(window.location.hash);
+      const accessToken = urlParams.get('#access_token');
+    
+      return accessToken === null ? undefined : accessToken;
+    }
+
+    return;
   }
 
   if (!allowed_origins.includes(window.opener.location.origin)) {
@@ -69,11 +73,10 @@ export function getBearerToken(window: Window, allowedOrigins?: string[]) {
   }
 }
 
-export function setCachedBearerToken(bearerToken: string, secure: boolean) {
+export function setCachedBearerToken(bearerToken: string, secure: boolean = false) {
   if (typeof window !== "undefined") {
     Cookies.set(CONTENTFUL_AUTH_TOKEN, bearerToken, {
       expires: 60 * 60,
-      domain: window.location.origin.includes("localhost:") ? undefined : window.location.origin,
       secure: true,
       sameSite: 'strict',
       ['http-only']: secure

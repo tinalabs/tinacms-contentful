@@ -58,11 +58,11 @@ export class ContentfulClient {
       this.allowedOrigins = this.options.allowedOrigins;
     }
     else if (this.options.allowedOrigins && typeof this.options.allowedOrigins === "string") {
-      this.allowedOrigins = [this.options.allowedOrigins];
+      this.allowedOrigins = this.options.allowedOrigins.split(",");
     }
 
-    if (typeof window !== "undefined") {
-      this.allowedOrigins?.push(window.location.origin);
+    if (typeof window !== "undefined" && !this.allowedOrigins.includes(window.origin)) {
+      this.allowedOrigins?.push(window.origin);
     }
 
     this.environment = this.options.defaultEnvironmentId;
@@ -75,7 +75,7 @@ export class ContentfulClient {
     }
   }
 
-  public allowedOrigins?: string[] = [];
+  public allowedOrigins: string[] = [];
   public environment: string;
   public sdks: ContentfulApiService;
   public rateLimit: number;
@@ -85,7 +85,7 @@ export class ContentfulClient {
       let bearerToken = getCachedBearerToken();
 
       if (!bearerToken) {
-        bearerToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl, popup);
+        bearerToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl, this.allowedOrigins, popup);
         
         if (this.options.insecure) {
           setCachedBearerToken(bearerToken, !this.options?.insecure);

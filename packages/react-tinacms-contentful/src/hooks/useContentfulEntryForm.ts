@@ -4,6 +4,7 @@ import { FormOptions, useForm, Form, useCMS, WatchableFormValue } from 'tinacms'
 import { ContentfulClient, createFieldConfigFromContentType } from 'tinacms-contentful';
 import { useContentful } from './useContentful';
 import { mergeArrayByKey } from '../utils/mergeArrayById';
+import { debounce } from '../utils/debounce';
 
 export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   locale: string,
@@ -85,28 +86,11 @@ export function useContentfulEntryForm<EntryShape = any>(
     options?.contentType,
     vars.fields
   ]);
-  const autosave = useCallback(async (form: any, options: {
-    wait: number,
-    immediate: boolean
-  }) => {
-    const { wait, immediate } = options;
-    let timeout: any;
+  const autosave = useCallback(async (form: Form) => {
+    await form.submit();
 
-    return function debounceHandler(this: any) {
-      const context = this, args = arguments;
-      const callNow = immediate && !timeout;
-      const later = function() {
-        timeout = null;
-        if (!immediate) form.submit.apply(context, [modifiedValues, form]);
-      };
-
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-
-      if (callNow)
-        form.submit.apply(context);
-    };
-  }, [])
+    return;
+  }, []);
   const onSubmit = useCallback(async (modifiedValues) => {
     try {
       const updatedFields = {
@@ -150,14 +134,16 @@ export function useContentfulEntryForm<EntryShape = any>(
   });
 
   useEffect(() => {
-    const unsubscribe = form.subscribe(({ dirty, submitting }) => {
-      if (options?.saveOnChange && dirty && !submitting) {
-        autosave(form, {
-          wait: 2,
-          immediate: false
-        })
-      }
-    }, { dirty: true, submitting: true })
+    const unsubscribe = form.subscribe(debounce(
+      async ({ dirty, submitting }) => {
+        if (options?.saveOnChange && dirty && !submitting) {
+          return autosave(form);
+        }
+
+        return;
+      },
+      1000 * 5, false),
+    { values: true, dirty: true, submitting: true })
 
     return () => {
       unsubscribe();
