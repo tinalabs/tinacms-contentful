@@ -227,11 +227,14 @@ export class ContentfulClient {
         });
       }
       else {
-        entry.fields = getLocalizedFields(fields, {
-          contentType,
-          locale: options.locale,
+        entry.fields = {
+          ...entry.fields,
+          ...getLocalizedFields(fields, {
+            contentType,
+            locale: options.locale,
           references: true
-        });
+        })
+      };
 
         entry.update();
       }
