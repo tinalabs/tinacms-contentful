@@ -289,9 +289,11 @@ describe("ContentfulClient", () => {
         entryIds.push(res.sys.id);
   
         expect(res.fields.title[locale]).toEqual(update.title);
+        expect(res.fields.slug[locale]).toEqual(entry.fields.slug);
+        expect(res.fields.description[locale]).toBe(entry.fields.description);
       }, 10000);
 
-      it("should update an entry when provided a valid entryId, new data, and new simple references", async () => {
+      it("should update an entry when provided a valid entryId, new data, and references", async () => {
         const randomId = Math.floor(Math.random() * 100);
         const entry = {
           fields: {
@@ -322,28 +324,51 @@ describe("ContentfulClient", () => {
         const res = await contentful.updateEntry(new_entry.sys.id, update, { locale });
   
         expect(res.fields.title[locale]).toEqual(update.title);
+        expect(res.fields.lesons[locale][0].sys.id).toBe('3KinTi83FecuMeiUo0qGU4')
+        expect(res.fields.image[locale].sys.id).toBe('5o1Zu7UJheEGGQUC6gYEmS')
 
         // We do this at the end to avoid premature cleanup
         entryIds.push(res.sys.id);
       }, 10000);
 
-      it("should update an entry when provided a valid entryId, new data, and simple references", async () => {
+      it("should update all referenced entries when provided a valid entryId, new and initial data, and nested references", async () => {
         const randomId = Math.floor(Math.random() * 100);
         const entry = {
           fields: {
             title: `Test - ${randomId}`,
             slug: `test-${randomId}`,
-            description: expect.getState().currentTestName
+            lessons: [],
+            image: {
+              sys: {
+                id: "5o1Zu7UJheEGGQUC6gYEmS",
+                type: 'Asset'
+              },
+              fields: {}
+            }
           }
         }
         const update = {
-          title:`Updated: Test - ${randomId}`
+          title: `Updated: Test - ${randomId}`,
+          lessons: [
+            {
+              sys: { id: '3KinTi83FecuMeiUo0qGU4', contentType: { sys: { id: "lesson" }} },
+              fields: {
+                title: `Test - ${randomId} - Lesson`
+              }
+            }
+          ],
         }
   
         const new_entry = await contentful.createEntry("course", entry.fields, { locale });
-        const res = await contentful.updateEntry(new_entry.sys.id, update, { locale });
+        const res = await contentful.updateEntry(new_entry.sys.id, update, {
+          locale, initial: {
+            ...entry,
+            sys: new_entry.sys as any
+          }});
   
         expect(res.fields.title[locale]).toEqual(update.title);
+        expect(res.fields.lesons[locale][0].sys.id).toBe('3KinTi83FecuMeiUo0qGU4')
+        expect(res.fields.image[locale].sys.id).toBe('5o1Zu7UJheEGGQUC6gYEmS')
 
         // We do this at the end to avoid premature cleanup
         entryIds.push(res.sys.id);

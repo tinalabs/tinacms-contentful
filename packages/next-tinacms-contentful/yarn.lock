@@ -302,10 +302,10 @@
   resolved "https://registry.yarnpkg.com/@tinacms/core/-/core-0.33.0.tgz#e901b1050903f2825cf68d680a017d35b99231a4"
   integrity sha512-Wa6r5MUk4NQs7Moa4MlO2uwNk37Y5GeY8EQwtihkFACEh0vgfb0XYx34ZxAV5l945XQ//OYhCIY+pc3WgN8aKw==
 
-"@tinacms/fields@^0.36.0":
-  version "0.36.0"
-  resolved "https://registry.yarnpkg.com/@tinacms/fields/-/fields-0.36.0.tgz#7aa8ee1741ab3a747d0c2fc2012ed5512253401c"
-  integrity sha512-gPZKj9rmoiXhtVcsx32FWWeBa1yZux3k20CNmnT50DfeGnuEx/IuV3Wtg1BDkolPIUA+o7zF4UQOgk0/8iN0iw==
+"@tinacms/fields@^0.37.0":
+  version "0.37.0"
+  resolved "https://registry.yarnpkg.com/@tinacms/fields/-/fields-0.37.0.tgz#4ee1597b8b281cfed5d952826f3385b296f81922"
+  integrity sha512-ZfoHfrmVQn0BZEHsnW8RPAOYdA+dKDmrxWqoM3CNm89dsnBiaHzmpZAreKhGyZdpei4cvupaga7dtPoR9Q4dwg==
   dependencies:
     "@sambego/storybook-styles" "^1.0.0"
     "@types/react-select" "^2.0.11"
@@ -377,13 +377,13 @@
     "@tinacms/forms" "^0.33.0"
     react-dismissible "^1.3.0"
 
-"@tinacms/react-toolbar@^0.36.0":
-  version "0.36.0"
-  resolved "https://registry.yarnpkg.com/@tinacms/react-toolbar/-/react-toolbar-0.36.0.tgz#7725529e1992da9c858f973c019b8f113bec086b"
-  integrity sha512-7IEH4lZj3dFykAlNjgUtmXJICNEW3VCpa78LxtqDEBXkEQ3ECRRKBLtASsuqheTEShUwqBG1AWVdTTGHHOB9Eg==
+"@tinacms/react-toolbar@^0.37.0":
+  version "0.37.0"
+  resolved "https://registry.yarnpkg.com/@tinacms/react-toolbar/-/react-toolbar-0.37.0.tgz#34a9405c45b0861b5c371cd64b4a2c315d86cc54"
+  integrity sha512-ZqNcvPBJiULAuEn7KX174hPRCPYatdyEmR/Vxzd8/1cy4qsAiKv7uYu0cA3TmymcTR39kozddh/N6W+4G0dR7Q==
   dependencies:
     "@tinacms/core" "^0.33.0"
-    "@tinacms/fields" "^0.36.0"
+    "@tinacms/fields" "^0.37.0"
     "@tinacms/forms" "^0.33.0"
     react-dismissible "^1.3.0"
 
@@ -566,13 +566,6 @@ attr-accept@^2.2.1:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/attr-accept/-/attr-accept-2.2.2.tgz#646613809660110749e92f2c10833b70968d929b"
   integrity sha512-7prDjvt9HmqiZ0cl5CRjtS84sEyhsHP2coDkaZKRKVfCDo9s7iw7ChVmar78Gu9pC4SoR/28wFu/G5JJhTnqEg==
-
-axios@^0.20.0:
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.20.0.tgz#057ba30f04884694993a8cd07fa394cff11c50bd"
-  integrity sha512-ANA4rr2BDcmmAQLOKft2fufrtuvlqR+cXNNinUmvfeSNCOF98PZL+7M/v1zIdGo7OLjEA9J2gXJL+j4zGsl0bA==
-  dependencies:
-    follow-redirects "^1.10.0"
 
 axios@^0.21.0:
   version "0.21.1"
@@ -911,15 +904,16 @@ constants-browserify@^1.0.0:
   resolved "https://registry.yarnpkg.com/constants-browserify/-/constants-browserify-1.0.0.tgz#c20b96d8c617748aaf1c16021760cd27fcb8cb75"
   integrity sha1-wguW2MYXdIqvHBYCF2DNJ/y4y3U=
 
-contentful-management@^6.1.2:
-  version "6.3.2"
-  resolved "https://registry.yarnpkg.com/contentful-management/-/contentful-management-6.3.2.tgz#270f28514888284344aa74e0614b75f98277f63b"
-  integrity sha512-YRiIiS3gZ6qt5W14/MLJ7/nmBVZxGOm1hs8TGyKRbpnsHCQZdNctKQAk5UUwHIaVX9gGjG7cFg+fwe4FA/0Kng==
+contentful-management@^7.8.0:
+  version "7.8.0"
+  resolved "https://registry.yarnpkg.com/contentful-management/-/contentful-management-7.8.0.tgz#7e80417d99e954d32ab88452b5fc30acae2f713d"
+  integrity sha512-7m9YmKlAmlo1IbzgAwi/sVtipLFKB8f32kmwGyB2/+E5EbPFcSlsptTcUrVg7y34EinggQiBUYVJO/6qZ6wlYw==
   dependencies:
     axios "^0.21.0"
-    contentful-sdk-core "^6.4.0"
-    lodash "^4.17.20"
-    type-fest "0.16.0"
+    contentful-sdk-core "^6.7.0"
+    fast-copy "^2.1.0"
+    lodash.isplainobject "^4.0.6"
+    type-fest "0.20.2"
 
 contentful-resolve-response@^1.3.0:
   version "1.3.0"
@@ -928,7 +922,7 @@ contentful-resolve-response@^1.3.0:
   dependencies:
     fast-copy "^2.1.0"
 
-contentful-sdk-core@^6.4.0, contentful-sdk-core@^6.5.0:
+contentful-sdk-core@^6.5.0, contentful-sdk-core@^6.7.0:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/contentful-sdk-core/-/contentful-sdk-core-6.7.0.tgz#c014f12d7a716548c248e905dd8e095a6dbf7a0f"
   integrity sha512-+b8UXVE249Z6WzMLXvsu3CIvN/s5xXRZ9o+zY7zDdPkIYBMW15xcs9N2ATI6ncmc+s1uj4XZij/2skflletHiw==
@@ -936,12 +930,12 @@ contentful-sdk-core@^6.4.0, contentful-sdk-core@^6.5.0:
     fast-copy "^2.1.0"
     qs "^6.9.4"
 
-contentful@^7.14.6:
-  version "7.15.2"
-  resolved "https://registry.yarnpkg.com/contentful/-/contentful-7.15.2.tgz#caa54e6c5e53f840949f2fef455dc9f52d969b88"
-  integrity sha512-hu+hq0mi7mR7TEKdDg+WyId25Oe4lgNi5WsrPKPlCNBKDQ0QOZly8Vyq/9LF2hR4cbn9tTnRWElIU9Q+JNgP7Q==
+contentful@^8.1.7:
+  version "8.1.7"
+  resolved "https://registry.yarnpkg.com/contentful/-/contentful-8.1.7.tgz#24786d5eb98118368cafd2a7bf718de9a1f99bae"
+  integrity sha512-dFlpRjkrTp+TG6kCjERIgzsBRTfjflRnjosE0uQus7dENrz2nrVEYhFO/T3WrKQfAbTyozKcTpWr5pEZiXpm2A==
   dependencies:
-    axios "^0.20.0"
+    axios "^0.21.0"
     contentful-resolve-response "^1.3.0"
     contentful-sdk-core "^6.5.0"
     fast-copy "^2.1.0"
@@ -1697,6 +1691,11 @@ lodash-es@^4.17.15:
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.20.tgz#29f6332eefc60e849f869c264bc71126ad61e8f7"
   integrity sha512-JD1COMZsq8maT6mnuz1UMV0jvYD0E0aUsSOdrr1/nAG3dhqQXwRRgeW0cSqH1U43INKcqxaiVIQNOUDld7gRDA==
 
+lodash.isplainobject@^4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/lodash.isplainobject/-/lodash.isplainobject-4.0.6.tgz#7c526a52d89b45c45cc690b88163be0497f550cb"
+  integrity sha1-fFJqUtibRcRcxpC4gWO+BJf1UMs=
+
 lodash.memoize@4.x:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
@@ -1707,7 +1706,7 @@ lodash.sortby@^4.7.0:
   resolved "https://registry.yarnpkg.com/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
   integrity sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=
 
-lodash@^4.0.1, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20:
+lodash@^4.0.1, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.15, lodash@^4.17.19:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
@@ -2890,14 +2889,14 @@ timers-browserify@^2.0.4:
   dependencies:
     setimmediate "^1.0.4"
 
-tinacms@^0.36.1:
-  version "0.36.1"
-  resolved "https://registry.yarnpkg.com/tinacms/-/tinacms-0.36.1.tgz#80310b45e5239354a58dd47500294f592a07954b"
-  integrity sha512-vH4+CONNm5tjkLsxxWjXlBvTh0B+1fXxoDkejW1gHlIDcWuK2Og/6nwwzPcmF5BImqwA+tsv6Ls2/n6fEwHzhw==
+tinacms@^0.37.0:
+  version "0.37.0"
+  resolved "https://registry.yarnpkg.com/tinacms/-/tinacms-0.37.0.tgz#81e2cad483a36bbc45320a57d34dada62e691ac9"
+  integrity sha512-7JlMaaq2pyXgpEJqUwsg3MqGarh/QjauGDCpxKlIqgbHZ/Wvcy7kT46TFGWaowd2aGbci//E3RlG0xWYT1HwzA==
   dependencies:
     "@tinacms/alerts" "^0.33.0"
     "@tinacms/core" "^0.33.0"
-    "@tinacms/fields" "^0.36.0"
+    "@tinacms/fields" "^0.37.0"
     "@tinacms/form-builder" "^0.34.0"
     "@tinacms/forms" "^0.33.0"
     "@tinacms/icons" "^0.36.0"
@@ -2907,7 +2906,7 @@ tinacms@^0.36.1:
     "@tinacms/react-modals" "^0.36.0"
     "@tinacms/react-screens" "^0.36.0"
     "@tinacms/react-sidebar" "^0.36.1"
-    "@tinacms/react-toolbar" "^0.36.0"
+    "@tinacms/react-toolbar" "^0.37.0"
     "@tinacms/styles" "^0.33.0"
     react-dropzone "^11.1.0"
 
@@ -2993,10 +2992,10 @@ tunnel-agent@^0.6.0:
   dependencies:
     safe-buffer "^5.0.1"
 
-type-fest@0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.16.0.tgz#3240b891a78b0deae910dbeb86553e552a148860"
-  integrity sha512-eaBzG6MxNzEn9kiwvtre90cXaNLkmadMWa1zQMs3XORCXNbsH/OewwbxC5ia9dCxIxnTAsSxXJaa/p5y8DlvJg==
+type-fest@0.20.2:
+  version "0.20.2"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.20.2.tgz#1bf207f4b28f91583666cb5fbd327887301cd5f4"
+  integrity sha512-Ne+eE4r0/iWnpAxD852z3A+N0Bt5RN//NjJwRd2VFHEmrywxf5vsZlh4R6lixl6B+wz/8d+maTSAkN1FIkI3LQ==
 
 type-fest@^0.7.1:
   version "0.7.1"

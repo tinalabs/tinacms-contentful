@@ -5,7 +5,7 @@ export type ContentfulMultiClient = Pick<ContentfulClient, "authenticate" | "all
   [key: string]: ContentfulClient;
 }
 
-export function createContentfulClientForSpaces(spaces: SpaceOptions[], options: ContentfulClientOptions) {
+export function createContentfulClientForSpaces(spaces: SpaceOptions[], options: ContentfulClientOptions): ContentfulMultiClient {
   let client: ContentfulMultiClient;
 
   client = {} as any;
@@ -43,5 +43,5 @@ export function createContentfulClientForSpaces(spaces: SpaceOptions[], options:
     }
   }
 
-  return client as ContentfulMultiClient;
+  return client;
 };
