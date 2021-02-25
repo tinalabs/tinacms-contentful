@@ -40,7 +40,7 @@ export type GraphOptions = {
 
 const isEntry = (entry: Entry<any>) => typeof entry.sys !== "undefined" && entry.sys.type === "Entry"
 const isEntries = (entries: Entry<any>[]) => entries.findIndex(entry => isEntry(entry)) > -1
-const hasNode = (operations: OperationsGraph, node: Entry<any>) => operations.nodes.findIndex(currentNode => currentNode.sys.id === node.sys.id) > -1
+const hasNode = (operations: OperationsGraph, node: Entry<any>) => operations.nodes.findIndex(currentNode => currentNode.sys.id === node.sys?.id) > -1 || false
 
 function hasChanged(initial: Entry<any> | null, updated: Entry<any> | null) {
   const a = JSON.stringify(initial?.fields) ?? false
@@ -64,16 +64,16 @@ const findReferenceKeys = (entry: Entry<any>, contentType?: ContentType) => {
 
 const createContentfulOperation = (initial: Entry<any> | null, updated: Entry<any> | null, options: GraphOptions): Operation | null => {
   const { shouldDelete } = options;
-  const isDereference = updated === null;
-  const isFresh = initial === null;
-  const isChanged = initial && hasChanged(initial, updated);
+  const isDereference = initial !== null && updated === null;
+  const isFresh = initial === null && updated !== null;
+  const isChanged = initial && hasChanged(initial, updated) || false;
 
   if (initial && isDereference && shouldDelete) {
     return {
       type: "delete",
       sys: initial.sys
     } as Operation<"delete">
-  }
+  }  
   else if (updated && isFresh) {
     const localizedFields = getLocalizedFields(updated.fields, {
       ...options,
@@ -106,22 +106,11 @@ const createContentfulOperation = (initial: Entry<any> | null, updated: Entry<an
 }
 
 const createNode = (graph: OperationsGraph, initial: Entry<any> | null, updated: Entry<any> | null, parent: Entry<any> | null = null, options: GraphOptions) => {
-  const { shouldDelete } = options;
-  let operation: Operation;
-
   if (initial === null && updated === null) return;
-  
-  if (typeof initial === null || typeof initial?.sys === undefined) {
-    operation = createContentfulOperation(null, updated, options) as Operation<"create">
-  }
-  else if (shouldDelete && initial && typeof updated === null || typeof updated?.sys === undefined) {
-    operation = createContentfulOperation(null, updated, options) as Operation<"delete">
-  }
-  else {
-    operation = createContentfulOperation(initial, updated, options)  as Operation<"update">
-  }
 
-  if (operation) {
+  const operation = createContentfulOperation(initial, updated, options);
+
+  if (operation !== null) {
     graph.nodes.push(operation)
 
     if (parent) {
@@ -138,6 +127,17 @@ const createEdge = (graph: OperationsGraph, from: string, to: string) => {
   return graph;
 }
 
+/**
+ * Takes an initial and updated state of an entry, and computes a graph of the changes:
+ * 
+ * - nodes: the individual operations to run to update the delta
+ * - edges: the relationships between operations, allowing different traversal paths
+ * 
+ * @param initial The initial state of the entry
+ * @param updated The updated state of the entry
+ * @param options 
+ * @returns operations and the graph
+ */
 export const createContentfulOperationsForEntry = (initial: Entry<any>, updated: Entry<any> | null, options: GraphOptions) => {
   const { shouldDelete } = options;
   const graph: OperationsGraph = {
@@ -158,14 +158,15 @@ export const createContentfulOperationsForEntry = (initial: Entry<any>, updated:
 }
 
 function _createContentfulOperationsForEntry(operations: OperationsGraph, initial: Entry<any> | null, updated: Entry<any> | null, parent: Entry<any> | null = null, options: GraphOptions) {
-  const entry = updated ?? initial;
-  const childKeys = entry !== null ? findReferenceKeys(entry, options.contentType) : [];
-  const initialReferences = [].concat.apply([], childKeys.map(childKey => initial?.fields[childKey]))
+  const entry = updated?.sys?.id ? updated : initial;
+  const initialKeys = initial !== null ? findReferenceKeys(initial, options.contentType) : [];
+  const initialReferences = [].concat.apply([], initialKeys.map(childKey => initial?.fields[childKey]))
     .filter(item => typeof item !== "undefined" && item !== null)
-  const updatedReferences = [].concat.apply([], childKeys.map(childKey => updated?.fields[childKey]))
+  const updatedKeys = updated !== null ? findReferenceKeys(updated, options.contentType) : [];
+  const updatedReferences = [].concat.apply([], updatedKeys.map(childKey => updated?.fields[childKey]))
     .filter(item => typeof item !== "undefined" && item !== null)
 
-  if (entry && !hasNode(operations, entry)) {
+  if (entry && hasNode(operations, entry) === false) {
     createNode(operations, initial, updated, parent, options);
   }
 
@@ -176,6 +177,17 @@ function _createContentfulOperationsForEntry(operations: OperationsGraph, initia
   return operations;
 }
 
+/**
+ * Takes an initial and updated state of an array of entries, and computes a graph of the changes:
+ * 
+ * - nodes: the individual operations to run to update the delta
+ * - edges: the relationships between operations, allowing different traversal paths
+ * 
+ * @param initial The initial state of the entry
+ * @param updated The updated state of the entry
+ * @param options 
+ * @returns operations and the graph
+ */
 export const createContentfulOperationsForEntries = (initial: Entry<any>[], updated: Entry<any>[], parent: Entry<any> | null = null, options: GraphOptions) => {
   const graph: OperationsGraph = {
     nodes: [],
@@ -197,8 +209,6 @@ function _createContentfulOperationsForEntries(operations: OperationsGraph, init
     // If null, we've got a create
     const initialEntry = initial && initial.find(entry => entry?.sys?.id === (updatedEntry?.sys?.id || false)) || null
 
-    console.log({ initialEntry, updatedEntry })
-
     if (initialEntry || updatedEntry) {
       _createContentfulOperationsForEntry(operations, initialEntry, updatedEntry, parent, options);
     }
@@ -207,8 +217,6 @@ function _createContentfulOperationsForEntries(operations: OperationsGraph, init
   for (const initialEntry of initial) {
     // If null, we've got a dereference
     const updatedEntry = updated && updated.find(entry => entry?.sys?.id === (initialEntry?.sys?.id || false)) || null
-
-    console.log({ initialEntry, updatedEntry })
 
     if (initialEntry || updatedEntry) {
       _createContentfulOperationsForEntry(operations, initialEntry, updatedEntry, parent, options);

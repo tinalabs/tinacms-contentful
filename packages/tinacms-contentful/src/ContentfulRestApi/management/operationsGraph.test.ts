@@ -24,9 +24,7 @@ describe('operationsGraph', () => {
           test: 'initial',
         },
       },
-    ] as Entry<any>[]
-
-    console.log(expect.getState().currentTestName)
+    ] as Entry<any>[];
   });
 
   describe('createContentfulOperationForEntry', () => {
@@ -105,7 +103,7 @@ describe('operationsGraph', () => {
         { locale }
       );
 
-      expect(graph).toEqual({
+      expect(graph).toStrictEqual({
         edges: {
           '0': [graph.nodes[1].sys.id],
         },
@@ -257,7 +255,7 @@ describe('operationsGraph', () => {
         entry_updated,
         {
           locale,
-          shouldDelete: true,
+          shouldDelete: false,
         }
       );
 
@@ -317,7 +315,11 @@ describe('operationsGraph', () => {
 
       expect(graph).toMatchInlineSnapshot(`
         Object {
-          "edges": Object {},
+          "edges": Object {
+            "0": Array [
+              "1",
+            ],
+          },
           "nodes": Array [
             Object {
               "fields": Object {
@@ -334,6 +336,13 @@ describe('operationsGraph', () => {
               },
               "type": "update",
             },
+            Object {
+              "sys": Object {
+                "id": "1",
+                "type": "Entry",
+              },
+              "type": "delete",
+            },
           ],
         }
       `);
@@ -347,7 +356,7 @@ describe('operationsGraph', () => {
 
     beforeEach(() => {
       entries = [baseEntry];
-    })
+    });
 
     it('should create update operations for entries whose fields have changed', () => {
       const entries_initial = entries;
@@ -412,20 +421,17 @@ describe('operationsGraph', () => {
     });
 
     it('should create create operations for entries lacking a sys.id', () => {
-      const entries_initial = entries;
-      const entries_updated = entries_initial.concat(
-        entries_initial.map((entry) => {
-          const { sys } = entry;
+      const entries_initial: Entry<any>[] = [];
+      const entries_updated = entries.map((entry) => {
+        const { sys } = entry;
 
-          sys.id === undefined;
+        sys.id === undefined;
 
-          return {
-            ...entry,
-            sys,
-          };
-        })
-      );
-
+        return {
+          ...entry,
+          sys,
+        };
+      });
       const { graph } = createContentfulOperationsForEntries(
         entries_initial,
         entries_updated,
@@ -433,12 +439,23 @@ describe('operationsGraph', () => {
         { locale }
       );
 
-      expect(graph).toMatchInlineSnapshot(`
-        Object {
-          "edges": Object {},
-          "nodes": Array [],
-        }
-      `);
+      expect(graph).toEqual({
+        edges: {},
+        nodes: [
+          {
+            fields: {
+              test: {
+                'en-US': 'initial',
+              },
+            },
+            sys: {
+              id: graph.nodes[0].sys.id,
+              type: 'Entry',
+            },
+            type: 'create',
+          },
+        ],
+      });
       expect(graph.nodes.length).toBe(1);
       expect(Object.keys(graph.edges).length).toBe(0);
       expect(graph.nodes[0].type).toEqual('create');
