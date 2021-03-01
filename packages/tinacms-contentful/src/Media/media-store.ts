@@ -8,6 +8,7 @@ export interface ContentfulMediaStoreOptions {
   actions?: any[];
   accepts?: string
   pagination?: number;
+  locale?: string;
 }
 
 export interface ContentfulMedia extends Media {
@@ -29,6 +30,7 @@ export class ContentfulMediaStore implements MediaStore {
 
   accept = "*";
   actions: any[] = [];
+  locale?: string = "en";
   private filter: any = {};
 
   setFilter(query: any) {
@@ -40,7 +42,11 @@ export class ContentfulMediaStore implements MediaStore {
   async persist(files: MediaUploadOptions[]): Promise<ContentfulMedia[]> {
     const upload_actions = files
       .map(async (file) => await mediaUploadToContentfulUpload(file))
-      .map(async (file) => this.ContentfulClient.createAsset(await file));
+      .map(async (file) => {
+        const upload = await file;
+
+        return this.ContentfulClient.createAsset(upload, { locale: this.locale })
+      });
     const mgmt_assets = await Promise.all(upload_actions);
     const assets = await Promise.all(mgmt_assets.map(async(asset) => await this.ContentfulClient.getAsset(asset.sys.id)));
 
@@ -110,21 +116,27 @@ const nextOffset = (offset: number, limit: number, total: number) => {
   return 
 }
 
-const mediaUploadToContentfulUpload = async (file: MediaUploadOptions): Promise<Pick<AssetFileProp, "fields">> => {
+export type ContentfulUpload = {
+  fields: {
+      title: string;
+      description: string;
+      file: {
+        file: string | ArrayBuffer | any;
+        contentType: string;
+        fileName: string;
+      };
+  };
+}
+
+const mediaUploadToContentfulUpload = async (file: MediaUploadOptions): Promise<ContentfulUpload> => {
   return {
     fields: {
-      title: {
-        ["en"]: file.file.name
-      },
-      description: {
-        ["en"]: file.directory
-      },
+      title: file.file.name,
+      description: file.directory,
       file: {
-        ["en"]: {
-          file: await file.file.text(),
-          contentType: "Untitled",
-          fileName: file.file.name
-        } 
+        file: await file.file.text(),
+        contentType: "Untitled",
+        fileName: file.file.name
       }
     }
   }

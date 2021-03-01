@@ -3,11 +3,11 @@ import { Environment } from 'contentful-management/dist/typings/entities/environ
 import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
 import { Space as ManagementSpace } from 'contentful-management/dist/typings/entities/space';
 import { Entry as ManagementEntry } from 'contentful-management/dist/typings/entities/entry';
-import { AssetFileProp } from 'contentful-management/dist/typings/entities/asset';
 import { ContentfulApiService } from '../ContentfulRestApi/apis';
 import { handleCollection } from '../ContentfulRestApi/pagination';
 import { createContentfulOperationsForEntry, Entry, getLocalizedFields, GraphOptions, Operation } from "../ContentfulRestApi/management"
 import { authenticateWithContentful, getCachedBearerToken, setCachedBearerToken } from '../Authentication';
+import { ContentfulUpload } from '../Media';
 
 /**
  * @deprecated Renamed to SpaceOptions. This type will be removed in v1.0.0.
@@ -172,10 +172,12 @@ export class ContentfulClient {
     }
   }
 
-  public async createEntry<EntryShape = any>(contentTypeId: string, fields: Entry<EntryShape>['fields'], options: {
+  public async createEntry<EntryShape = any>(contentTypeId: string, fields: EntryShape, options: {
     locale: string,
+    entryId?: string,
     references?: boolean
   }) {
+    const { locale } = options;
     const contentType = await this.getContentType(contentTypeId);
     const previewClient = await this.getDeliveryClient(true);
     const { env } = await this.getManagementClient();
@@ -184,23 +186,23 @@ export class ContentfulClient {
       locale: options.locale,
       references: false
     });
-    const createdEntry = await env.createEntry(contentTypeId, {
-      fields: localizedFields
-    });
+    const createdEntry = typeof options.entryId !== "undefined"
+      ? await env.createEntryWithId(contentTypeId, options.entryId, { fields: localizedFields })
+      : await env.createEntry(contentTypeId, { fields: localizedFields })
 
     if (options?.references) {
       const deliveryEntry = await previewClient.getEntry(createdEntry.sys.id);
 
-      return await this.updateEntryRecursive(deliveryEntry, null, options)
+      return await this.updateEntryRecursive(deliveryEntry, null, { locale, contentType })
     }
     else {
-      const localizedReferenceFields = getLocalizedFields(fields, {
+      const localiedFieldsWithReferences = getLocalizedFields(fields, {
         contentType,
         locale: options.locale,
         references: true
       });
 
-      createdEntry.fields = localizedReferenceFields;
+      createdEntry.fields = localiedFieldsWithReferences;
 
       createdEntry.update();
     }
@@ -208,38 +210,34 @@ export class ContentfulClient {
     return createdEntry;
   }
 
-  public async updateEntry<EntryShape = any>(entryId: string, fields: Entry<EntryShape>['fields'], options: {
+  public async updateEntry<EntryShape extends Record<string, any> | unknown>(entryId: string, update: Entry<EntryShape>, options: {
     locale: string,
-    initial?: Entry<EntryShape>
+    initial?: Entry<EntryShape>,
+    force?: boolean
   }) {
     try {
+      const { locale } = options;
       const entry = await this.getEntry<EntryShape>(entryId, {
         mode: "management"
       });
       const contentType = await this.getContentType(entry.sys.contentType.sys.id);
 
+      if (options.force !== true && update?.sys?.revision && entry.sys.version !== update.sys.revision) {
+        throw new Error(`This entry was already updated by ${entry.sys.updatedBy?.sys.id} at ${new Date(entry.sys.updatedAt).toLocaleDateString()}`)
+      }
+
       if (options?.initial) {
-        return this.updateEntryRecursive(options.initial, {
-          ...options.initial,
-          fields: fields
-        }, {
-          locale: options.locale
-        });
+        return this.updateEntryRecursive(options.initial, update, { locale, contentType });
       }
       else {
-        entry.fields = {
-          ...entry.fields,
-          ...getLocalizedFields(fields, {
-            contentType,
-            locale: options.locale,
-          references: true
-        })
-      };
+        const localizedFieldsWithReferences = getLocalizedFields(update.fields, { contentType, locale: options.locale, references: true });
+
+        entry.fields = localizedFieldsWithReferences;
 
         entry.update();
-      }
 
-      return entry;
+        return entry;
+      }
     }
     catch (error) {
       throw error;
@@ -254,45 +252,61 @@ export class ContentfulClient {
    * 
    * It does not reverse partially failed transactions, instead tracking them and retrying them.
    */
-  private async updateEntryRecursive(initial: Entry<unknown>, updated: Entry<unknown> | null = null, options: GraphOptions) {
-    const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated, options);
-    const failures = [];
-    const createBatches = (items: any): Operation[][] => items.reduce((batches: Operation[][], item: any, i: number) => {
-      const batchSize = this.rateLimit
-      const batchNumber = i < batchSize ? 0 : Math.floor(i / batchSize);
-      
-      batches[batchNumber] = typeof batches[batchNumber] !== "undefined" ? batches[batchNumber] : [];  
-      batches[batchNumber].push(item);
-      
-      return batches;
-    }, []);
-    const runBatches = (batches: Operation[][], operation: (operation: Operation) => void) => {
-      return Promise.allSettled(batches.map(
-        batch => Promise.allSettled(batch.map(
-          operation => {
-            const locale = options.locale ?? operation.sys.locale
+  private async updateEntryRecursive(initial: Entry<unknown>, updated: Entry<unknown> | null = null, options: GraphOptions & { shouldDelete?: boolean, locale: string }) {
+    try {
+      const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated, options);
+      const failures = [];
+      const createBatches = (items: any): Operation[][] => items.reduce((batches: Operation[][], item: any, i: number) => {
+        const batchSize = this.rateLimit
+        const batchNumber = i < batchSize ? 0 : Math.floor(i / batchSize);
+        
+        batches[batchNumber] = typeof batches[batchNumber] !== "undefined" ? batches[batchNumber] : [];
+        batches[batchNumber].push(item);
+        
+        return batches;
+      }, []);
+      const runBatches = (batches: Operation[][]) => {
+        return Promise.allSettled(batches.map(
+          batch => Promise.allSettled(batch.map(
+            async operation => {
+              try {
+                const locale = options.locale ?? operation.sys.locale
 
-            switch (operation.type) {
-              case "create":
-                if (!operation.sys) break;
-                return this.createEntry(operation.sys.contentType?.sys.id, operation.fields, { locale });
-              case "delete":
-                if (!options.shouldDelete) break;
-                return this.deleteEntry(operation.sys.id);
-              case "update":
-                return this.updateEntry(operation.sys.id, operation.fields, { locale: operation.sys.locale })
+                switch (operation.type) {
+                  case "create":
+                    if (!operation.sys) break;
+                    return this.createEntry(operation.sys.contentType?.sys.id, operation.fields, { locale, entryId: operation.sys.id });
+                  case "delete":
+                    if (!options.shouldDelete) break;
+                    return this.deleteEntry(operation.sys.id);
+                  case "update":
+                    return this.updateEntry(operation.sys.id, operation, { locale })
+                }
+              } catch (error) {
+                console.warn(error);
+                failures.push(operation);
+              }
             }
-          }
-        ))
-      ));
+          ))
+        ));
+      }
+      const queues = {
+        create: createBatches(create),
+        update: createBatches(update),
+        dereference: createBatches(dereference)
+      }
+
+      await runBatches(queues.create);
+      await runBatches(queues.update);
+
+      if (options.shouldDelete) {
+        await runBatches(queues.dereference)
+      }
+    
+      return this.getEntry(initial.sys.id, { mode: "management" });
+    } catch (error) {
+      throw error;
     }
-    const queues = {
-      create: createBatches(create),
-      update: createBatches(update),
-      dereference: createBatches(dereference)
-    }
-  
-    return this.getEntry(initial.sys.id, { mode: "management" });
   }
 
   public async publishEntry(entryId: string) {
@@ -373,10 +387,12 @@ export class ContentfulClient {
     }
   }
 
-  public async createAsset(data: Pick<AssetFileProp, "fields">) {
+  public async createAsset(fields: ContentfulUpload, options: { locale: string }) {
     try {
       const client = await this.getManagementClient();
-      let asset = await client.env.createAssetFromFiles(data);
+      const { env } = client;
+      const localizedFields = getLocalizedFields(fields, { locale: options.locale, references: true });
+      let asset = await env.createAssetFromFiles(localizedFields);
 
       asset = await asset.processForAllLocales();
       asset = await asset.publish();
@@ -388,15 +404,16 @@ export class ContentfulClient {
     }
   }
 
-  public async updateAsset(assetId: string, data: Asset['fields'], options?: { query?: any }) {
+  public async updateAsset(assetId: string, update: Asset, options: { query?: any, locale: string }) {
     try {
       const client = await this.getManagementClient();
-      let asset = await client.env.getAsset(assetId, options?.query ?? {});
+      const asset = await client.env.getAsset(assetId, options?.query ?? {});
+      const localizedFields = getLocalizedFields(update.fields, {
+        locale: options.locale,
+        references: true
+      })
 
-      asset.fields = {
-        ...asset.fields,
-        ...data as any
-      }
+      asset.fields = localizedFields;
 
       return await asset.update();
     }
@@ -469,7 +486,7 @@ export class ContentfulClient {
   }> {
     try {
       const client: ClientAPI = this.sdks.managementClient;
-      const space = await this.sdks.managementClient?.getSpace(this.options.spaceId);
+      const space = await client.getSpace(this.options.spaceId);
       const env = await space.getEnvironment(this.environment);
       
       return {

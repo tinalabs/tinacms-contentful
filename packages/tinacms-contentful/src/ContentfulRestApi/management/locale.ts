@@ -1,6 +1,48 @@
 import { ContentType } from "contentful";
 import { MetaLinkProps } from "contentful-management/dist/typings/common-types";
 
+const checkForReferences = (value: any) => Array.isArray(value) &&
+  value.findIndex(item => checkForReference(item)) > -1
+const checkForReference = (value: any) => typeof value === "object" && typeof value?.sys !== "undefined";
+
+/**
+ * Takes a delivery/preview field response, and pulls out nested entries
+ * as reference objects
+ * 
+ * @param fields 
+ * @param options 
+ * @returns fields
+ */
+export function getFieldsWithReferences<FieldsShape extends Record<string, any>>(fields: FieldsShape, contentType?: ContentType) {
+  const createReference = (item: any): Record<"sys", MetaLinkProps> => ({
+    sys: {
+      type: "Link",
+      id: item.sys.id,
+      linkType: item.sys.type || "Entry"
+    }
+  });
+
+  return Object.keys(fields)
+    .reduce((references: Record<string, any>, fieldName) => {
+      const field = fields[fieldName] as any;
+      const fieldDefinition = contentType?.fields.find(def => def.id === fieldName);
+      const isReference = fieldDefinition?.type === "Link" || checkForReference(field);
+      const isReferences = isReference && Array.isArray(field) || checkForReferences(field);
+      
+      if (isReferences) {
+        references[fieldName] = field.map((item: any) => createReference(item))
+      }
+      else if (isReference) {
+        references[fieldName] = createReference(field);
+      }
+      else {
+        references[fieldName] = field;
+      }
+
+      return references;
+    }, {});
+}
+
 /**
  * Takes a delivery/preview field response and a locale, and maps it
  * to a management api field request
@@ -14,42 +56,33 @@ export function getLocalizedFields<EntryShape = Record<string, any>>(fields: Ent
   contentType?: ContentType
   references?: boolean
 }) {
-  const createReference = (item: any): Record<"sys", MetaLinkProps> => ({
-    sys: {
-      type: "Link",
-      id: item.sys.id,
-      linkType: item.sys.type === "Asset" ? item.sys.type : "Entry"
-    }
-  });
+  const fieldsToLocalize = getFieldsWithReferences(fields);
 
-  return Object.keys(fields).reduce((localizedFields: any, key) => {
-    const value = (fields as any)[key];
-    const hasReferences = Array.isArray(value) &&
-      value.findIndex(item => item && item.sys) !== -1
-    const isReference = typeof value?.sys !== "undefined";
-    const fieldDefinition = options?.contentType?.fields.find(field => field.name === key);
-    let shouldLocalize = true;
-
-    if (fieldDefinition && !fieldDefinition.localized) {
-      shouldLocalize = false;
-    }
-
-    if (!isReference && !hasReferences && shouldLocalize) {
-      localizedFields[key] = {
-        [options.locale]: value
+  return Object.keys(fieldsToLocalize)
+    .reduce((localizedFields: any, fieldName) => {
+      const fields = fieldsToLocalize;
+      const field = (fields as any)[fieldName];
+      const fieldDefinition = options?.contentType?.fields.find(field => field.name === fieldName);
+      const isReference = Array.isArray(field) ? checkForReferences(field) : checkForReference(field);
+      let shouldLocalize = true;
+      
+      if (fieldDefinition && !fieldDefinition.localized) {
+        shouldLocalize = false;
       }
-    }
-    else if (hasReferences && options.references && shouldLocalize) {
-      localizedFields[key] = {
-        [options.locale]: value.map((item: any) => createReference(item))
+  
+      if (shouldLocalize && !isReference && !field[options.locale]) {
+        localizedFields[fieldName] = {
+          [options.locale]: field
+        }
       }
-    }
-    else if (isReference && options.references && shouldLocalize) {
-      localizedFields[key] = {
-        [options.locale]: createReference(value)
+      else if (isReference && options.references) {
+        localizedFields[fieldName] = {
+          [options.locale]: field
+        }
       }
-    }
-
+      else if (field[options.locale]) {
+        localizedFields[fieldName] = field;
+      }
     return localizedFields;
   }, {});
 }

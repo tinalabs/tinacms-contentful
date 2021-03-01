@@ -1,6 +1,6 @@
 import React from 'react';
-import { FieldsBuilder, Form, useForm } from 'tinacms';
-import { FILE_TYPES } from 'tinacms-contentful';
+import { FieldsBuilder, Form, useCMS, useForm } from 'tinacms';
+import { ContentfulMediaStore, FILE_TYPES } from 'tinacms-contentful';
 
 const STATUSES = [
   'All (Not archived)',
@@ -29,6 +29,9 @@ export function MediaFilterFormView() {
 }
 
 export const useMediaFilterForm = (): [any, Form, boolean] => {
+  const cms = useCMS();
+  const mediaStore = cms.media.store;
+
   return useForm({
     id: 'contentful:contentful-media-filter',
     label: 'Filter Media',
@@ -228,7 +231,15 @@ export const useMediaFilterForm = (): [any, Form, boolean] => {
       }
     ],
     onSubmit: (values: any) => {
-      console.log(values);
+      if (mediaStore instanceof ContentfulMediaStore) {
+        const filter = Object.keys(values).reduce((query: any, filter) => => {
+          query[filter] = values[filter];
+
+          return query;
+        }, {});
+
+        mediaStore.setFilter(filter);
+      }
     }
   });
 }

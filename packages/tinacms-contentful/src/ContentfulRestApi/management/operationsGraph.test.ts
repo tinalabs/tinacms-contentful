@@ -5,7 +5,6 @@ import {
 } from './operationsGraph';
 
 describe('operationsGraph', () => {
-  const locale = 'en-US';
   let baseEntry: Entry<any>;
   let references: Entry<any>[];
 
@@ -40,8 +39,7 @@ describe('operationsGraph', () => {
 
       const { graph } = createContentfulOperationsForEntry(
         entry_initial,
-        entry_updated,
-        { locale }
+        entry_updated
       );
 
       expect(graph).toMatchInlineSnapshot(`
@@ -50,9 +48,7 @@ describe('operationsGraph', () => {
           "nodes": Array [
             Object {
               "fields": Object {
-                "test": Object {
-                  "en-US": "updated",
-                },
+                "test": "updated",
               },
               "sys": Object {
                 "id": "0",
@@ -73,8 +69,7 @@ describe('operationsGraph', () => {
 
       const { graph } = createContentfulOperationsForEntry(
         entry_initial,
-        entry_updated,
-        { locale }
+        entry_updated
       );
 
       expect(graph).toMatchInlineSnapshot(`
@@ -99,8 +94,7 @@ describe('operationsGraph', () => {
 
       const { graph } = createContentfulOperationsForEntry(
         entry_initial,
-        entry_updated,
-        { locale }
+        entry_updated
       );
 
       expect(graph).toStrictEqual({
@@ -110,20 +104,16 @@ describe('operationsGraph', () => {
         nodes: [
           {
             fields: {
-              references: {
-                'en-US': [
-                  {
-                    sys: {
-                      id: '1',
-                      linkType: 'Entry',
-                      type: 'Link',
-                    },
+              references: [
+                {
+                  sys: {
+                    id: '1',
+                    linkType: 'Entry',
+                    type: 'Link',
                   },
-                ],
-              },
-              test: {
-                'en-US': 'initial',
-              },
+                },
+              ],
+              test: 'initial',
             },
             sys: {
               id: '0',
@@ -133,9 +123,7 @@ describe('operationsGraph', () => {
           },
           {
             fields: {
-              test: {
-                'en-US': 'initial',
-              },
+              test: 'initial',
             },
             sys: {
               id: graph.nodes[1].sys.id,
@@ -177,8 +165,7 @@ describe('operationsGraph', () => {
 
       const { graph } = createContentfulOperationsForEntry(
         entry_initial,
-        entry_updated,
-        { locale }
+        entry_updated
       );
 
       expect(graph).toMatchInlineSnapshot(`
@@ -191,20 +178,16 @@ describe('operationsGraph', () => {
           "nodes": Array [
             Object {
               "fields": Object {
-                "references": Object {
-                  "en-US": Array [
-                    Object {
-                      "sys": Object {
-                        "id": "1",
-                        "linkType": "Entry",
-                        "type": "Link",
-                      },
+                "references": Array [
+                  Object {
+                    "sys": Object {
+                      "id": "1",
+                      "linkType": "Entry",
+                      "type": "Link",
                     },
-                  ],
-                },
-                "test": Object {
-                  "en-US": "updated",
-                },
+                  },
+                ],
+                "test": "updated",
               },
               "sys": Object {
                 "id": "0",
@@ -214,9 +197,7 @@ describe('operationsGraph', () => {
             },
             Object {
               "fields": Object {
-                "test": Object {
-                  "en-US": "updated",
-                },
+                "test": "updated",
               },
               "sys": Object {
                 "id": "1",
@@ -231,60 +212,6 @@ describe('operationsGraph', () => {
       expect(graph.nodes[0].type).toBe('update');
       expect(graph.nodes[1].type).toBe('update');
       expect(Object.keys(graph.edges).length).toBe(1);
-    });
-
-    it('should not create a delete operation for any removed references, but update the entry to dereference them', () => {
-      const entry = Object.assign({}, baseEntry);
-      const entry_initial = {
-        ...entry,
-        fields: {
-          ...entry.fields,
-          references,
-        },
-      };
-      const entry_updated = {
-        ...entry_initial,
-        fields: {
-          test: 'updated',
-          references: [],
-        },
-      } as Entry<any>;
-
-      const { graph } = createContentfulOperationsForEntry(
-        entry_initial,
-        entry_updated,
-        {
-          locale,
-          shouldDelete: false,
-        }
-      );
-
-      expect(graph).toMatchInlineSnapshot(`
-        Object {
-          "edges": Object {},
-          "nodes": Array [
-            Object {
-              "fields": Object {
-                "references": Object {
-                  "en-US": Array [],
-                },
-                "test": Object {
-                  "en-US": "updated",
-                },
-              },
-              "sys": Object {
-                "id": "0",
-                "type": "Entry",
-              },
-              "type": "update",
-            },
-          ],
-        }
-      `);
-
-      expect(graph.nodes.length).toBe(1);
-      expect((graph.nodes[0].fields as any).references[locale].length).toBe(0);
-      expect(Object.keys(graph.edges).length).toBe(0);
     });
 
     it('should create a delete operation for any removed references, and update the entry', () => {
@@ -306,11 +233,7 @@ describe('operationsGraph', () => {
 
       const { graph } = createContentfulOperationsForEntry(
         entry_initial,
-        entry_updated,
-        {
-          locale,
-          shouldDelete: true,
-        }
+        entry_updated
       );
 
       expect(graph).toMatchInlineSnapshot(`
@@ -323,12 +246,8 @@ describe('operationsGraph', () => {
           "nodes": Array [
             Object {
               "fields": Object {
-                "references": Object {
-                  "en-US": Array [],
-                },
-                "test": Object {
-                  "en-US": "updated",
-                },
+                "references": Array [],
+                "test": "updated",
               },
               "sys": Object {
                 "id": "0",
@@ -371,8 +290,7 @@ describe('operationsGraph', () => {
       const { graph } = createContentfulOperationsForEntries(
         entries_initial,
         entries_updated,
-        null,
-        { locale }
+        null
       );
 
       expect(graph).toMatchInlineSnapshot(`
@@ -381,9 +299,7 @@ describe('operationsGraph', () => {
           "nodes": Array [
             Object {
               "fields": Object {
-                "test": Object {
-                  "en-US": "updated",
-                },
+                "test": "updated",
               },
               "sys": Object {
                 "id": "0",
@@ -406,8 +322,7 @@ describe('operationsGraph', () => {
       const { graph } = createContentfulOperationsForEntries(
         entries_initial,
         entries_updated,
-        null,
-        { locale }
+        null
       );
 
       expect(graph).toMatchInlineSnapshot(`
@@ -435,8 +350,7 @@ describe('operationsGraph', () => {
       const { graph } = createContentfulOperationsForEntries(
         entries_initial,
         entries_updated,
-        null,
-        { locale }
+        null
       );
 
       expect(graph).toEqual({
@@ -444,9 +358,7 @@ describe('operationsGraph', () => {
         nodes: [
           {
             fields: {
-              test: {
-                'en-US': 'initial',
-              },
+              test: 'initial',
             },
             sys: {
               id: graph.nodes[0].sys.id,
@@ -469,8 +381,7 @@ describe('operationsGraph', () => {
       const { graph } = createContentfulOperationsForEntries(
         entries_initial,
         entries_updated,
-        null,
-        { locale, shouldDelete: true }
+        null
       );
 
       expect(graph).toMatchInlineSnapshot(`
