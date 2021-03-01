@@ -260,7 +260,7 @@ describe('operationsGraph', () => {
                 "id": "1",
                 "type": "Entry",
               },
-              "type": "delete",
+              "type": "dereference",
             },
           ],
         }
@@ -393,14 +393,14 @@ describe('operationsGraph', () => {
                 "id": "0",
                 "type": "Entry",
               },
-              "type": "delete",
+              "type": "dereference",
             },
           ],
         }
       `);
       expect(graph.nodes.length).toBe(1);
       expect(Object.keys(graph.edges).length).toBe(0);
-      expect(graph.nodes[0].type).toEqual('delete');
+      expect(graph.nodes[0].type).toEqual("dereference");
     });
   });
 });

@@ -10,6 +10,8 @@ describe("ContentfulClient", () => {
     foo: "bar"
   }
 
+  beforeEach(() => console.log(expect.getState().currentTestName))
+
   it("should create the delivery SDK clients when provided with valid options", () => {
     const contentful = new ContentfulClient({
       clientId: "0",
@@ -111,7 +113,7 @@ describe("ContentfulClient", () => {
         sys: { id: v4(), type: 'Entry' },
         fields: {
           title: `Test - ${expect.getState().currentTestName}`,
-          slug: `test-${expect.getState().currentTestName.toLowerCase().replace(' ', '-')}`,
+          slug: `test-${expect.getState().currentTestName.toLowerCase().split(' ').join('-')}`,
           description: expect.getState().currentTestName,
           lessons: []
         },
@@ -121,6 +123,7 @@ describe("ContentfulClient", () => {
         {
           sys: {
             id: v4(),
+            type: "Entry",
             contentType: {
               sys: { id: "course" }
             }
@@ -279,6 +282,7 @@ describe("ContentfulClient", () => {
 
           expect(res.fields.title[locale]).toEqual(entry.fields.title);
           expect(res.fields.slug[locale]).toEqual(entry.fields.slug);
+          expect(res.fields.lessons[locale][0].fields.title[locale]).toBe(entry.fields.lessons[0].fields.title);
           expect(res.sys.id).toBeDefined();
         }
         catch (error) {
@@ -287,7 +291,7 @@ describe("ContentfulClient", () => {
         finally {
           if (res) await contentful.deleteEntry(res.sys.id);
         }
-      }, 10000)
+      }, 30000)
     })
 
     describe("updateEntry", () => {
@@ -387,7 +391,6 @@ describe("ContentfulClient", () => {
             locale,
             initial: entry
           });
-          await contentful.deleteEntry(res.sys.id);
     
           expect(res.fields.title[locale]).toEqual(update.title);
           expect(res.fields.lessons[locale][0].sys.id).toBe(lessons[0].sys.id);

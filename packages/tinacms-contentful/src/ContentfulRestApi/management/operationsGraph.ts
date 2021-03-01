@@ -9,7 +9,7 @@ export interface OperationsGraph {
   };
 }
 
-export type OperationType = "create" | "update" | "delete";
+export type OperationType = "create" | "update" | "dereference";
 
 export type Entry<EntryShape extends any> = {
   fields: EntryShape;
@@ -26,8 +26,8 @@ type BaseOperation<Type = OperationType> = Entry<unknown> & {
 }
 
 export type Operation<Type = OperationType> =
-  Type extends "delete"
-  ? BaseOperation<"delete"> & { fields: undefined }
+  Type extends "dereference"
+  ? BaseOperation<"dereference"> & { fields: undefined }
   : BaseOperation<Type>
 
 
@@ -61,16 +61,16 @@ const findReferenceKeys = (entry: Entry<any>, contentType?: ContentType) => {
 
 const createContentfulOperation = (initial: Entry<any> | null, updated: Entry<any> | null, options?: GraphOptions): Operation | null => {
   const isDereference = initial !== null && updated === null;
-  const isFresh = initial === null && updated !== null;
-  const isChanged = initial && hasChanged(initial, updated) || false;
+  const isCreate = initial === null && updated !== null;
+  const isChange = initial && hasChanged(initial, updated) || false;
 
   if (initial && isDereference) {
     return {
-      type: "delete",
+      type: "dereference",
       sys: initial.sys
-    } as Operation<"delete">
+    } as Operation<"dereference">
   }  
-  else if (updated && isFresh) {
+  else if (updated && isCreate) {
     const fieldsWithReferences = getFieldsWithReferences(
       updated.fields, options?.contentType
     );
@@ -84,7 +84,7 @@ const createContentfulOperation = (initial: Entry<any> | null, updated: Entry<an
       fields: fieldsWithReferences
     } as Operation<"create">
   }
-  else if (updated && isChanged) {
+  else if (updated && isChange) {
     const fieldsWithReferences = getFieldsWithReferences(
       updated.fields, options?.contentType
     );
@@ -144,11 +144,23 @@ export const createContentfulOperationsForEntry = (initial: Entry<any>, updated:
   return {
     create: operations.nodes.filter(operation => operation.type === "create") as Operation<"create">[],
     update: operations.nodes.filter(operation => operation.type === "update") as Operation<"update">[],
-    dereference: operations.nodes.filter(operation => operation.type === "delete") as Operation<"delete">[],
+    dereference: operations.nodes.filter(operation => operation.type === "dereference") as Operation<"dereference">[],
     graph: operations
   }
 }
 
+/**
+ * Handles 3 cases:
+ * - initial is defined, update is null (dereference)
+ * - initial is null, update is defined (create)
+ * - initial is defined, update is defined (update)
+ * 
+ * @param operations 
+ * @param initial 
+ * @param updated 
+ * @param parent 
+ * @param options 
+ */
 function _createContentfulOperationsForEntry(operations: OperationsGraph, initial: Entry<any> | null, updated: Entry<any> | null, parent: Entry<any> | null = null, options?: GraphOptions) {
   const entry = updated?.sys?.id ? updated : initial;
   const initialKeys = initial !== null ? findReferenceKeys(initial, options?.contentType) : [];
@@ -190,11 +202,23 @@ export const createContentfulOperationsForEntries = (initial: Entry<any>[], upda
   return {
     create: operations.nodes.filter(operation => operation.type === "create") as Operation<"create">[],
     update: operations.nodes.filter(operation => operation.type === "update") as Operation<"update">[],
-    dereference: operations.nodes.filter(operation => operation.type === "delete") as Operation<"delete">[],
+    dereference: operations.nodes.filter(operation => operation.type === "dereference") as Operation<"dereference">[],
     graph: operations
   }
 }
 
+/**
+ * Handles 3 cases:
+ * - initial is defined, corresponding update exists in array (dereference)
+ * - initial is null, updated is defined (create)
+ * - initial is defined, corresponding update exists in array (update)
+ * 
+ * @param operations 
+ * @param initial 
+ * @param updated 
+ * @param parent 
+ * @param options 
+ */
 function _createContentfulOperationsForEntries(operations: OperationsGraph, initial: Entry<any>[], updated: Entry<any>[], parent: Entry<any> | null = null, options?: GraphOptions) {
   // Queue operations
   for (const updatedEntry of updated) {

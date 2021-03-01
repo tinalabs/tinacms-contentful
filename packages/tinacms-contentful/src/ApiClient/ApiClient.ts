@@ -193,6 +193,12 @@ export class ContentfulClient {
     if (options?.references) {
       const deliveryEntry = await previewClient.getEntry(createdEntry.sys.id);
 
+      console.log({deliveryEntry})
+
+      deliveryEntry.fields = fields;
+
+      console.log({deliveryEntry})
+
       return await this.updateEntryRecursive(deliveryEntry, null, { locale, contentType })
     }
     else {
@@ -255,6 +261,7 @@ export class ContentfulClient {
   private async updateEntryRecursive(initial: Entry<unknown>, updated: Entry<unknown> | null = null, options: GraphOptions & { shouldDelete?: boolean, locale: string }) {
     try {
       const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated, options);
+      console.log({create, update, dereference })
       const failures = [];
       const createBatches = (items: any): Operation[][] => items.reduce((batches: Operation[][], item: any, i: number) => {
         const batchSize = this.rateLimit
@@ -276,11 +283,11 @@ export class ContentfulClient {
                   case "create":
                     if (!operation.sys) break;
                     return this.createEntry(operation.sys.contentType?.sys.id, operation.fields, { locale, entryId: operation.sys.id });
-                  case "delete":
-                    if (!options.shouldDelete) break;
-                    return this.deleteEntry(operation.sys.id);
                   case "update":
                     return this.updateEntry(operation.sys.id, operation, { locale })
+                  case "dereference":
+                    if (!options.shouldDelete) break;
+                    return this.deleteEntry(operation.sys.id);
                 }
               } catch (error) {
                 console.warn(error);
@@ -303,7 +310,7 @@ export class ContentfulClient {
         await runBatches(queues.dereference)
       }
     
-      return this.getEntry(initial.sys.id, { mode: "management" });
+      return this.getEntry(updated?.sys?.id ? updated.sys.id : initial.sys.id, { mode: "management" });
     } catch (error) {
       throw error;
     }
