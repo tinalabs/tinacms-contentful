@@ -381,7 +381,7 @@ export class ContentfulClient {
 
       const updated_entry_id = updated?.sys?.id ?? initial?.sys?.id ?? null
 
-      if (updated_entry_id === null) return null
+      if (updated_entry_id === null) throw new Error("Missing entry id");
 
       const updated_entry = await this.getEntry(updated_entry_id, { mode: "preview" })
     

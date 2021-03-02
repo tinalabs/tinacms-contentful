@@ -8,19 +8,20 @@ import { debounce } from '../utils/debounce';
 
 export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   locale: string,
+  spaceId?: string,
   contentType?: ContentType | false;
-  saveOnChange?: boolean;
+  saveOnChange?: boolean | number;
   publishOnSave?: boolean;
   references?: boolean;
 }
 
-export function useContentfulEntryForm<EntryShape = any>(
+export function useContentfulEntryForm<EntryShape extends Record<string, any> = any>(
   entry: Entry<EntryShape>,
   options: ContentfulEntryFormOptions,
   vars: Partial<WatchableFormValue>
-): [Entry<EntryShape>['fields'], Form] {
-  const contentful = useContentful(entry.sys.space?.sys.id);
+): [Entry<EntryShape>, Form] {
   const {enabled, ...cms} = useCMS();
+  const contentful = useContentful(options?.spaceId ?? entry.sys.space?.sys.id);
   const [contentType, setContentType] = useState<ContentType>();
   const [formFields, setFormFields] = useState<any[]>([]);
 
@@ -121,7 +122,7 @@ export function useContentfulEntryForm<EntryShape = any>(
       };
     }
   }, [entry, options.locale]);
-  const [modifiedValues, form] = useForm<Entry<EntryShape>['fields']>({
+  const [modifiedValues, form] = useForm<Entry<EntryShape>>({
     ...options,
     id: options.id ?? entry.sys.id,
     label: options?.label || entry.sys.id,
@@ -134,6 +135,7 @@ export function useContentfulEntryForm<EntryShape = any>(
   });
 
   useEffect(() => {
+    const timeout = typeof options.saveOnChange === "number" ? options.saveOnChange : 5
     const unsubscribe = form.subscribe(debounce(
       async ({ dirty, submitting }) => {
         if (options?.saveOnChange && dirty && !submitting) {
@@ -142,7 +144,7 @@ export function useContentfulEntryForm<EntryShape = any>(
 
         return;
       },
-      1000 * 5, false),
+      1000 * timeout, false),
     { values: true, dirty: true, submitting: true })
 
     return () => {

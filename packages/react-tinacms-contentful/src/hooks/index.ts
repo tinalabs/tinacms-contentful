@@ -5,4 +5,5 @@ export * from './useContentfulManagement';
 export * from './useContentfulEntry';
 export * from './useContentfulEntries';
 export * from './useContentfulEntryForm';
+export * from './useContentfulEntriesForm';
 export * from './useContentfulAuthRedirect';

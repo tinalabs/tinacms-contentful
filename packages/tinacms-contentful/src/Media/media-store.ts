@@ -26,11 +26,12 @@ export class ContentfulMediaStore implements MediaStore {
   constructor(private ContentfulClient: ContentfulClient, private options: ContentfulMediaStoreOptions) {
     this.accept = options.accepts || this.accept;
     this.actions = options.actions || this.actions;
+    this.locale = this.options.locale ?? "en";
   }
 
   accept = "*";
   actions: any[] = [];
-  locale?: string = "en";
+  locale: string;
   private filter: any = {};
 
   setFilter(query: any) {
@@ -58,8 +59,13 @@ export class ContentfulMediaStore implements MediaStore {
   }
 
   async delete(media: ContentfulMedia) {
-    if (media?.sys?.id) {
-      return await this.ContentfulClient.deleteAsset(media?.sys?.id);
+    try {
+      if (media?.sys?.id) {
+        await this.ContentfulClient.deleteAsset(media?.sys?.id);
+      }
+    }
+    catch (error) {
+      throw error
     }
   }
 
@@ -128,15 +134,15 @@ export type ContentfulUpload = {
   };
 }
 
-const mediaUploadToContentfulUpload = async (file: MediaUploadOptions): Promise<ContentfulUpload> => {
+const mediaUploadToContentfulUpload = async (upload: MediaUploadOptions): Promise<ContentfulUpload> => {
   return {
     fields: {
-      title: file.file.name,
-      description: file.directory,
+      title: upload.file.name,
+      description: upload.directory,
       file: {
-        file: await file.file.text(),
-        contentType: "Untitled",
-        fileName: file.file.name
+        file: await upload.file.arrayBuffer(),
+        contentType: upload.file.type ?? "Untitled",
+        fileName: upload.file.name
       }
     }
   }

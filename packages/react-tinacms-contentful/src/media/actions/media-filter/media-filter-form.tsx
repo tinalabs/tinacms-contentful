@@ -232,7 +232,7 @@ export const useMediaFilterForm = (): [any, Form, boolean] => {
     ],
     onSubmit: (values: any) => {
       if (mediaStore instanceof ContentfulMediaStore) {
-        const filter = Object.keys(values).reduce((query: any, filter) => => {
+        const filter = Object.keys(values).reduce((query: any, filter) => {
           query[filter] = values[filter];
 
           return query;
