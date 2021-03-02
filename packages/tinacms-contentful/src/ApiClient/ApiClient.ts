@@ -40,6 +40,7 @@ export interface ContentfulClientOptions {
 export type ClientMode = "delivery" | "preview" | "management"
 
 export type getEntryOptions<Mode extends ClientMode> = {
+  locale?: string,
   query?: any,
   /** @deprecated Use mode instead. Will be removed in 1.0.0 */
   preview?: boolean,
@@ -179,7 +180,6 @@ export class ContentfulClient {
   }) {
     const { locale } = options;
     const contentType = await this.getContentType(contentTypeId);
-    const previewClient = await this.getDeliveryClient(true);
     const { env } = await this.getManagementClient();
     const localizedFields = getLocalizedFields(fields, {
       contentType,
@@ -191,15 +191,11 @@ export class ContentfulClient {
       : await env.createEntry(contentTypeId, { fields: localizedFields })
 
     if (options?.references) {
-      const deliveryEntry = await previewClient.getEntry(createdEntry.sys.id);
+      const entry = await this.getEntry(createdEntry.sys.id, { mode: "preview" });
 
-      console.log({deliveryEntry})
+      entry.fields = fields;
 
-      deliveryEntry.fields = fields;
-
-      console.log({deliveryEntry})
-
-      return await this.updateEntryRecursive(deliveryEntry, null, { locale, contentType })
+      return await this.updateEntryRecursive(entry, null, { locale, contentType })
     }
     else {
       const localiedFieldsWithReferences = getLocalizedFields(fields, {
@@ -211,9 +207,11 @@ export class ContentfulClient {
       createdEntry.fields = localiedFieldsWithReferences;
 
       createdEntry.update();
-    }
 
-    return createdEntry;
+      const entry = await this.getEntry(createdEntry.sys.id, { mode: "preview" });
+
+      return entry;
+    }
   }
 
   public async updateEntry<EntryShape extends Record<string, any> | unknown>(entryId: string, update: Entry<EntryShape>, options: {
@@ -242,7 +240,9 @@ export class ContentfulClient {
 
         entry.update();
 
-        return entry;
+        const updated_entry = await this.getEntry(entry.sys.id, { mode: "preview" });
+
+        return updated_entry;
       }
     }
     catch (error) {
@@ -309,8 +309,11 @@ export class ContentfulClient {
       if (options.shouldDelete) {
         await runBatches(queues.dereference)
       }
+
+      const updated_entry_id = typeof updated?.sys?.id !== "undefined" ? updated.sys.id : initial.sys.id
+      const updated_entry = await this.getEntry(updated_entry_id, { mode: "preview" })
     
-      return this.getEntry(updated?.sys?.id ? updated.sys.id : initial.sys.id, { mode: "management" });
+      return updated_entry;
     } catch (error) {
       throw error;
     }
@@ -394,17 +397,20 @@ export class ContentfulClient {
     }
   }
 
-  public async createAsset(fields: ContentfulUpload, options: { locale: string }) {
+  public async createAsset(upload: ContentfulUpload, options: { locale: string }) {
     try {
       const client = await this.getManagementClient();
       const { env } = client;
-      const localizedFields = getLocalizedFields(fields, { locale: options.locale, references: true });
-      let asset = await env.createAssetFromFiles(localizedFields);
-
-      asset = await asset.processForAllLocales();
+      const localizedFields = getLocalizedFields(upload.fields, { locale: options.locale, references: false });
+      const file = { fields: { ...upload.fields, ...localizedFields } }
+      
+      let asset = await env.createAssetFromFiles(file);
+      asset = await asset.processForLocale(options.locale, { processingCheckRetries: 10 });
       asset = await asset.publish();
 
-      return asset;
+      console.log({ asset })
+      
+      return this.getAsset(asset.sys.id);
     }
     catch (error) {
       throw error;
@@ -414,15 +420,22 @@ export class ContentfulClient {
   public async updateAsset(assetId: string, update: Asset, options: { query?: any, locale: string }) {
     try {
       const client = await this.getManagementClient();
-      const asset = await client.env.getAsset(assetId, options?.query ?? {});
+      let asset = await client.env.getAsset(assetId, options?.query ?? {});
       const localizedFields = getLocalizedFields(update.fields, {
         locale: options.locale,
-        references: true
+        references: false
       })
+      const fields = { ...asset.fields, ...localizedFields }
 
-      asset.fields = localizedFields;
+      console.log(fields.file)
 
-      return await asset.update();
+      asset.fields = fields;
+      asset = await asset.update();
+      asset = await asset.publish();
+
+      console.log({ asset })
+
+      return this.getAsset(asset.sys.id);
     }
     catch (error) {
       throw error;
@@ -438,7 +451,7 @@ export class ContentfulClient {
         await asset.unpublish();
       }
 
-      return await asset.archive();
+      return (await asset.archive()).toPlainObject;
     }
     catch (error) {
       throw error;

@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
-import { Asset, Entry } from "contentful";
-import { readFileSync } from "fs";
+import { Entry } from "contentful";
+import { createReadStream } from "fs";
 import { join } from "path";
 import { ContentfulClient } from "./ApiClient";
 
@@ -222,8 +222,8 @@ describe("ContentfulClient", () => {
 
           res = await contentful.createEntry("course", entry.fields, { locale });
 
-          expect(res.fields.title[locale]).toEqual(entry.fields.title);
-          expect(res.fields.slug[locale]).toEqual(entry.fields.slug);
+          expect(res.fields.title).toEqual(entry.fields.title);
+          expect(res.fields.slug).toEqual(entry.fields.slug);
           expect(res.sys.id).toBeDefined();
         }
         finally {
@@ -254,8 +254,8 @@ describe("ContentfulClient", () => {
             locale
           });
 
-          expect(res.fields.title[locale]).toEqual(entry.fields.title);
-          expect(res.fields.slug[locale]).toEqual(entry.fields.slug);
+          expect(res.fields.title).toEqual(entry.fields.title);
+          expect(res.fields.slug).toEqual(entry.fields.slug);
           expect(res.sys.id).toBeDefined();
         }
         finally {
@@ -280,9 +280,9 @@ describe("ContentfulClient", () => {
             references: true
           })
 
-          expect(res.fields.title[locale]).toEqual(entry.fields.title);
-          expect(res.fields.slug[locale]).toEqual(entry.fields.slug);
-          expect(res.fields.lessons[locale][0].fields.title[locale]).toBe(entry.fields.lessons[0].fields.title);
+          expect(res.fields.title).toEqual(entry.fields.title);
+          expect(res.fields.slug).toEqual(entry.fields.slug);
+          expect(res.fields.lessons[0].fields.title).toBe(entry.fields.lessons[0].fields.title);
           expect(res.sys.id).toBeDefined();
         }
         catch (error) {
@@ -312,9 +312,9 @@ describe("ContentfulClient", () => {
           new_entry = await contentful.createEntry("course", entry.fields, { locale });
           res = await contentful.updateEntry(new_entry.sys.id, update, { locale });
   
-          expect(res.fields.title[locale]).toEqual(update.fields.title);
-          expect(res.fields.slug[locale]).toEqual(entry.fields.slug);
-          expect(res.fields.description[locale]).toBe(entry.fields.description);
+          expect(res.fields.title).toEqual(update.fields.title);
+          expect(res.fields.slug).toEqual(entry.fields.slug);
+          expect(res.fields.description).toBe(entry.fields.description);
         }
         finally {
           if (res || new_entry) await contentful.deleteEntry(new_entry.sys.id);
@@ -350,9 +350,9 @@ describe("ContentfulClient", () => {
           new_entry = await contentful.createEntry("course", entry.fields, { locale });
           res = await contentful.updateEntry(new_entry.sys.id, update, { locale });
           
-          expect(res.fields.title[locale]).toEqual(update.fields.title);
-          expect(res.fields.lessons[locale]).toEqual([])
-          expect(res.fields.image[locale].sys.id).toBe('5o1Zu7UJheEGGQUC6gYEmS')
+          expect(res.fields.title).toEqual(update.fields.title);
+          expect(res.fields.lessons).toEqual([])
+          expect(res.fields.image.sys.id).toBe('5o1Zu7UJheEGGQUC6gYEmS')
         }
         finally {
           if (res || new_entry) await contentful.deleteEntry(new_entry.sys.id);
@@ -392,9 +392,9 @@ describe("ContentfulClient", () => {
             initial: entry
           });
     
-          expect(res.fields.title[locale]).toEqual(update.title);
-          expect(res.fields.lessons[locale][0].sys.id).toBe(lessons[0].sys.id);
-          expect(res.fields.image[locale].sys.id).toBe(update.fields.image.sys.id);
+          expect(res.fields.title).toEqual(update.title);
+          expect(res.fields.lessons[0].sys.id).toBe(lessons[0].sys.id);
+          expect(res.fields.image.sys.id).toBe(update.fields.image.sys.id);
         }
         finally {
           if (res || new_entry) await contentful.deleteEntry(new_entry.sys.id);
@@ -468,7 +468,7 @@ describe("ContentfulClient", () => {
       })
 
       it("getAssets should return an array of all assets when provided no query", async () => {
-        const res = await contentful.getAssets(null, { preview: true});
+        const res = await contentful.getAssets(null, { preview: true });
   
         expect(res.length).toBe(9);
       })
@@ -478,7 +478,7 @@ describe("ContentfulClient", () => {
       var res: any;
 
       try {
-        const file = readFileSync(join(__dirname, "./_fixtures/tina.png"));
+        const file = createReadStream(join(__dirname, "./_fixtures/tina.png"));
         const asset = {
           fields: {
             title: `Test - ${expect.getState().currentTestName}`,
@@ -493,10 +493,10 @@ describe("ContentfulClient", () => {
         
         res = await contentful.createAsset(asset, { locale });
 
-        expect(res.fields.title[locale]).toBe(asset.fields.title);
+        expect(res.fields.title).toBe(asset.fields.title);
       }
       finally {
-        if (res) await contentful.deleteEntry(res.sys.id);
+        if (res) await contentful.deleteAsset(res.sys.id);
       }
     }, 30000);
 
@@ -505,7 +505,7 @@ describe("ContentfulClient", () => {
       var res: any;
 
       try {
-        const file = readFileSync(join(__dirname, "./_fixtures/tina.png"));
+        const file = createReadStream(join(__dirname, "./_fixtures/tina.png"));
         const asset = {
           fields: {
             title: `Test - ${expect.getState().currentTestName}`,
@@ -517,29 +517,31 @@ describe("ContentfulClient", () => {
             }
           }
         }
+        
+        new_asset = await contentful.createAsset(asset, { locale });
+
         const update = {
-          ...asset,
+          ...new_asset,
           fields: {
-            ...asset.fields,
+            ...new_asset.fields,
             title: `Updated: ${asset.fields.title}`
           }
         } as any
-        
-        new_asset = await contentful.createAsset(asset, { locale });
+
         res = await contentful.updateAsset(new_asset.sys.id, update, { locale });
 
-        expect(res.fields.title[locale]).toBe(asset.fields.title);
+        expect(res.fields.title).toBe(update.fields.title);
       }
       finally {
-        if (res || new_asset) await contentful.deleteEntry(new_asset.sys.id);
+        if (res || new_asset) await contentful.deleteAsset(new_asset.sys.id);
       }
-    })
+    }, 30000)
     
     it("deleteAsset should delete an asset when provided a valid assetId", async () => {
       var res: any;
 
       try {
-        const file = readFileSync(join(__dirname, "./_fixtures/tina.png"));
+        const file = createReadStream(join(__dirname, "./_fixtures/tina.png"));
         const asset = {
           fields: {
             title: `Test - ${expect.getState().currentTestName}`,
@@ -557,7 +559,7 @@ describe("ContentfulClient", () => {
         expect(async () => await contentful.deleteAsset(res.sys.id)).toBe("");
       }
       catch (error) {
-        if (res) await contentful.deleteEntry(res.sys.id);
+        if (res) await contentful.deleteAsset(res.sys.id);
       }
     }, 30000)
   })
