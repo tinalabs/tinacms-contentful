@@ -1,40 +1,40 @@
-import { CreateClientParams, ContentfulClientApi, ContentType, Entry as DeliveryEntry, Asset, ContentfulCollection } from 'contentful';
-import { Environment } from 'contentful-management/dist/typings/entities/environment';
-import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
-import { Space as ManagementSpace } from 'contentful-management/dist/typings/entities/space';
-import { Entry as ManagementEntry } from 'contentful-management/dist/typings/entities/entry';
-import { ContentfulApiService } from '../ContentfulRestApi/apis';
-import { handleCollection } from '../ContentfulRestApi/pagination';
+import { CreateClientParams, ContentfulClientApi, ContentType, Entry as DeliveryEntry, Asset, ContentfulCollection } from 'contentful'
+import { Environment } from 'contentful-management/dist/typings/entities/environment'
+import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api'
+import { Space as ManagementSpace } from 'contentful-management/dist/typings/entities/space'
+import { Entry as ManagementEntry } from 'contentful-management/dist/typings/entities/entry'
+import { ContentfulApiService } from '../ContentfulRestApi/apis'
+import { handleCollection } from '../ContentfulRestApi/pagination'
 import { createContentfulOperationsForEntry, Entry, getLocalizedFields, GraphOptions, Operation } from "../ContentfulRestApi/management"
-import { authenticateWithContentful, getCachedBearerToken, setCachedBearerToken } from '../Authentication';
-import { ContentfulUpload } from '../Media';
+import { authenticateWithContentful, getCachedBearerToken, setCachedBearerToken } from '../Authentication'
+import { ContentfulUpload } from '../Media'
 
 /**
  * @deprecated Renamed to SpaceOptions. This type will be removed in v1.0.0.
  */
-export type Space = SpaceOptions;
+export type Space = SpaceOptions
 
 export interface SpaceOptions {
-  spaceId: string;
-  defaultEnvironmentId: string;
+  spaceId: string
+  defaultEnvironmentId: string
   accessTokens: {
-    delivery: string;
-    preview: string;
-  };
+    delivery: string
+    preview: string
+  }
   options?: OptionalSpaceOptions
 }
 
 export type OptionalSpaceOptions = Partial<Omit<CreateClientParams, "accessToken" | "space" | "environment">> & {
-  deliveryClient?: ContentfulClientApi;
-  previewClient?: ContentfulClientApi;
+  deliveryClient?: ContentfulClientApi
+  previewClient?: ContentfulClientApi
 }
 
 export interface ContentfulClientOptions {
-  clientId: string;
-  redirectUrl: string;
+  clientId: string
+  redirectUrl: string
   rateLimit?: number
-  allowedOrigins?: string | string[];
-  insecure?: boolean;
+  allowedOrigins?: string | string[]
+  insecure?: boolean
 }
 
 export type ClientMode = "delivery" | "preview" | "management"
@@ -53,60 +53,70 @@ export class ContentfulClient {
   constructor(private options: SpaceOptions & ContentfulClientOptions) {
     this.sdks = new ContentfulApiService({
       ...this.options
-    });
+    })
 
     if (this.options.allowedOrigins && Array.isArray(this.options.allowedOrigins)) {
-      this.allowedOrigins = this.options.allowedOrigins;
+      this.allowedOrigins = this.options.allowedOrigins
     }
     else if (this.options.allowedOrigins && typeof this.options.allowedOrigins === "string") {
-      this.allowedOrigins = this.options.allowedOrigins.split(",");
+      this.allowedOrigins = this.options.allowedOrigins.split(",")
     }
 
     if (typeof window !== "undefined" && !this.allowedOrigins.includes(window.origin)) {
-      this.allowedOrigins?.push(window.origin);
+      this.allowedOrigins?.push(window.origin)
     }
 
-    this.environment = this.options.defaultEnvironmentId;
-    this.rateLimit = this.options?.rateLimit || 4;
+    this.environment = this.options.defaultEnvironmentId
+    this.rateLimit = this.options?.rateLimit || 4
 
-    const bearerToken = getCachedBearerToken();
+    const bearerToken = getCachedBearerToken()
 
     if (bearerToken) {
-      this.sdks.createManagementWithAccessToken(bearerToken);
+      this.sdks.createManagementWithAccessToken(bearerToken)
     }
   }
 
-  public allowedOrigins: string[] = [];
-  public environment: string;
-  public sdks: ContentfulApiService;
-  public rateLimit: number;
+  public allowedOrigins: string[] = []
+  public environment: string
+  public sdks: ContentfulApiService
+  public rateLimit: number
 
+  /**
+   * Triggers the Contentful OAuth workflow for this client.
+   * 
+   * @param popup A window to run the Oauth workflow in. Creates a new popup window if undefined.
+   */
   public async authenticate(popup?: Window) {
     try {
-      let bearerToken = getCachedBearerToken();
+      let bearerToken = getCachedBearerToken()
 
       if (!bearerToken) {
-        bearerToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl, this.allowedOrigins, popup);
+        bearerToken = await authenticateWithContentful(this.options.clientId, this.options.redirectUrl, this.allowedOrigins, popup)
         
         if (this.options.insecure) {
-          setCachedBearerToken(bearerToken, !this.options?.insecure);
+          setCachedBearerToken(bearerToken, !this.options?.insecure)
         }
 
-        this.sdks.createManagementWithAccessToken(bearerToken);
+        this.sdks.createManagementWithAccessToken(bearerToken)
       }
       else if (popup) {
-        popup.close();
+        popup.close()
       }
 
-      return true;
+      return true
     }
     catch (error) {
-      console.error(error);
+      console.error(error)
       
-      return false;
+      return false
     }
   }
 
+  /**
+   * Sets the Contentful environment the API client is communicating with 
+   * 
+   * @param environmentId 
+   */
   public async setEnvironment(environmentId: string) {
     try {
       this.sdks = new ContentfulApiService({
@@ -115,85 +125,109 @@ export class ContentfulClient {
       })
     }
     catch (error) {
-      throw error;
+      throw error
     }
 
-    this.environment = environmentId;
+    this.environment = environmentId
   }
 
+  /**
+   * Fetches a single entry
+   * 
+   * @param entryId The ID of entry to fetch
+   * @param options.locale The locale to fetch. Uses the space default if undefined.
+   * @param options.query The Contentful query/search parameters to use to fetch entries. See: https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/search-parameters
+   * @param options.mode What mode to run the request in ("delivery", "preview", or "management")
+   */
   public async getEntry<EntryShape extends any, Mode = "unknown">(entryId: string, options?: getEntryOptions<"delivery">): Promise<DeliveryEntry<any>>
   public async getEntry<EntryShape extends any, Mode extends ClientMode = "delivery" | "preview">(entryId: string, options?: getEntryOptions<Mode>): Promise<DeliveryEntry<any>>
   public async getEntry<EntryShape extends any, Mode extends ClientMode = "management">(entryId: string, options?: getEntryOptions<Mode>): Promise<ManagementEntry>
   public async getEntry<EntryShape extends any, Mode extends ClientMode>(entryId: string, options?: getEntryOptions<Mode>): Promise<DeliveryEntry<EntryShape> | ManagementEntry> {
     try {
       if (options?.mode === "management") {
-        const { env } = await this.getManagementClient();
-        const entry = env.getEntry(entryId, options.query ?? undefined);
+        const { env } = await this.getManagementClient()
+        const entry = env.getEntry(entryId, options.query ?? undefined)
 
-        return entry;
+        return entry
       }
       else {
-        const preview = options?.mode === "preview" || options?.preview === true ? true : false;
-        const client = this.getDeliveryClient(preview);
+        const preview = options?.mode === "preview" || options?.preview === true ? true : false
+        const client = this.getDeliveryClient(preview)
 
-        return client.getEntry<EntryShape>(entryId);
+        return client.getEntry<EntryShape>(entryId)
       }
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
 
-  public async getEntries<EntryShape extends any, Mode = unknown>(query?: any | null, options?: getEntriesOptions<"delivery">): Promise<DeliveryEntry<EntryShape>[]>;
-  public async getEntries<EntryShape extends any, Mode extends ClientMode = "delivery" | "preview">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<DeliveryEntry<EntryShape>[]>;
-  public async getEntries<EntryShape extends any, Mode extends ClientMode = "management">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<ManagementEntry[]>;
+  /**
+   * Fetches an array of entries, automatically handling pagination for you.
+   * 
+   * @param query The Contentful query/search parameters to use to fetch entries. See: https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/search-parameters
+   * @param options.locale The locale to fetch. Uses the space default if undefined.
+   * @param options.mode What mode to run the request in ("delivery", "preview", or "management")
+   */
+  public async getEntries<EntryShape extends any, Mode = unknown>(query?: any | null, options?: getEntriesOptions<"delivery">): Promise<DeliveryEntry<EntryShape>[]>
+  public async getEntries<EntryShape extends any, Mode extends ClientMode = "delivery" | "preview">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<DeliveryEntry<EntryShape>[]>
+  public async getEntries<EntryShape extends any, Mode extends ClientMode = "management">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<ManagementEntry[]>
   public async getEntries<EntryShape extends any, Mode extends ClientMode = "delivery">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<DeliveryEntry<EntryShape>[] | ManagementEntry[]> {
     try {
       if (options?.mode === "management") {
-        const { env } = await this.getManagementClient();
-        const collection = await env.getEntries(query ?? {});
-        const [entries, finalCollection] = await handleCollection<ManagementEntry>(query ?? {}, collection, [], async (query) => await env.getEntries(query));
+        const { env } = await this.getManagementClient()
+        const collection = await env.getEntries(query ?? {})
+        const [entries, finalCollection] = await handleCollection<ManagementEntry>(query ?? {}, collection, [], async (query) => await env.getEntries(query))
 
-        return entries;
+        return entries
       }
       else {
-        const preview = options?.mode === "preview" || options?.preview === true ? true : false;
-        const client = this.getDeliveryClient(preview);
-        const collection = await client.getEntries<EntryShape>(query ?? {}) as unknown as ContentfulCollection<DeliveryEntry<EntryShape>>;
+        const preview = options?.mode === "preview" || options?.preview === true ? true : false
+        const client = this.getDeliveryClient(preview)
+        const collection = await client.getEntries<EntryShape>(query ?? {}) as unknown as ContentfulCollection<DeliveryEntry<EntryShape>>
         const [entries, finalCollection] = await handleCollection<DeliveryEntry<EntryShape>>(query ?? {}, collection, [], async (query) => {
           return await client.getEntries(query) as unknown as Promise<ContentfulCollection<DeliveryEntry<EntryShape>>>
-        });
+        })
 
-        return entries;
+        return entries
       }
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Creates a single entry
+   * 
+   * @param contentTypeId The content type id of the entry you are creating
+   * @param fields The field data for the entry you are creating
+   * @param options.locale The locale string for the locale to run the update for
+   * @param options.references Whether or not nested references should be created/updated
+   * @param options.entryId A pre-created entry ID to use instead of autogenerating one
+   */
   public async createEntry<EntryShape = any>(contentTypeId: string, fields: EntryShape, options: {
     locale: string,
     entryId?: string,
     references?: boolean
   }) {
-    const { locale } = options;
-    const contentType = await this.getContentType(contentTypeId);
-    const { env } = await this.getManagementClient();
+    const { locale } = options
+    const contentType = await this.getContentType(contentTypeId)
+    const { env } = await this.getManagementClient()
     const localizedFields = getLocalizedFields(fields, {
       contentType,
       locale: options.locale,
       references: false
-    });
+    })
     const createdEntry = typeof options.entryId !== "undefined"
       ? await env.createEntryWithId(contentTypeId, options.entryId, { fields: localizedFields })
       : await env.createEntry(contentTypeId, { fields: localizedFields })
 
     if (options?.references) {
-      const entry = await this.getEntry(createdEntry.sys.id, { mode: "preview" });
+      const entry = await this.getEntry(createdEntry.sys.id, { mode: "preview" })
 
-      entry.fields = fields;
+      entry.fields = fields
 
       return await this.updateEntryRecursive(entry, null, { locale, contentType })
     }
@@ -202,56 +236,88 @@ export class ContentfulClient {
         contentType,
         locale: options.locale,
         references: true
-      });
+      })
 
-      createdEntry.fields = localiedFieldsWithReferences;
+      createdEntry.fields = localiedFieldsWithReferences
 
-      createdEntry.update();
+      createdEntry.update()
 
-      const entry = await this.getEntry(createdEntry.sys.id, { mode: "preview" });
+      const entry = await this.getEntry(createdEntry.sys.id, { mode: "preview" })
 
-      return entry;
+      return entry
     }
   }
 
+  /**
+   * Updates a single entry
+   * 
+   * @param update The updated entry
+   * @param options.locale The locale string for the locale to run the update for
+   * @param options.initial The initial state of the entry, used for doing recursive updates to nested entries
+   * @param options.force Whether or not to force updates even if versions mismatch
+   */
   public async updateEntry<EntryShape extends Record<string, any> | unknown>(entryId: string, update: Entry<EntryShape>, options: {
     locale: string,
     initial?: Entry<EntryShape>,
     force?: boolean
   }) {
     try {
-      const { locale } = options;
+      const { locale } = options
       const entry = await this.getEntry<EntryShape>(entryId, {
         mode: "management"
-      });
-      const contentType = await this.getContentType(entry.sys.contentType.sys.id);
+      })
+      const contentType = await this.getContentType(entry.sys.contentType.sys.id)
 
       if (options.force !== true && update?.sys?.revision && entry.sys.version !== update.sys.revision) {
         throw new Error(`This entry was already updated by ${entry.sys.updatedBy?.sys.id} at ${new Date(entry.sys.updatedAt).toLocaleDateString()}`)
       }
 
-      if (update.sys.revision && update.sys.revision < entry.sys.version) throw new Error(`Update was ${entry.sys.version - update.sys.revision} versions behind...`)
-
       if (options?.initial) {
-        return this.updateEntryRecursive(options.initial, update, { locale, contentType });
+        return this.updateEntryRecursive(options.initial, update, { locale, contentType })
       }
       else {
-        const localizedFieldsWithReferences = getLocalizedFields(update.fields, { contentType, locale: options.locale, references: true });
+        const localizedFieldsWithReferences = getLocalizedFields(update.fields, { contentType, locale: options.locale, references: true })
 
-        entry.fields = localizedFieldsWithReferences;
+        entry.fields = localizedFieldsWithReferences
 
-        await entry.update();
+        await entry.update()
 
-        console.log({entry})
+        const updated_entry = await this.getEntry(entry.sys.id, { mode: "preview" })
 
-        const updated_entry = await this.getEntry(entry.sys.id, { mode: "preview" });
-
-        return updated_entry;
+        return updated_entry
       }
     }
     catch (error) {
-      throw error;
+      throw error
     }
+  }
+
+  /**
+   * Updates an array of entries, resolving when all updates are complete
+   * 
+   * @param updates The updated entries
+   * @param options.locale The locale string for the locale to run the update for
+   * @param options.initial The initial state of the entries, used for doing recursive updates to nested entries
+   * @param options.force Whether or not to force updates even if versions mismatch
+   */
+  public async updateEntries<EntryShape extends Record<string, any> | unknown>(updates: Entry<EntryShape>[], options: {
+    locale: string,
+    initial?: Entry<EntryShape>[],
+    force?: boolean
+  }) {
+    return await Promise.all(updates.map(updated_entry => {
+      const initial_entry = options?.initial && options?.initial?.find(entry => entry?.sys?.id === updated_entry?.sys?.id);
+
+      if (initial_entry) {
+        return this.updateEntryRecursive(initial_entry, updated_entry, { locale: options.locale })
+      }
+
+      if (!updated_entry?.sys?.id) {
+        return this.createEntry(updated_entry?.sys?.contentType?.sys?.id, updated_entry.fields, options);
+      }
+
+      return this.updateEntry(updated_entry?.sys?.id, updated_entry, { locale: options.locale, force: options.force })
+    }));
   }
 
   /** 
@@ -264,42 +330,48 @@ export class ContentfulClient {
    */
   private async updateEntryRecursive(initial: Entry<unknown>, updated: Entry<unknown> | null = null, options: GraphOptions & { shouldDelete?: boolean, locale: string }) {
     try {
-      const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated, options);
-      console.log({create, update, dereference })
-      const failures = [];
+      const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated, options)
+      console.log({ create, update, dereference })
+      console.log({
+        create: create?.[0],
+        update: update?.[0],
+        dereference: dereference?.[0]
+      })
       const createBatches = (items: any): Operation[][] => items.reduce((batches: Operation[][], item: any, i: number) => {
         const batchSize = this.rateLimit
-        const batchNumber = i < batchSize ? 0 : Math.floor(i / batchSize);
+        const batchNumber = i < batchSize ? 0 : Math.floor(i / batchSize)
         
-        batches[batchNumber] = typeof batches[batchNumber] !== "undefined" ? batches[batchNumber] : [];
-        batches[batchNumber].push(item);
+        batches[batchNumber] = typeof batches[batchNumber] !== "undefined" ? batches[batchNumber] : []
+        batches[batchNumber].push(item)
         
-        return batches;
-      }, []);
-      const runBatches = (batches: Operation[][]) => {
-        return Promise.allSettled(batches.map(
-          batch => Promise.allSettled(batch.map(
+        return batches
+      }, [])
+      const runBatches = async (batches: Operation[][]) => {
+        return await Promise.all(batches.map(
+          async batch => await Promise.all(batch.map(
             async operation => {
               try {
                 const locale = options.locale ?? operation.sys.locale
 
                 switch (operation.type) {
                   case "create":
-                    if (!operation.sys) break;
-                    return this.createEntry(operation.sys.contentType?.sys.id, operation.fields, { locale, entryId: operation.sys.id });
+                    if (!operation.sys) break
+                    return await this.createEntry(operation.sys.contentType?.sys.id, operation.fields, { locale, entryId: operation.sys.id })
                   case "update":
-                    return this.updateEntry(operation.sys.id, operation, { locale })
+                    return await this.updateEntry(operation.sys.id, operation, { locale })
                   case "dereference":
-                    if (!options.shouldDelete) break;
-                    return this.deleteEntry(operation.sys.id);
+                    if (!options.shouldDelete) break
+                    return await this.deleteEntry(operation.sys.id)
                 }
               } catch (error) {
-                console.warn(error);
-                failures.push(operation);
+                console.warn(error)
+                throw error
               }
+
+              return null
             }
-          ))
-        ));
+          )).then(batch => batch !== null)
+        ))
       }
       const queues = {
         create: createBatches(create),
@@ -307,8 +379,10 @@ export class ContentfulClient {
         dereference: createBatches(dereference)
       }
 
-      await runBatches(queues.create);
-      await runBatches(queues.update);
+      const create_results = await runBatches(queues.create)
+      const update_results = await runBatches(queues.update)
+
+      console.group({create_results, update_results})
 
       if (options.shouldDelete) {
         await runBatches(queues.dereference)
@@ -317,180 +391,246 @@ export class ContentfulClient {
       const updated_entry_id = typeof updated?.sys?.id !== "undefined" ? updated.sys.id : initial.sys.id
       const updated_entry = await this.getEntry(updated_entry_id, { mode: "preview" })
     
-      return updated_entry;
+      return updated_entry
     } catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Publishes the latest version of the entry
+   * 
+   * @param entryId 
+   */
   public async publishEntry(entryId: string) {
     try {
-      const client = await this.getManagementClient();
-      const entry = await client.env.getEntry(entryId);
+      const client = await this.getManagementClient()
+      const entry = await client.env.getEntry(entryId)
 
-      return await entry.publish();
+      await entry.publish()
+
+      return true;
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Archives an entry, hiding it from the delivery and preview APIs
+   * 
+   * @param entryId 
+   */
   public async archiveEntry(entryId: string) {
     try {
-      const client = await this.getManagementClient();
-      let entry = await client.env.getEntry(entryId);
+      const client = await this.getManagementClient()
+      let entry = await client.env.getEntry(entryId)
 
-      return await entry.archive();
+      await entry.archive()
+
+      return true;
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Deletes an entry. This is irreversible.
+   * 
+   * @param entryId 
+   */
   public async deleteEntry(entryId: string) {
     try {
-      const client = await this.getManagementClient();
-      let entry = await client.env.getEntry(entryId);
+      const client = await this.getManagementClient()
+      let entry = await client.env.getEntry(entryId)
 
-      return await entry.delete();
+      return await entry.delete()
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Fetches a single asset
+   * 
+   * @param assetId The id of the asset to fetch
+   * @param options.query The Contentful query/search parameters to use to fetch assets. See: https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/search-parameters
+   * @param options.preview Fetches the latest draft asset version from the preview API instead of the published version from the delivery API
+   */
   public async getAsset(assetId: string, options?: {
     query?: any,
     preview?: boolean
   }) {
     try {
-      const client = this.getDeliveryClient(options?.preview ?? false);
+      const client = this.getDeliveryClient(options?.preview ?? false)
       
-      return await client.getAsset(assetId, options?.query ?? {});
+      return await client.getAsset(assetId, options?.query ?? {})
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Fetches an array of assets, automatically handling pagination for you.
+   * 
+   * @param query The Contentful query/search parameters to use to fetch assets. See: https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/search-parameters
+   * @param options.preview Fetches the latest draft asset version from the preview API instead of the published version from the delivery API
+   */
   public async getAssets(query?: any, options?: {
     preview?: boolean
   }) {
     try {
-      const client = this.getDeliveryClient(options?.preview ?? false);
-      const collection = await client.getAssets(query ?? {});
-      const [assets, finalCollection] = await handleCollection(query ?? {}, collection, [], (query) => client.getAssets(query));
+      const client = this.getDeliveryClient(options?.preview ?? false)
+      const collection = await client.getAssets(query ?? {})
+      const [assets, finalCollection] = await handleCollection(query ?? {}, collection, [], (query) => client.getAssets(query))
 
-      return assets;
+      return assets
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Retreives a paginated collection of assets
+   * 
+   * @param query The Contentful query/search parameters to use to fetch assets. See: https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/search-parameters
+   * @param options.preview Fetches the latest draft asset version from the preview API instead of the published version from the delivery API
+   */
   public async getAssetCollection(query?: any, options?: {
-    preview: boolean;
+    preview: boolean
   }) {
     try {
-      const client = this.getDeliveryClient(options?.preview ?? false);
+      const client = this.getDeliveryClient(options?.preview ?? false)
 
-      return await client.getAssets(query ?? {});
+      return await client.getAssets(query ?? {})
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Creates a new asset from a file upload, usually from the Media Manager
+   * 
+   * @param upload A valid contentful upload datastructure, including the contents of the file as a string, ArrayBuffer, or ReadStream
+   * @param options.locale The locale string for the locale to run the create for
+   */
   public async createAsset(upload: ContentfulUpload, options: { locale: string }) {
     try {
-      const client = await this.getManagementClient();
-      const { env } = client;
-      const localizedFields = getLocalizedFields(upload.fields, { locale: options.locale, references: false });
+      const client = await this.getManagementClient()
+      const { env } = client
+      const localizedFields = getLocalizedFields(upload.fields, { locale: options.locale, references: false })
       const file = { fields: { ...upload.fields, ...localizedFields } }
       
-      let asset = await env.createAssetFromFiles(file);
-      asset = await asset.processForLocale(options.locale, { processingCheckRetries: 10 });
-      asset = await asset.publish();
+      let asset = await env.createAssetFromFiles(file)
+      asset = await asset.processForLocale(options.locale, { processingCheckRetries: 10 })
+      asset = await asset.publish()
       
-      return this.getAsset(asset.sys.id);
+      return this.getAsset(asset.sys.id)
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Updates an asset
+   * 
+   * @param assetId the ID of the asset to update_results
+   * @param asset The updated asset
+   * @param query The Contentful query/search parameters to use to when fetching the asset. See: https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/search-parameters
+   * @param options.locale The locale string for the locale to run the create for
+   */
   public async updateAsset(assetId: string, update: Asset, options: { query?: any, locale: string }) {
     try {
-      const client = await this.getManagementClient();
-      let asset = await client.env.getAsset(assetId, options?.query ?? {});
+      const client = await this.getManagementClient()
+      let asset = await client.env.getAsset(assetId, options?.query ?? {})
       const localizedFields = getLocalizedFields(update.fields, {
         locale: options.locale,
         references: false
       })
       const fields = { ...asset.fields, ...localizedFields }
 
-      asset.fields = fields;
-      asset = await asset.update();
-      asset = await asset.publish();
+      asset.fields = fields
+      asset = await asset.update()
+      asset = await asset.publish()
 
-      return this.getAsset(asset.sys.id);
+      return this.getAsset(asset.sys.id)
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Archives the latest version of the asset
+   * 
+   * @param assetId The id of the asset to archive 
+   */
   public async archiveAsset(assetId: string) {
     try {
-      const client = await this.getManagementClient();
-      let asset = await client.env.getAsset(assetId);
+      const client = await this.getManagementClient()
+      let asset = await client.env.getAsset(assetId)
 
       if (asset.isPublished()) {
-        await asset.unpublish();
+        await asset.unpublish()
       }
 
-      return (await asset.archive()).toPlainObject;
+      await asset.archive()
+
+      return true;
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
+  /**
+   * Deletes the the asset. This is irreverisble.
+   * 
+   * @param assetId The id of the asset to delete 
+   */
   public async deleteAsset(assetId: string) {
     try {
-      const client = await this.getManagementClient();
-      let asset = await client.env.getAsset(assetId);
+      const client = await this.getManagementClient()
+      let asset = await client.env.getAsset(assetId)
 
       if (asset.isPublished()) {
-        await asset.unpublish();
+        await asset.unpublish()
       }
 
-      return await asset.delete();
+      await asset.delete()
+
+      return true
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 
   public async getContentType<ContentTypeShape extends ContentType>(contentTypeId: string, options?: {
     preview?: boolean
   }) {
-    const client = this.getDeliveryClient(options?.preview ?? false);
+    const client = this.getDeliveryClient(options?.preview ?? false)
 
-    return await client.getContentType(contentTypeId) as ContentTypeShape;
+    return await client.getContentType(contentTypeId) as ContentTypeShape
   }
 
   private getDeliveryClient(preview: boolean) {
-    return preview ? this.sdks.previewClient : this.sdks.deliveryClient;
+    return preview ? this.sdks.previewClient : this.sdks.deliveryClient
   }
 
   public async sync(query: any, options?: {
     preview: boolean
   }) {
     try {
-      const client = this.getDeliveryClient(options?.preview ?? false);
+      const client = this.getDeliveryClient(options?.preview ?? false)
 
-      return await client.sync(query ?? {});
+      return await client.sync(query ?? {})
     }
     catch (error) {
       throw error
@@ -503,18 +643,18 @@ export class ContentfulClient {
     env: Environment
   }> {
     try {
-      const client: ClientAPI = this.sdks.managementClient;
-      const space = await client.getSpace(this.options.spaceId);
-      const env = await space.getEnvironment(this.environment);
+      const client: ClientAPI = this.sdks.managementClient
+      const space = await client.getSpace(this.options.spaceId)
+      const env = await space.getEnvironment(this.environment)
       
       return {
         client,
         space,
         env
-      };
+      }
     }
     catch (error) {
-      throw error;
+      throw error
     }
   }
 }
