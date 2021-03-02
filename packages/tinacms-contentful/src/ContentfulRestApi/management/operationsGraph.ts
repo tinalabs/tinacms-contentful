@@ -64,13 +64,7 @@ const createContentfulOperation = (initial: Entry<any> | null, updated: Entry<an
   const isCreate = initial === null && updated !== null;
   const isChange = initial && hasChanged(initial, updated) || false;
 
-  if (initial && isDereference) {
-    return {
-      type: "dereference",
-      sys: initial.sys
-    } as Operation<"dereference">
-  }  
-  else if (updated && isCreate) {
+  if (updated && isCreate) {
     const fieldsWithReferences = getFieldsWithReferences(
       updated.fields, options?.contentType
     );
@@ -79,7 +73,7 @@ const createContentfulOperation = (initial: Entry<any> | null, updated: Entry<an
       type: "create",
       sys: {
         ...updated.sys,
-        id: v4()
+        id: updated?.sys?.id ?? v4()
       },
       fields: fieldsWithReferences
     } as Operation<"create">
@@ -95,6 +89,12 @@ const createContentfulOperation = (initial: Entry<any> | null, updated: Entry<an
       fields: fieldsWithReferences
     } as Operation<"update">
   }
+  else if (initial && isDereference) {
+    return {
+      type: "dereference",
+      sys: initial.sys
+    } as Operation<"dereference">
+  }  
 
   return null
 }
@@ -132,7 +132,7 @@ const createEdge = (graph: OperationsGraph, from: string, to: string) => {
  * @param options 
  * @returns operations and the graph
  */
-export const createContentfulOperationsForEntry = (initial: Entry<any>, updated: Entry<any> | null, options?: GraphOptions) => {
+export const createContentfulOperationsForEntry = (initial: Entry<any> | null, updated: Entry<any> | null, options?: GraphOptions) => {
   const graph: OperationsGraph = {
     nodes: [],
     edges: {}

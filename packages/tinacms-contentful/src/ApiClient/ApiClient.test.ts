@@ -10,8 +10,6 @@ describe("ContentfulClient", () => {
     foo: "bar"
   }
 
-  beforeEach(() => console.log(expect.getState().currentTestName))
-
   it("should create the delivery SDK clients when provided with valid options", () => {
     const contentful = new ContentfulClient({
       clientId: "0",
@@ -125,7 +123,7 @@ describe("ContentfulClient", () => {
             id: v4(),
             type: "Entry",
             contentType: {
-              sys: { id: "course" }
+              sys: { id: "lesson" }
             }
           },
           fields: {
@@ -319,7 +317,7 @@ describe("ContentfulClient", () => {
         finally {
           if (res || new_entry) await contentful.deleteEntry(new_entry.sys.id)
         }
-      }, 10000)
+      }, 30000)
 
       it("should update an entry when provided a valid entryId, new data, and references", async () => {
         var new_entry: any
@@ -347,7 +345,7 @@ describe("ContentfulClient", () => {
             }
           }
     
-          new_entry = await contentful.createEntry("course", entry.fields, { locale })
+          new_entry = await contentful.createEntry("course", entry.fields, { locale, entryId: entry.sys.id })
           res = await contentful.updateEntry(new_entry.sys.id, update, { locale })
           
           expect(res.fields.title).toEqual(update.fields.title)
@@ -386,18 +384,22 @@ describe("ContentfulClient", () => {
             }
           }
     
-          new_entry = await contentful.createEntry("course", entry.fields, { locale })
+          new_entry = await contentful.createEntry("course", entry.fields, { locale, entryId: entry.sys.id })
           res = await contentful.updateEntry(new_entry.sys.id, update, {
             locale,
             initial: entry
           })
     
-          expect(res.fields.title).toEqual(update.title)
+          expect(res.fields.title).toEqual(update.fields.title)
           expect(res.fields.lessons[0].sys.id).toBe(lessons[0].sys.id)
           expect(res.fields.image.sys.id).toBe(update.fields.image.sys.id)
         }
         finally {
-          if (res || new_entry) await contentful.deleteEntry(new_entry.sys.id)
+          if (res || new_entry) {
+            await contentful.deleteEntry(new_entry.sys.id)
+
+            if (res?.fields?.lessons?.[0]) await contentful.deleteEntry(res.fields.lessons[0].sys.id)
+          }
         }
       }, 30000)
     })

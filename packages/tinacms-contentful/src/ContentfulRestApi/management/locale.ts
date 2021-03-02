@@ -14,13 +14,17 @@ const checkForReference = (value: any) => typeof value === "object" && typeof va
  * @returns fields
  */
 export function getFieldsWithReferences<FieldsShape extends Record<string, any>>(fields: FieldsShape, contentType?: ContentType) {
-  const createReference = (item: any): Record<"sys", MetaLinkProps> => ({
-    sys: {
-      type: "Link",
-      id: item.sys.id,
-      linkType: item.sys.type || "Entry"
+  const createReference = (item: any): Record<"sys", MetaLinkProps> => {
+    if (item.sys.linkType) return item;
+
+    return {
+      sys: {
+        type: "Link",
+        id: item.sys.id,
+        linkType: item.sys.type === "Asset" ? "Asset" : "Entry"
+      }
     }
-  });
+  };
 
   return Object.keys(fields)
     .reduce((references: Record<string, any>, fieldName) => {
@@ -48,8 +52,9 @@ export function getFieldsWithReferences<FieldsShape extends Record<string, any>>
  * to a management api field request
  * 
  * @param fields 
- * @param options 
- * @returns fields
+ * @param options.locale The locale to localize fields into
+ * @param options.contentType The content type record to use to find references (optional). If omitted, sys.type and sys.contentType is used.
+ * @param options.references Whether or not to reformat references in the returned field object
  */
 export function getLocalizedFields<EntryShape = Record<string, any>>(fields: EntryShape, options: {
   locale: string,

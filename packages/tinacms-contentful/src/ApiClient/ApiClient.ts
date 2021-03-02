@@ -220,16 +220,16 @@ export class ContentfulClient {
       locale: options.locale,
       references: false
     })
-    const createdEntry = typeof options.entryId !== "undefined"
+    const createdEntry = typeof options.entryId === "string" 
       ? await env.createEntryWithId(contentTypeId, options.entryId, { fields: localizedFields })
       : await env.createEntry(contentTypeId, { fields: localizedFields })
-
+  
     if (options?.references) {
       const entry = await this.getEntry(createdEntry.sys.id, { mode: "preview" })
 
       entry.fields = fields
 
-      return await this.updateEntryRecursive(entry, null, { locale, contentType })
+      return await this.updateEntryRecursive(null, entry, { locale, contentType })
     }
     else {
       const localiedFieldsWithReferences = getLocalizedFields(fields, {
@@ -328,15 +328,9 @@ export class ContentfulClient {
    * 
    * It does not reverse partially failed transactions, instead tracking them and retrying them.
    */
-  private async updateEntryRecursive(initial: Entry<unknown>, updated: Entry<unknown> | null = null, options: GraphOptions & { shouldDelete?: boolean, locale: string }) {
+  private async updateEntryRecursive(initial: Entry<unknown> | null = null, updated: Entry<unknown> | null = null, options: GraphOptions & { shouldDelete?: boolean, locale: string }) {
     try {
       const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated, options)
-      console.log({ create, update, dereference })
-      console.log({
-        create: create?.[0],
-        update: update?.[0],
-        dereference: dereference?.[0]
-      })
       const createBatches = (items: any): Operation[][] => items.reduce((batches: Operation[][], item: any, i: number) => {
         const batchSize = this.rateLimit
         const batchNumber = i < batchSize ? 0 : Math.floor(i / batchSize)
@@ -355,7 +349,7 @@ export class ContentfulClient {
 
                 switch (operation.type) {
                   case "create":
-                    if (!operation.sys) break
+                    if (!operation.sys) throw new Error("A create operation was lacking a sys field");
                     return await this.createEntry(operation.sys.contentType?.sys.id, operation.fields, { locale, entryId: operation.sys.id })
                   case "update":
                     return await this.updateEntry(operation.sys.id, operation, { locale })
@@ -364,7 +358,6 @@ export class ContentfulClient {
                     return await this.deleteEntry(operation.sys.id)
                 }
               } catch (error) {
-                console.warn(error)
                 throw error
               }
 
@@ -382,13 +375,14 @@ export class ContentfulClient {
       const create_results = await runBatches(queues.create)
       const update_results = await runBatches(queues.update)
 
-      console.group({create_results, update_results})
-
       if (options.shouldDelete) {
         await runBatches(queues.dereference)
       }
 
-      const updated_entry_id = typeof updated?.sys?.id !== "undefined" ? updated.sys.id : initial.sys.id
+      const updated_entry_id = updated?.sys?.id ?? initial?.sys?.id ?? null
+
+      if (updated_entry_id === null) return null
+
       const updated_entry = await this.getEntry(updated_entry_id, { mode: "preview" })
     
       return updated_entry
