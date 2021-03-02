@@ -230,6 +230,8 @@ export class ContentfulClient {
         throw new Error(`This entry was already updated by ${entry.sys.updatedBy?.sys.id} at ${new Date(entry.sys.updatedAt).toLocaleDateString()}`)
       }
 
+      if (update.sys.revision && update.sys.revision < entry.sys.version) throw new Error(`Update was ${entry.sys.version - update.sys.revision} versions behind...`)
+
       if (options?.initial) {
         return this.updateEntryRecursive(options.initial, update, { locale, contentType });
       }
@@ -238,7 +240,9 @@ export class ContentfulClient {
 
         entry.fields = localizedFieldsWithReferences;
 
-        entry.update();
+        await entry.update();
+
+        console.log({entry})
 
         const updated_entry = await this.getEntry(entry.sys.id, { mode: "preview" });
 
@@ -407,8 +411,6 @@ export class ContentfulClient {
       let asset = await env.createAssetFromFiles(file);
       asset = await asset.processForLocale(options.locale, { processingCheckRetries: 10 });
       asset = await asset.publish();
-
-      console.log({ asset })
       
       return this.getAsset(asset.sys.id);
     }
@@ -427,13 +429,9 @@ export class ContentfulClient {
       })
       const fields = { ...asset.fields, ...localizedFields }
 
-      console.log(fields.file)
-
       asset.fields = fields;
       asset = await asset.update();
       asset = await asset.publish();
-
-      console.log({ asset })
 
       return this.getAsset(asset.sys.id);
     }

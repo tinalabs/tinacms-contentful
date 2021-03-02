@@ -317,7 +317,7 @@ describe("ContentfulClient", () => {
           expect(res.fields.description).toBe(entry.fields.description);
         }
         finally {
-          if (res || new_entry) await contentful.deleteEntry(new_entry.sys.id);
+          //if (res || new_entry) await contentful.deleteEntry(new_entry.sys.id);
         }
       }, 10000);
 
@@ -343,7 +343,7 @@ describe("ContentfulClient", () => {
             ...entry,
             fields: {
               ...entry.fields,
-              title: `Updated: Test - ${entry.fields.title}`
+              title: `Updated: ${entry.fields.title}`
             }
           }
     
