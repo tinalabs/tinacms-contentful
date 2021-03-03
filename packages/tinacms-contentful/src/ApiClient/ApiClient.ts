@@ -139,10 +139,10 @@ export class ContentfulClient {
    * @param options.query The Contentful query/search parameters to use to fetch entries. See: https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/search-parameters
    * @param options.mode What mode to run the request in ("delivery", "preview", or "management")
    */
-  public async getEntry<EntryShape extends any, Mode = "unknown">(entryId: string, options?: getEntryOptions<"delivery">): Promise<DeliveryEntry<any>>
-  public async getEntry<EntryShape extends any, Mode extends ClientMode = "delivery" | "preview">(entryId: string, options?: getEntryOptions<Mode>): Promise<DeliveryEntry<any>>
-  public async getEntry<EntryShape extends any, Mode extends ClientMode = "management">(entryId: string, options?: getEntryOptions<Mode>): Promise<ManagementEntry>
-  public async getEntry<EntryShape extends any, Mode extends ClientMode>(entryId: string, options?: getEntryOptions<Mode>): Promise<DeliveryEntry<EntryShape> | ManagementEntry> {
+  public async getEntry<EntryShape extends any, Mode = unknown>(entryId: string, options?: getEntryOptions<"delivery">): Promise<DeliveryEntry<any>>
+  public async getEntry<EntryShape extends any, Mode = "management">(entryId: string, options?: getEntryOptions<"management">): Promise<ManagementEntry>
+  public async getEntry<EntryShape extends any, Mode extends "delivery" | "preview">(entryId: string, options?: getEntryOptions<Mode>): Promise<DeliveryEntry<any>>
+  public async getEntry<EntryShape extends any, Mode extends ClientMode = "delivery">(entryId: string, options?: getEntryOptions<Mode>): Promise<DeliveryEntry<EntryShape> | ManagementEntry> {
     try {
       if (options?.mode === "management") {
         const { env } = await this.getManagementClient()
@@ -171,8 +171,8 @@ export class ContentfulClient {
    * @param options.mode What mode to run the request in ("delivery", "preview", or "management")
    */
   public async getEntries<EntryShape extends any, Mode = unknown>(query?: any | null, options?: getEntriesOptions<"delivery">): Promise<DeliveryEntry<EntryShape>[]>
-  public async getEntries<EntryShape extends any, Mode extends ClientMode = "delivery" | "preview">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<DeliveryEntry<EntryShape>[]>
-  public async getEntries<EntryShape extends any, Mode extends ClientMode = "management">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<ManagementEntry[]>
+  public async getEntries<EntryShape extends any, Mode = "management">(query?: any | null, options?: getEntriesOptions<"management">): Promise<ManagementEntry[]>
+  public async getEntries<EntryShape extends any, Mode extends "delivery" | "preview">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<DeliveryEntry<EntryShape>[]>
   public async getEntries<EntryShape extends any, Mode extends ClientMode = "delivery">(query?: any | null, options?: getEntriesOptions<Mode>): Promise<DeliveryEntry<EntryShape>[] | ManagementEntry[]> {
     try {
       if (options?.mode === "management") {
@@ -398,10 +398,27 @@ export class ContentfulClient {
    */
   public async publishEntry(entryId: string) {
     try {
-      const client = await this.getManagementClient()
-      const entry = await client.env.getEntry(entryId)
+      const entry = await this.getEntry(entryId, { mode: "management" })
 
       await entry.publish()
+
+      return true;
+    }
+    catch (error) {
+      throw error
+    }
+  }
+
+  /**
+   * Unpublishes the latest version of the entry
+   * 
+   * @param entryId 
+   */
+  public async unpublishEntry(entryId: string) {
+    try {
+      const entry = await this.getEntry(entryId, { mode: "management" })
+
+      await entry.unpublish();
 
       return true;
     }
@@ -417,8 +434,7 @@ export class ContentfulClient {
    */
   public async archiveEntry(entryId: string) {
     try {
-      const client = await this.getManagementClient()
-      let entry = await client.env.getEntry(entryId)
+      let entry = await this.getEntry(entryId, { mode: "management" })
 
       await entry.archive()
 
@@ -436,8 +452,7 @@ export class ContentfulClient {
    */
   public async deleteEntry(entryId: string) {
     try {
-      const client = await this.getManagementClient()
-      let entry = await client.env.getEntry(entryId)
+      const entry = await this.getEntry(entryId, { mode: "management" })
 
       return await entry.delete()
     }
