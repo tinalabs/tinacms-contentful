@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TinaReset } from '@tinacms/styles';
 import {
   Modal,
   ModalPopup,
@@ -8,6 +7,7 @@ import {
   ModalBody,
   ModalActions,
 } from 'tinacms';
+import { TinaReset } from '@tinacms/styles';
 import { AsyncButton } from '../button/async';
 
 // TODO: This is copy-pasted directly from react-tinacms-github/src/github-editing-context/GithubAuthModal.tsx

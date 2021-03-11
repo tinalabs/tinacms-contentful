@@ -4,12 +4,12 @@
   "name": "tinacms-contentful-root",
   "license": "MIT",
   "scripts": {
-    "postinstall": "npx lerna bootstrap",
-    "start": "npx lerna run start",
-    "dev": "npx lerna run dev",
-    "build": "npx lerna run build",
-    "test": "npx lerna run test",
-    "lint": "npx lerna run lint",
+    "postinstall": "npx lerna bootstrap --no-hoist",
+    "start": "npx lerna run start --stream",
+    "dev": "npx lerna run dev --stream",
+    "build": "npx lerna run build --stream",
+    "test": "npx lerna run test --stream",
+    "lint": "npx lerna run lint --stream",
     "publish": "npx lerna publish"
   },
   "husky": {
@@ -27,6 +27,7 @@
     "@types/jest": "^26.0.14",
     "husky": "^4.2.3",
     "jest": "^24.9.0",
-    "lerna": "^3.22.1"
+    "lerna": "^3.22.1",
+    "prettier": "^2.2.1"
   }
 }
