@@ -9,6 +9,7 @@ describe('operationsGraph', () => {
   let references: Entry<any>[];
 
   beforeEach(() => {
+    console.log(expect.getState().currentTestName)
     baseEntry = {
       sys: { id: '0', type: 'Entry' },
       fields: {
@@ -383,7 +384,7 @@ describe('operationsGraph', () => {
         entries_updated,
         null
       );
-
+      
       expect(graph).toMatchInlineSnapshot(`
         Object {
           "edges": Object {},

@@ -66,11 +66,37 @@ const findReferenceKeys = (entry: Entry<any>, contentType?: ContentType) => {
     })
 }
 
+const addReferenceId = (entry: Entry<any> | null, key: string) => {
+  const field = entry?.fields?.[key]
+    
+    if (!field || !entry) return null
+    
+    const isArray = Array.isArray(field)
+    const items = isArray ? field : [field]
+
+    items.forEach((item: any, idx: number) => {
+      const itemId = item?.sys?.id ?? v4()
+      
+      item.sys.id = itemId
+      
+      if (isArray) {
+        entry.fields[key][idx].sys.id = itemId
+        field[idx].sys.id = itemId
+      } else  {
+        entry.fields[key].sys.id = itemId
+        field.sys.id = itemId
+      }
+      
+    })
+
+    return field
+}
+
 const createContentfulOperation = (initial: Entry<any> | null, updated: Entry<any> | null, options?: GraphOptions): Operation | null => {
   const isDereference = initial !== null && updated === null;
   const isCreate = initial === null && updated !== null;
   const isChange = initial && hasChanged(initial, updated) || false;
-
+  
   if (updated && isCreate) {
     const fieldsWithReferences = getFieldsWithReferences(
       updated.fields, options?.contentType
@@ -140,7 +166,7 @@ export const createContentfulOperationsForEntry = (initial: Entry<any> | null, u
     nodes: [],
     edges: {}
   }
-  const operations = _createContentfulOperationsForEntry(
+  const operations = computeContentfulOperationsForEntry(
     graph, initial, updated, null, options
   );
   
@@ -164,55 +190,19 @@ export const createContentfulOperationsForEntry = (initial: Entry<any> | null, u
  * @param parent 
  * @param options 
  */
-function _createContentfulOperationsForEntry(operations: OperationsGraph, initial: Entry<any> | null, updated: Entry<any> | null, parent: Entry<any> | null = null, options?: GraphOptions) {
-  const entry = typeof updated?.sys !== undefined ? updated : initial;
+function computeContentfulOperationsForEntry(operations: OperationsGraph, initial: Entry<any> | null, updated: Entry<any> | null, parent: Entry<any> | null = null, options?: GraphOptions) {
+  const entry = (updated && typeof updated?.sys !== undefined) ? updated : initial;
   const initialKeys = initial !== null ? findReferenceKeys(initial, options?.contentType) : [];
-  const initialReferences = [].concat.apply([], initialKeys.map(childKey => {
-    const item = initial?.fields[childKey]
-    
-    if ( !item || !item?.sys || !entry) return null
-    if (!entry.fields[childKey].sys) return null
-    const itemId = item?.sys?.id ?? v4()
-    
-    item.sys.id = itemId
-    entry.fields[childKey].sys.id = itemId
-    
-    return item
-  }))
+  const initialReferences = [].concat.apply([], initialKeys.map(childKey => addReferenceId(initial, childKey)))
     .filter(item => typeof item !== "undefined" && item !== null)
   const updatedKeys = updated !== null ? findReferenceKeys(updated, options?.contentType) : [];
-  const updatedReferences = [].concat.apply([], updatedKeys.map(childKey => {
-    const field = updated?.fields?.[childKey]
-    
-    if (!field || !entry) return null
-    
-    const isArray = Array.isArray(field)
-    const items = isArray ? field : [field]
-
-    items.forEach((item: any, idx: number) => {
-      const itemId = item?.sys?.id ?? v4()
-      
-      item.sys.id = itemId
-      
-      if (isArray) {
-        entry.fields[childKey][idx].sys.id = itemId
-        field[idx].sys.id = itemId
-      } else  {
-        entry.fields[childKey].sys.id = itemId
-        field.sys.id = itemId
-      }
-      
-    })
-
-    return field
-  }))
+  const updatedReferences = [].concat.apply([], updatedKeys.map(childKey => addReferenceId(updated, childKey)))
     .filter(item => typeof item !== "undefined" && item !== null)
   if (entry && hasNode(operations, entry) === false) {
     createNode(operations, initial, updated, parent, options);
   }
-
   if (initialReferences.length > 0 || updatedReferences.length > 0) {
-    return _createContentfulOperationsForEntries(operations, initialReferences, updatedReferences, entry, options)
+    return computeContentfulOperationsForEntries(operations, initialReferences, updatedReferences, entry, options)
   }
 
   return operations;
@@ -234,7 +224,7 @@ export const createContentfulOperationsForEntries = (initial: Entry<any>[], upda
     nodes: [],
     edges: {}
   }
-  const operations = _createContentfulOperationsForEntries(graph, initial, updated, parent, options);
+  const operations = computeContentfulOperationsForEntries(graph, initial, updated, parent, options);
 
   return {
     create: operations.nodes.filter(operation => operation.type === "create") as Operation<"create">[],
@@ -256,23 +246,22 @@ export const createContentfulOperationsForEntries = (initial: Entry<any>[], upda
  * @param parent 
  * @param options 
  */
-function _createContentfulOperationsForEntries(operations: OperationsGraph, initial: Entry<any>[], updated: Entry<any>[], parent: Entry<any> | null = null, options?: GraphOptions) {
+function computeContentfulOperationsForEntries(operations: OperationsGraph, initial: Entry<any>[], updated: Entry<any>[], parent: Entry<any> | null = null, options?: GraphOptions) {
   // Queue operations
   for (const updatedEntry of updated) {
     // If null, we've got a create
     const initialEntry = initial && initial.find(entry => (entry?.sys?.id === updatedEntry?.sys?.id) || false) || null
-
+    
     if (initialEntry || updatedEntry) {
-      _createContentfulOperationsForEntry(operations, initialEntry, updatedEntry, parent, options);
+      computeContentfulOperationsForEntry(operations, initialEntry, updatedEntry, parent, options);
     }
   }
 
   for (const initialEntry of initial) {
     // If null, we've got a dereference
     const updatedEntry = updated && updated.find(entry => (entry?.sys?.id === initialEntry?.sys?.id) || false) || null
-
     if (initialEntry || updatedEntry) {
-      _createContentfulOperationsForEntry(operations, initialEntry, updatedEntry, parent, options);
+      computeContentfulOperationsForEntry(operations, initialEntry, updatedEntry, parent, options);
     }
   }
 
