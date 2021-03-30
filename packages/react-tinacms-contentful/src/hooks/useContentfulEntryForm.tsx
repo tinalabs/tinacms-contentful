@@ -42,7 +42,7 @@ export const AsyncAction = ({ action, labels }: AsyncActionButtonProps) => {
       setStatus("idle")
     } catch (error) {
       setStatus("error");
-      console.log(error);
+      console.error(error);
     }
   }, [])
   const color = status === "error" ? "red" : "inherit"
@@ -171,7 +171,6 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
       .then(async entry => {
         const isPublished = await entry.isPublished();
         setIsPublished(isPublished)
-        console.log(isPublished)
       })
       .catch(err => { console.warn(`Couldn't get publish information for ${entry}`) })
   }, []);

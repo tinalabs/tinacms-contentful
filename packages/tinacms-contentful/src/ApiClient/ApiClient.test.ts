@@ -144,7 +144,7 @@ describe("ContentfulClient", () => {
       })
   
       it("should return the latest draft of an entry when provided a valid entryId and options.preview is true", async () => {   
-        const res = await contentful.getEntry<any>(entryId, {
+        const res = await contentful.getEntry(entryId, {
           mode: "preview"
         })
   
