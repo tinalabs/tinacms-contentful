@@ -21,6 +21,6 @@ To get up and running quickly, follow the instructions for your tech stack:
 
 There are three different approaches to using Contentful with TinaCMS, depending on your application's configuration:
 
-1. [*Client-side with OAuth user authentication*](./docs/client-side.md), which allows users of your Contentful organization to login to their account to edit the content with Tina that they are allowed to access in Contentful.
-2. [*Client-side with personal access-token-based authentication*](./docs/client-side.md#personal-access-token-authentication), which allows you to access the delivery API or preview API to render content client-side, or preview draft content.
-3. [*Serverless with access-token-based authentication*](./docs/serverless.md#accesss-token-authentication), which allows you to access the delivery API or preview API to build your application or preview draft content, and the management API to write changes back to contentful as the system instead of as a user.
+1. [*Client-side with OAuth user authentication*](./guides/client-side.md), which allows users of your Contentful organization to login to their account to edit the content with Tina that they are allowed to access in Contentful.
+2. [*Serverless with Oauth user authentication*](./guides/serverless.md), which allows you to access the delivery API or preview API to build your application or preview draft content, and the management API to write changes back to contentful as the system instead of as a user.
+3. [*Updating entries with nested references*](./guides/entries-with-references.md), which allows you to build complex data structures using Contentful Link fields and edit them with a single TinaCMS form.
