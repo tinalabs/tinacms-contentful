@@ -5,8 +5,8 @@ import {
   ContentfulEditingProvider,
   ContentfulEditingProps,
 } from './ContentfulEditingContextProvider';
-import { ContentfulAuthModal } from '../components/modals/ContentfulAuthModal';
-import { ContentfulErrorModal } from '../components/modals/ContentfulErrorModal';
+import { ContentfulAuthModal } from '../authentication/modals/ContentfulAuthModal';
+import { ContentfulErrorModal } from '../authentication/modals/ContentfulErrorModal';
 
 export interface TinaContentfulProviderProps {
   onLogin?: () => Promise<void>;
@@ -16,6 +16,9 @@ export interface TinaContentfulProviderProps {
 
 type Modals = 'authenticate' | 'error' | 'none';
 
+/**
+ * A provider for managing the Oauth authentication UI workflow for Contentful
+ */
 export const TinaContentfulProvider = ({
   onLogin,
   onLogout,

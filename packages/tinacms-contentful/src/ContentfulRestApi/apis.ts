@@ -11,7 +11,13 @@ export interface ContentfulApiServiceOptions extends SpaceOptions {
   environmentId?: string;
 }
 
+/**
+ * Manages creating Contentful Clients for the API Client
+ */
 export class ContentfulApiService {
+  /**
+   * @param options A standard set of options for Contentful's Delivery/Preview API and Management API
+   */
   constructor(public options: ContentfulApiServiceOptions) {}
 
   public static DELIVERY_CLIENT_ERROR =

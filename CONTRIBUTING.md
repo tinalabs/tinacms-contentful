@@ -42,3 +42,28 @@ module.exports = {
   // ...
 };
 ```
+
+## Test Suites
+
+This monorepo is tested using Jest and Contentful.
+
+### Pre-requisites
+
+Before running the tests, you must setup a local `.env` file with secrets for a "test" space in Contentful setup from the [Contentful 
+"Example App"](https://the-example-app-nodejs.contentful.com) example space when creating the new space.
+
+The required environment variables are outlined in `.env.sample`.
+
+### Running Tests
+
+The tests can be ran by running:
+
+```
+yarn run test
+```
+
+To run tests for a specific package, run:
+
+```
+yarn run test --
+```

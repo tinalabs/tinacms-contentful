@@ -8,6 +8,13 @@ export interface useContentfulEntriesOptions {
   spaceId?: string;
 }
 
+/**
+ * Fetches an array of Contentful Entries for a given query
+ * 
+ * @param query The query to run to fetch entries
+ * @param options.spaceId If using multiple spaces, you must specify the space the entry is stored in (Optional)
+ * @returns [entries, loading, error]
+ */
 export function useContentfulEntries<TEntryType = any>(
   query: any,
   options?: useContentfulEntriesOptions

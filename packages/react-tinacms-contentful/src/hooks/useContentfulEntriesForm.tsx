@@ -9,6 +9,20 @@ import { AsyncAction, ContentfulEntryFormOptions } from './useContentfulEntryFor
 
 export type ContentfulEntriesFormOptions = ContentfulEntryFormOptions;
 
+/**
+ * Creates a TinaCMS Form for an array of entries
+ * 
+ * @param entry The entry to edit
+ * @param options.locale The locale this entry is currently being edited in
+ * @param options.spaceId If using multiple spaces, you must specify the space this entry is stored in
+ * @param options.contentType Specify a content type to automatically generate a field config from (Optional)
+ * @param options.saveOnChange If true, automatically saves changes after 5 seconds of inactivity, or the number of seconds specified
+ * @param options.publishOnSave If true, publishes changes when the form is saved
+ * @param options.references If true, also runs create, update, and delete operations for nested entry and asset references
+ * @param options.buttons Specify which buttons to enable for form functionality (Save, Reset, Publish, Unpublish, Archive)
+ * @param watch The TinaCMS form values to watch for changes and update the form with
+ * @returns [modifiedEntries, Form]
+ */
 export function useContentfulEntriesForm<EntryShape extends Record<string, any> = any>(
   entries: Entry<EntryShape>[],
   options: ContentfulEntriesFormOptions,

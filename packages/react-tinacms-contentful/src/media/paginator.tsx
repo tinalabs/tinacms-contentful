@@ -2,12 +2,9 @@ import React, { ChangeEvent } from 'react'
 import styled, { css } from 'styled-components'
 import { MediaPaginatorPlugin, MediaPaginatorProps, MediaList } from 'tinacms'
 
-export const CustomPaginatorPlugin: MediaPaginatorPlugin = {
-  __type: 'media:ui',
-  name: 'paginator',
-  Component: Paginator,
-}
-
+/**
+ * A custom media paginator designed to handle hundreds of pages of Contentful Assets
+ */
 export function Paginator({ list, setOffset }: MediaPaginatorProps) {
   const limit = list.limit || 10
   const numPages = Math.ceil(list.totalCount / limit)
@@ -72,6 +69,12 @@ const SimplePageLinks = ({
   }
 
   return <>{pageLinks}</>
+}
+
+export const CustomPaginatorPlugin: MediaPaginatorPlugin = {
+  __type: 'media:ui',
+  name: 'paginator',
+  Component: Paginator,
 }
 
 const AdvancedPageLinks = ({

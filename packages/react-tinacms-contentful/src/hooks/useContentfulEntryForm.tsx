@@ -22,48 +22,20 @@ export interface ContentfulEntryFormOptions extends Partial<FormOptions<any>> {
   }
 }
 
-export interface AsyncActionButtonProps {
-  action: () => void
-  labels: {
-    idle: string;
-    running: string;
-  }
-}
-
-export const AsyncAction = ({ action, labels }: AsyncActionButtonProps) => {
-  const [status, setStatus] = useState<"running" | "idle" | "error">("idle");
-  const running = status === "running";
-  const handleClick = useCallback(async () => {
-    try {
-      setStatus("running")
-
-      await action();
-
-      setStatus("idle")
-    } catch (error) {
-      setStatus("error");
-      console.log(error);
-    }
-  }, [])
-  const color = status === "error" ? "red" : "inherit"
-  const opacity = status === "running" ? 0.5 : 1;
-  const cursor = status === "running" ? "progress" : "inherit"
-
-  return (
-    <ActionButton onClick={handleClick}>
-      <span style={{ color, opacity, cursor }}>
-        {running && labels.running}
-        {!running && labels.idle}
-      </span>
-    </ActionButton>
-  )
-}
-
-export interface EntryStatus {
-  loading: boolean
-  published: boolean
-}
-
+/**
+ * Creates a TinaCMS Form for a given Entry
+ * 
+ * @param entry The entry to edit
+ * @param options.locale The locale this entry is currently being edited in
+ * @param options.spaceId If using multiple spaces, you must specify the space this entry is stored in
+ * @param options.contentType Specify a content type to automatically generate a field config from (Optional)
+ * @param options.saveOnChange If true, automatically saves changes after 5 seconds of inactivity, or the number of seconds specified
+ * @param options.publishOnSave If true, publishes changes when the form is saved
+ * @param options.references If true, also runs create, update, and delete operations for nested entry and asset references
+ * @param options.buttons Specify which buttons to enable for form functionality (Save, Reset, Publish, Unpublish, Archive)
+ * @param watch The TinaCMS form values to watch for changes and update the form with
+ * @returns [modifiedEntry, Form]
+ */
 export function useContentfulEntryForm<EntryShape extends Record<string, any> = any>(
   entry: Entry<EntryShape>,
   options: ContentfulEntryFormOptions,
@@ -246,4 +218,47 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
     loading: false,
     published: isPublished
   }];
+}
+
+
+export interface AsyncActionButtonProps {
+  action: () => void
+  labels: {
+    idle: string;
+    running: string;
+  }
+}
+
+export const AsyncAction = ({ action, labels }: AsyncActionButtonProps) => {
+  const [status, setStatus] = useState<"running" | "idle" | "error">("idle");
+  const running = status === "running";
+  const handleClick = useCallback(async () => {
+    try {
+      setStatus("running")
+
+      await action();
+
+      setStatus("idle")
+    } catch (error) {
+      setStatus("error");
+      console.log(error);
+    }
+  }, [])
+  const color = status === "error" ? "red" : "inherit"
+  const opacity = status === "running" ? 0.5 : 1;
+  const cursor = status === "running" ? "progress" : "inherit"
+
+  return (
+    <ActionButton onClick={handleClick}>
+      <span style={{ color, opacity, cursor }}>
+        {running && labels.running}
+        {!running && labels.idle}
+      </span>
+    </ActionButton>
+  )
+}
+
+export interface EntryStatus {
+  loading: boolean
+  published: boolean
 }
