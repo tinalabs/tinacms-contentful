@@ -621,6 +621,13 @@ export class ContentfulClient {
     }
   }
 
+  /**
+   * Fetches a content type definition by ID
+   * 
+   * @param contentTypeId 
+   * @param options.preview If true, get the latest unpublished revision
+   * @returns 
+   */
   public async getContentType<ContentTypeShape extends ContentType>(contentTypeId: string, options?: {
     preview?: boolean
   }) {

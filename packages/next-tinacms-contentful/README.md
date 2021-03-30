@@ -1,11 +1,14 @@
 # `next-tinacms-contentful`
 
-> TODO: description
+A utility library for using Contentful with TinaCMS and Next.js
+
 
 ## Usage
 
-```
-const nextTinacmsContentful = require('next-tinacms-contentful');
+### Prerequisites
 
-// TODO: DEMONSTRATE API
+You must have
+
+```
+npm 
 ```

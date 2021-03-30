@@ -9,15 +9,15 @@ To use this plugin, the following is expected:
 - You have a working application with [TinaCMS already setup](https://tinacms.org/docs/cms)
 - You have setup [OAuth applications with Contentful](./docs/oauth.md) if you plan to have your users authenticate with Contentful
 
-## Installation
+## Quick Start
 
-```
-npm install --save react-tinacms-contentful contentful contentful-management
-# or
-yarn add react-tinacms-contentful contentful contentful-management
-```
+To get up and running quickly, follow the instructions for your tech stack:
 
-## Getting started
+- [Vanilla JS](./packages/tinacms-contentful/README.md)
+- [React](./packages/react-tinacms-contentful/README.md)
+- [Next.js](./packages/next-tinacms-contentful/README.md)
+
+## Guides
 
 There are three different approaches to using Contentful with TinaCMS, depending on your application's configuration:
 
