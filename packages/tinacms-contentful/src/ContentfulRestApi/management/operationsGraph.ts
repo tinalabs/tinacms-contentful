@@ -53,8 +53,15 @@ const findReferenceKeys = (entry: Entry<any>, contentType?: ContentType) => {
     .filter(fieldName => {
       const field = entry.fields[fieldName]
       const fieldDefinition = contentType && contentType.fields.find(field => field.id === fieldName);
-      const isReference = fieldDefinition?.type === "Link" || Array.isArray(field) ? isEntries(field) : isEntry(field)
+      let isReference = false
 
+      if (fieldDefinition?.type === "Link") {
+        isReference = true
+      } else if (Array.isArray(field)) {
+        isReference = isEntries(field)
+      } else {
+        isReference = isEntry(field)
+      }
       return isReference
     })
 }
@@ -68,13 +75,10 @@ const createContentfulOperation = (initial: Entry<any> | null, updated: Entry<an
     const fieldsWithReferences = getFieldsWithReferences(
       updated.fields, options?.contentType
     );
-  
+    
     return {
       type: "create",
-      sys: {
-        ...updated.sys,
-        id: updated?.sys?.id ?? v4()
-      },
+      sys: updated.sys,
       fields: fieldsWithReferences
     } as Operation<"create">
   }
@@ -103,7 +107,6 @@ const createNode = (graph: OperationsGraph, initial: Entry<any> | null, updated:
   if (initial === null && updated === null) return;
 
   const operation = createContentfulOperation(initial, updated, options);
-
   if (operation !== null) {
     graph.nodes.push(operation)
 
@@ -140,7 +143,7 @@ export const createContentfulOperationsForEntry = (initial: Entry<any> | null, u
   const operations = _createContentfulOperationsForEntry(
     graph, initial, updated, null, options
   );
-
+  
   return {
     create: operations.nodes.filter(operation => operation.type === "create") as Operation<"create">[],
     update: operations.nodes.filter(operation => operation.type === "update") as Operation<"update">[],
@@ -162,14 +165,48 @@ export const createContentfulOperationsForEntry = (initial: Entry<any> | null, u
  * @param options 
  */
 function _createContentfulOperationsForEntry(operations: OperationsGraph, initial: Entry<any> | null, updated: Entry<any> | null, parent: Entry<any> | null = null, options?: GraphOptions) {
-  const entry = updated?.sys?.id ? updated : initial;
+  const entry = typeof updated?.sys !== undefined ? updated : initial;
   const initialKeys = initial !== null ? findReferenceKeys(initial, options?.contentType) : [];
-  const initialReferences = [].concat.apply([], initialKeys.map(childKey => initial?.fields[childKey]))
+  const initialReferences = [].concat.apply([], initialKeys.map(childKey => {
+    const item = initial?.fields[childKey]
+    
+    if ( !item || !item?.sys || !entry) return null
+    if (!entry.fields[childKey].sys) return null
+    const itemId = item?.sys?.id ?? v4()
+    
+    item.sys.id = itemId
+    entry.fields[childKey].sys.id = itemId
+    
+    return item
+  }))
     .filter(item => typeof item !== "undefined" && item !== null)
   const updatedKeys = updated !== null ? findReferenceKeys(updated, options?.contentType) : [];
-  const updatedReferences = [].concat.apply([], updatedKeys.map(childKey => updated?.fields[childKey]))
-    .filter(item => typeof item !== "undefined" && item !== null)
+  const updatedReferences = [].concat.apply([], updatedKeys.map(childKey => {
+    const field = updated?.fields?.[childKey]
+    
+    if (!field || !entry) return null
+    
+    const isArray = Array.isArray(field)
+    const items = isArray ? field : [field]
 
+    items.forEach((item: any, idx: number) => {
+      const itemId = item?.sys?.id ?? v4()
+      
+      item.sys.id = itemId
+      
+      if (isArray) {
+        entry.fields[childKey][idx].sys.id = itemId
+        field[idx].sys.id = itemId
+      } else  {
+        entry.fields[childKey].sys.id = itemId
+        field.sys.id = itemId
+      }
+      
+    })
+
+    return field
+  }))
+    .filter(item => typeof item !== "undefined" && item !== null)
   if (entry && hasNode(operations, entry) === false) {
     createNode(operations, initial, updated, parent, options);
   }
@@ -223,7 +260,7 @@ function _createContentfulOperationsForEntries(operations: OperationsGraph, init
   // Queue operations
   for (const updatedEntry of updated) {
     // If null, we've got a create
-    const initialEntry = initial && initial.find(entry => entry?.sys?.id === (updatedEntry?.sys?.id || false)) || null
+    const initialEntry = initial && initial.find(entry => (entry?.sys?.id === updatedEntry?.sys?.id) || false) || null
 
     if (initialEntry || updatedEntry) {
       _createContentfulOperationsForEntry(operations, initialEntry, updatedEntry, parent, options);
@@ -232,7 +269,7 @@ function _createContentfulOperationsForEntries(operations: OperationsGraph, init
 
   for (const initialEntry of initial) {
     // If null, we've got a dereference
-    const updatedEntry = updated && updated.find(entry => entry?.sys?.id === (initialEntry?.sys?.id || false)) || null
+    const updatedEntry = updated && updated.find(entry => (entry?.sys?.id === initialEntry?.sys?.id) || false) || null
 
     if (initialEntry || updatedEntry) {
       _createContentfulOperationsForEntry(operations, initialEntry, updatedEntry, parent, options);
