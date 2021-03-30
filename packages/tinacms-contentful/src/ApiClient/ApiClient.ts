@@ -223,13 +223,13 @@ export class ContentfulClient {
     const createdEntry = typeof options.entryId === "string" 
       ? await env.createEntryWithId(contentTypeId, options.entryId, { fields: localizedFields })
       : await env.createEntry(contentTypeId, { fields: localizedFields })
-  
+    
+
     if (options?.references) {
       const entry = await this.getEntry(createdEntry.sys.id, { mode: "preview" })
+      const updatedEntry = { ...entry, fields }
 
-      entry.fields = fields
-
-      return await this.updateEntryRecursive(null, entry, { locale, contentType })
+      return await this.updateEntryRecursive(entry, updatedEntry, { locale, contentType })
     }
     else {
       const localiedFieldsWithReferences = getLocalizedFields(fields, {
@@ -384,7 +384,7 @@ export class ContentfulClient {
       if (updated_entry_id === null) throw new Error("Missing entry id");
 
       const updated_entry = await this.getEntry(updated_entry_id, { mode: "preview" })
-    
+      
       return updated_entry
     } catch (error) {
       throw error
