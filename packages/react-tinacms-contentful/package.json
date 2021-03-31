@@ -19,7 +19,9 @@
     "watch": "tinacms-scripts watch",
     "dev": "tinacms-scripts dev",
     "build": "tinacms-scripts build",
-    "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "docs": "typedoc src/index.ts --out dist/docs --excludePrivate --excludeProtected --excludeInternal",
+    "gh-pages": "gh-pages -d dist/docs --branch gh-pages --dist react-tinacms-contentful"
   },
   "bugs": {
     "url": "https://github.com/tinalabs/tinacms-contentful/issues"

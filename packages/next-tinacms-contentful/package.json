@@ -23,7 +23,8 @@
     "dev": "tinacms-scripts dev",
     "build": "tinacms-scripts build",
     "test": "jest --passWithNoTests",
-    "docs": "typedoc src/index.ts --out dist/docs --excludeExternals --excludePrivate --excludeProtected --excludeInternal"
+    "docs": "typedoc src/index.ts --out dist/docs --excludePrivate --excludeProtected --excludeInternal",
+    "gh-pages": "gh-pages -d dist/docs --branch gh-pages --dist next-tinacms-contentful"
   },
   "peerDependencies": {
     "tinacms": "^0.36.1"
