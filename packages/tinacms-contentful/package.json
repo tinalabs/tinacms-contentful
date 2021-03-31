@@ -1,6 +1,6 @@
 {
   "name": "tinacms-contentful",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "TinaCMS API Client, Media Client, and utilities for the Contentful APIs ",
   "author": "Chris D. MacRae <hello@chrisdmacrae.com>, Jack Bevis",
   "homepage": "https://github.com/tinalabs/tinacms-contentful#readme",
