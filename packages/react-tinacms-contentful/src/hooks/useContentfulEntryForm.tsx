@@ -43,9 +43,8 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
 ): [Entry<EntryShape>, Form, EntryStatus] {
   const cms = useCMS();
   const contentful = useContentful(options?.spaceId ?? entry?.sys?.space?.sys?.id);
-  const [contentType, setContentType] = useState<ContentType>();
-  const [isPublished, setIsPublished] = useState(false);
 
+  const [isPublished, setIsPublished] = useState(false);
   const publishOrAchive = useCallback(async (entry, archive) => {
     const method =
       archive && contentful.archiveEntry.bind(contentful) ||
@@ -75,6 +74,7 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
   }, []);
 
   const [formFields, setFormFields] = useState<any[]>([]);
+  const [contentType, setContentType] = useState<ContentType>();
   useEffect(() => {
     const handleContentType = async (contentful: ContentfulClient) => {
       try {
@@ -162,7 +162,7 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
       })
 
       // TODO: events
-      cms.alerts?.success(`Saved ${options?.label || entry.sys.id}`)
+      cms.alerts?.success(`Saved ${options?.label || entry.sys.id}`)x
 
       if (options?.publishOnSave) {
         await publishOrAchive(new_form_state, false);
@@ -182,13 +182,14 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
     id: options.id ?? entry.sys.id,
     label: options?.label || entry.sys.id,
     initialValues: entry,
-    fields: options.fields,
+    fields: formFields,
     actions: [
+      ...(options.actions || []),
       ({form}: any) => isPublished === false && options.buttons?.publish ? <AsyncAction labels={{ idle: "Publish", running: "Publishing..."}} action={() => publishOrAchive(form.values, false)} /> : null,
       ({form}: any) => isPublished === true && options.buttons?.unpublish ? <AsyncAction labels={{ idle: "Unpublish", running: "Unpublishing..."}} action={() => contentful.unpublishEntry(form.values?.sys?.id)} /> : null,
       ({form}: any) => options.buttons?.archive ? <AsyncAction labels={{ idle: "Archive", running: "Archiving..."}} action={() => publishOrAchive(form.values, false)} /> : null,
     ],
-    onSubmit
+    onSubmit: onSubmit
   }, {
     fields: formFields,
     label: watch?.label ?? undefined,
