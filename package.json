@@ -17,6 +17,7 @@
     "docs": "npx lerna run docs --stream",
     "pregh-pages": "npm run docs",
     "gh-pages": "npx lerna run gh-pages --stream",
+    "prepublish": "npm run build",
     "publish": "npx lerna publish"
   },
   "husky": {

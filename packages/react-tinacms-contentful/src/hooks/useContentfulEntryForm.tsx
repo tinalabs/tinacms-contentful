@@ -162,7 +162,7 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
       })
 
       // TODO: events
-      cms.alerts?.success(`Saved ${options?.label || entry.sys.id}`)x
+      cms.alerts?.success(`Saved ${options?.label || entry.sys.id}`);
 
       if (options?.publishOnSave) {
         await publishOrAchive(new_form_state, false);
