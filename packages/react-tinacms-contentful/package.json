@@ -27,11 +27,12 @@
     "url": "https://github.com/tinalabs/tinacms-contentful/issues"
   },
   "peerDependencies": {
-    "react": "^16",
-    "react-dom": "^16",
+    "react": ">=16.x.x",
+    "react-dom": ">=16.x.x",
     "react-tinacms-date": "^0.32.0",
-    "tinacms": "^0.37.0",
-    "tinacms-contentful": "^0.6.0"
+    "react-tinacms-contentful": ">=0.7.x",
+    "tinacms": ">=0.39.x < 1",
+    "tinacms-contentful": "~0.7.x"
   },
   "dependencies": {
     "@tinacms/icons": "^0.36.0",

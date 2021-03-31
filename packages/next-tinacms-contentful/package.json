@@ -27,9 +27,9 @@
     "gh-pages": "gh-pages -d dist/docs --branch gh-pages --dist next-tinacms-contentful"
   },
   "peerDependencies": {
-    "react-tinacms-contentful": "^0.6.2",
-    "tinacms": "^0.36.1",
-    "tinacms-contentful": "^0.6.2"
+    "react-tinacms-contentful": ">=0.7.x",
+    "tinacms": ">=0.39.x < 1",
+    "tinacms-contentful": "~0.7.x"
   },
   "devDependencies": {
     "@tinacms/scripts": "^0.26.0",
