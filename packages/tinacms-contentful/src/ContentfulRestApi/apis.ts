@@ -2,9 +2,7 @@ import {
   createClient as createDeliveryClient,
   ContentfulClientApi,
 } from 'contentful';
-import { createClient as createManagementClient } from 'contentful-management';
-import { ClientParams } from 'contentful-management/dist/typings/create-cma-http-client';
-import { ClientAPI } from 'contentful-management/dist/typings/create-contentful-api';
+import { ClientAPI, createClient as createManagementClient } from 'contentful-management';
 import { SpaceOptions } from '../ApiClient';
 
 export interface ContentfulApiServiceOptions extends SpaceOptions {
@@ -86,7 +84,7 @@ export class ContentfulApiService {
   public createManagementWithAccessToken(
     accessToken: string
   ): ClientAPI {
-    const managementOptions: Partial<Record<keyof ClientParams, any>> = {
+    const managementOptions: Partial<Record<string, any>> = {
       ...this.options.options
     }
 
