@@ -2,6 +2,18 @@
 
 A library for using Contentful with TinaCMS and React.js
 
+- [`react-tinacms-contentful`](#react-tinacms-contentful)
+  - [Usage](#usage)
+    - [Installation](#installation)
+    - [Setup](#setup)
+    - [Media](#media)
+  - [React APIs](#react-apis)
+    - [Provider](#provider)
+    - [Hooks](#hooks)
+  - [ContentfulClient](#contentfulclient)
+    - [Properties](#properties)
+    - [Methods](#methods)
+
 ## Usage
 
 ### Installation

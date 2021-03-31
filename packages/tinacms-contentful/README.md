@@ -2,6 +2,14 @@
 
 A library for using Contentful with TinaCMS
 
+- [`tinacms-contentful`](#tinacms-contentful)
+  - [Usage](#usage)
+    - [Installation](#installation)
+    - [Setup](#setup)
+    - [Media](#media)
+    - [Properties](#properties)
+    - [Methods](#methods)
+
 ## Usage
 
 ### Installation
