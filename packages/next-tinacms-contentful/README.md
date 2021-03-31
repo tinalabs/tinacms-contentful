@@ -22,7 +22,7 @@ If you are looking to use Contentful inside of Next.js' build-time and serverles
 To install the package, run:
 
 ```
-npm install next-tinacms-contentful tinacms-contentful contentful contentful-management
+npm install next-tinacms-contentful react-tinacms-contentful tinacms-contentful contentful contentful-management
 ```
 
 ### Fetching Entries On The Server

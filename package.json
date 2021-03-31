@@ -4,6 +4,7 @@
   "name": "tinacms-contentful-root",
   "license": "MIT",
   "workspaces": {
+    "packages": ["packages/*"],
     "nohoist": ["*-contentful"]
   },
   "scripts": {
