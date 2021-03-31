@@ -3,6 +3,10 @@
   "version": "0.2.0",
   "name": "tinacms-contentful-root",
   "license": "MIT",
+  "workspaces": {
+    "packages": ["packages/*"],
+    "nohoist": ["*-contentful"]
+  },
   "scripts": {
     "postinstall": "npx lerna bootstrap --no-hoist",
     "start": "npx lerna run start --stream",
@@ -10,6 +14,10 @@
     "build": "npx lerna run build --stream",
     "test": "npx lerna run test --stream",
     "lint": "npx lerna run lint --stream",
+    "docs": "npx lerna run docs --stream",
+    "pregh-pages": "npm run docs",
+    "gh-pages": "npx lerna run gh-pages --stream",
+    "prepublish": "npm run build",
     "publish": "npx lerna publish"
   },
   "husky": {

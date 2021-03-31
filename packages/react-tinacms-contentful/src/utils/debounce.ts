@@ -36,6 +36,6 @@ export function debounce(func: (...args: any[]) => Promise<void>, wait: number, 
       clearTimeout(timeout);
     }
 
-    timeout = setTimeout(later, wait);
+    timeout = setTimeout(later, wait) as any;
   };
 };

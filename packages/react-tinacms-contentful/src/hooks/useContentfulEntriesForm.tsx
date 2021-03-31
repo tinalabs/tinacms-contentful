@@ -153,13 +153,14 @@ export function useContentfulEntriesForm<EntryShape extends Record<string, any> 
     id: options.id ?? Math.random() * 10000,
     label: options?.label || "Entries",
     initialValues: { entries },
-    fields: options.fields,
+    fields: formFields,
     actions: [
+      ...(options.actions || []),
       ({form}: any) => options.buttons?.publish ? <AsyncAction labels={{ idle: "Publish all", running: "Publishing..." }} action={() => publishOrAchive(form.values.entries, false)} /> : null,
       ({form}: any) => options.buttons?.unpublish ? <AsyncAction labels={{ idle: "Unpublish all", running: "Unpublishing..."}} action={() => unpublish(form.values.entries)} /> : null,
       ({form}: any) => options.buttons?.archive ? <AsyncAction labels={{ idle: "Archive all", running: "Archiving..."}} action={() => publishOrAchive(form.values.entries, false)} /> : null,
     ],
-    onSubmit
+    onSubmit: onSubmit
   }, {
     fields: formFields,
     label: watch?.label ?? undefined,

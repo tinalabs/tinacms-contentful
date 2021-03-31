@@ -268,8 +268,8 @@ export class ContentfulClient {
       })
       const contentType = await this.getContentType(entry.sys.contentType.sys.id)
 
-      if (options.force !== true && update?.sys?.revision && entry.sys.version !== update.sys.revision) {
-        throw new Error(`This entry was already updated by ${entry.sys.updatedBy?.sys.id} at ${new Date(entry.sys.updatedAt).toLocaleDateString()}`)
+      if (options.force !== true && entry.sys.publishedCounter && update?.sys?.revision && entry.sys.publishedCounter < update.sys.revision) {
+        throw new Error(`The entry ${entry.sys.id} was already updated by ${entry.sys.updatedBy?.sys.id} at ${new Date(entry.sys.updatedAt).toLocaleDateString()}`)
       }
 
       if (options?.initial) {

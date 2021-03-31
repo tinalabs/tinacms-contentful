@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Entry, ContentType } from 'contentful';
 import { FormOptions, useForm, Form, useCMS, WatchableFormValue, ActionButton } from 'tinacms';
-import { ContentfulClient, createFieldConfigFromContentType, createContentfulOperationsForEntry, Operation } from 'tinacms-contentful';
+import { ContentfulClient, createFieldConfigFromContentType, createContentfulOperationsForEntry, Operation, createContentfulOperationsForEntries } from 'tinacms-contentful';
 import { useContentful } from './useContentful';
 import { mergeArrayByKey } from '../utils/mergeArrayById';
 import { debounce } from '../utils/debounce';
@@ -43,9 +43,8 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
 ): [Entry<EntryShape>, Form, EntryStatus] {
   const cms = useCMS();
   const contentful = useContentful(options?.spaceId ?? entry?.sys?.space?.sys?.id);
-  const [contentType, setContentType] = useState<ContentType>();
-  const [isPublished, setIsPublished] = useState(false);
 
+  const [isPublished, setIsPublished] = useState(false);
   const publishOrAchive = useCallback(async (entry, archive) => {
     const method =
       archive && contentful.archiveEntry.bind(contentful) ||
@@ -74,7 +73,30 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
     }
   }, []);
 
+  const unpublish = useCallback(async (entry) => {
+    try {
+      // TODO: events
+      cms.alerts?.info(`Unpublishing ${options?.label || "entries"}`);
+  
+      if (options.references) {
+        const { create } = createContentfulOperationsForEntry(null, entry);
+
+        await Promise.all(create.map((create: Operation) => contentful.unpublishEntry(create.sys.id)))
+      }
+      else {
+        await contentful.unpublishEntry(entry.sys.id)
+      }
+
+      // TODO: events
+      cms.alerts?.success(`Unpublished ${options?.label || "entries"}`)
+    } catch (error) {
+      cms.alerts?.error(`Unpublishing ${options?.label || "entries"} failed...`);
+      console.error(error);
+    }
+  }, [])
+
   const [formFields, setFormFields] = useState<any[]>([]);
+  const [contentType, setContentType] = useState<ContentType>();
   useEffect(() => {
     const handleContentType = async (contentful: ContentfulClient) => {
       try {
@@ -162,7 +184,7 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
       })
 
       // TODO: events
-      cms.alerts?.success(`Saved ${options?.label || entry.sys.id}`)
+      cms.alerts?.success(`Saved ${options?.label || entry.sys.id}`);
 
       if (options?.publishOnSave) {
         await publishOrAchive(new_form_state, false);
@@ -182,13 +204,14 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
     id: options.id ?? entry.sys.id,
     label: options?.label || entry.sys.id,
     initialValues: entry,
-    fields: options.fields,
+    fields: formFields,
     actions: [
-      ({form}: any) => isPublished === false && options.buttons?.publish ? <AsyncAction labels={{ idle: "Publish", running: "Publishing..."}} action={() => publishOrAchive(form.values, false)} /> : null,
-      ({form}: any) => isPublished === true && options.buttons?.unpublish ? <AsyncAction labels={{ idle: "Unpublish", running: "Unpublishing..."}} action={() => contentful.unpublishEntry(form.values?.sys?.id)} /> : null,
+      ...(options.actions || []),
+      ({form}: any) => options.buttons?.publish ? <AsyncAction labels={{ idle: "Publish", running: "Publishing..."}} action={() => publishOrAchive(form.values, false)} /> : null,
+      ({form}: any) => options.buttons?.unpublish ? <AsyncAction labels={{ idle: "Unpublish", running: "Unpublishing..."}} action={() => unpublish(form.values)} /> : null,
       ({form}: any) => options.buttons?.archive ? <AsyncAction labels={{ idle: "Archive", running: "Archiving..."}} action={() => publishOrAchive(form.values, false)} /> : null,
     ],
-    onSubmit
+    onSubmit: onSubmit
   }, {
     fields: formFields,
     label: watch?.label ?? undefined,

@@ -1,6 +1,6 @@
 {
   "name": "react-tinacms-contentful",
-  "version": "0.6.3",
+  "version": "0.7.8",
   "description": "A React library for using Contentful with TinaCMS",
   "author": "Chris D. MacRae <hello@chrisdmacrae.com>",
   "homepage": "https://github.com/tinalabs/tinacms-contentful#readme",
@@ -19,24 +19,26 @@
     "watch": "tinacms-scripts watch",
     "dev": "tinacms-scripts dev",
     "build": "tinacms-scripts build",
-    "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "docs": "typedoc src/index.ts --out dist/docs --excludePrivate --excludeProtected --excludeInternal",
+    "gh-pages": "gh-pages -d dist/docs --branch gh-pages --dist react-tinacms-contentful"
   },
   "bugs": {
     "url": "https://github.com/tinalabs/tinacms-contentful/issues"
   },
   "peerDependencies": {
-    "react": ">=16",
-    "react-dom": ">=16",
-    "react-tinacms-date": ">=0.32",
-    "tinacms": ">=0.3",
-    "tinacms-contentful": ">=0.5.1"
+    "react": ">=16.x.x",
+    "react-dom": ">=16.x.x",
+    "react-tinacms-contentful": ">=0.7.x",
+    "react-tinacms-date": ">=0.32.x < 1",
+    "tinacms": ">=0.39.x < 1",
+    "tinacms-contentful": "~0.7.x"
   },
   "dependencies": {
     "@tinacms/icons": "^0.36.0",
     "@tinacms/react-forms": "^0.36.0",
     "@tinacms/react-screens": "^0.32.0",
-    "@tinacms/styles": "^0.33.0",
-    "gh-pages": "^3.1.0"
+    "@tinacms/styles": "^0.33.0"
   },
   "devDependencies": {
     "@testing-library/react": "^10.4.9",
@@ -48,6 +50,7 @@
     "contentful": "^8.1.7",
     "contentful-management": "^7.8.0",
     "dotenv": "^8.2.0",
+    "gh-pages": "^3.1.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "react-testing-library": "^8.0.1",
@@ -59,7 +62,7 @@
     "rollup-plugin-uglify": "^6.0.4",
     "styled-components": "^5.2.0",
     "tinacms": "^0.37.0",
-    "tinacms-contentful": "^0.6.2",
+    "tinacms-contentful": "^0.7.7",
     "ts-jest": "^24.3.0",
     "typedoc": "^0.20.34",
     "typescript": "^3.8.2",
