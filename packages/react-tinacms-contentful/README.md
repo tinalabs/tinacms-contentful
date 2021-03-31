@@ -59,9 +59,9 @@ export default function MyApp() {
 
   return (
     <TinaProvider cms={cms}>
-      <ContentfulProvider>
+      <TinaContentfulProvider>
         <div>Hello world</div>
-      </ContentfulProvider>
+      </TinaContentfulProvider>
     </TinaProvider>
   )
 }
@@ -142,9 +142,9 @@ export default function MyApp() {
 
   return (
     <TinaProvider cms={cms}>
-      <ContentfulProvider>
+      <TinaContentfulProvider>
         <div>Hello world</div>
-      </ContentfulProvider>
+      </TinaContentfulProvider>
     </TinaProvider>
   )
 }
@@ -187,9 +187,9 @@ export default function MyApp() {
 
   return (
     <TinaProvider cms={cms}>
-      <ContentfulProvider>
+      <TinaContentfulProvider>
         <div>Hello world</div>
-      </ContentfulProvider>
+      </TinaContentfulProvider>
     </TinaProvider>
   )
 }
@@ -230,7 +230,7 @@ import { ContentfulClient, ContentfulMediaStore } from 'tinacms-contentful'
       rateLimit: /* API Rate Limit for your Contentful Plan (Requests per second). Default: 4 */,
       insecure: /* If true, uses same-site HTTPS cookies to create a session. Default: false */
     })
-    
+
 +    const contentfulMediaStore = new ContentfulMediaStore(contentful[currentSpaceId])
 
     return new TinaCMS({
@@ -243,9 +243,9 @@ import { ContentfulClient, ContentfulMediaStore } from 'tinacms-contentful'
 
   return (
     <TinaProvider cms={cms}>
-      <ContentfulProvider>
+      <TinaContentfulProvider>
         <div>Hello world</div>
-      <ContentfulProvider>
+      <TinaContentfulProvider>
     </TinaProvider>
   )
 }
@@ -257,14 +257,14 @@ import { ContentfulClient, ContentfulMediaStore } from 'tinacms-contentful'
 
 ### Provider
 
-When using Contentful with TinaCMS and React, you must wrap the CMS-enabled portions of your app with the `ContentfulProvider`:
+When using Contentful with TinaCMS and React, you must wrap the CMS-enabled portions of your app with the `TinaContentfulProvider`:
 
 ```
   return (
     <TinaProvider cms={cms}>
-      <ContentfulProvider>
+      <TinaContentfulProvider>
         <div>Hello world</div>
-      <ContentfulProvider>
+      <TinaContentfulProvider>
     </TinaProvider>
   )
 ```
