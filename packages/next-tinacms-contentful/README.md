@@ -118,14 +118,14 @@ import { editModeHandler } from 'next-tinacms-contentful'
 export const editingHandler = editModeHandler(60)
 ```
 
-`editModeHandler` creates a serverless function that handles creating an "editing session" by enabling Next.js preview mode for the current user if it is not enabled, and adding metadata to Next.js' server-side context to allow changing how the page behaves for editing.
+`editModeHandler` creates a serverless function that handles creating an "editing session" by enabling Next.js preview mode for the current user if it is not enabled, and adding metadata to Next.js' preview data to allow changing how the page behaves for editing.
 
 **Values**
 
 | Key | Type | Description |
 | --- | --- | --- |
-| `context.tina_enabled` | `boolean` | True if logged in, false if not |
-| `context.contentful_bearer_token` | `string | null` | If defined, is the bearer token for the current logged in user |
+| `context.previewData.tina_enabled` | `boolean` | True if logged in, false if not |
+| `context.previewData.contentful_bearer_token` | `string \| null` | If defined, is the bearer token for the current logged in user |
 
 
 ---
