@@ -205,19 +205,32 @@ import { TinaProvider } from 'tinacms'
 import { ContentfulClient, ContentfulMediaStore } from 'tinacms-contentful'
 
 +export default function MyApp(currentSpaceId) {
-  const cms = useMemo(() => {
-    const contentful = new ContentfulClient({
-      spaceId: /* Contentful Space ID */,
-      defaultEnvironmentId: /* Contentful environment ID to use by default. Default: master */,
-      accessTokens: {
-        delivery: /* Contentful delivery access token for the space */,
-        preview: /* Contentful preview access token for the space */,
+      const spaces = [
+      {
+        spaceId: /* Contentful Space ID */,
+        defaultEnvironmentId: /* Contentful environment ID to use by default. Default: master */,
+        accessTokens: {
+          delivery: /* Contentful delivery access token for the space */,
+          preview: /* Contentful preview access token for the space */,
+        }
+      },
+      {
+        spaceId: /* Contentful Space ID */,
+        defaultEnvironmentId: /* Contentful environment ID to use by default. Default: master */,
+        accessTokens: {
+          delivery: /* Contentful delivery access token for the space */,
+          preview: /* Contentful preview access token for the space */,
+        }
       }
+    ]
+
+    const contentful = createClientForSpaces(spaces, {
       clientId: /* OAuth App Client ID */,
       redirectUrl: /* OAuth App Callback URL */,
       rateLimit: /* API Rate Limit for your Contentful Plan (Requests per second). Default: 4 */,
       insecure: /* If true, uses same-site HTTPS cookies to create a session. Default: false */
     })
+    
 +    const contentfulMediaStore = new ContentfulMediaStore(contentful[currentSpaceId])
 
     return new TinaCMS({
