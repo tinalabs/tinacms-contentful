@@ -1,5 +1,4 @@
 import { Asset } from "contentful";
-import { AssetFileProp } from "contentful-management/dist/typings/entities/asset";
 import { Media, MediaList, MediaListOptions, MediaStore, MediaUploadOptions } from "tinacms";
 import { ContentfulClient } from "../ApiClient";
 import directories, { fileTypes } from "./directories";
@@ -34,12 +33,23 @@ export class ContentfulMediaStore implements MediaStore {
   locale: string;
   private filter: any = {};
 
+  /**
+   * Set the filter to run on media
+   * 
+   * @param query 
+   */
   setFilter(query: any) {
     if (typeof query === "object") {
       this.filter = query;
     }
   }
 
+  /**
+   * Write media store files back to Contenful as Assets
+   * 
+   * @param files Array of media files to write back
+   * @returns Array of newly created media files
+   */
   async persist(files: MediaUploadOptions[]): Promise<ContentfulMedia[]> {
     const upload_actions = files
       .map(async (file) => await mediaUploadToContentfulUpload(file))
@@ -54,10 +64,21 @@ export class ContentfulMediaStore implements MediaStore {
     return assets.map((asset, index) => assetToMedia(asset));
   }
 
+  /**
+   * Returns the URL to the media files
+   * 
+   * @param src 
+   * @returns Path to media file
+   */
   async previewSrc(src: string) {
     return src;
   }
 
+  /**
+   * Deletes a media file from Contentful by deleting the related Asset
+   * 
+   * @param media The media file to delete
+   */
   async delete(media: ContentfulMedia) {
     try {
       if (media?.sys?.id) {
@@ -69,6 +90,12 @@ export class ContentfulMediaStore implements MediaStore {
     }
   }
 
+  /**
+   * Returns a list of media types to fetch, or the media corresponding to a selected type
+   * 
+   * @param optionss Current Media List Options
+   * @returns A media list to display
+   */
   async list(options?: MediaListOptions): Promise<MediaList> {
     if (options?.directory) {
       return await this.handleAssetPagination(options);
@@ -134,6 +161,11 @@ export type ContentfulUpload = {
   };
 }
 
+/**
+ * Converts the media store upload options to a Contentful Upload object
+ * @param upload Media store upload
+ * @returns Contentful upload
+ */
 const mediaUploadToContentfulUpload = async (upload: MediaUploadOptions): Promise<ContentfulUpload> => {
   return {
     fields: {
@@ -148,6 +180,13 @@ const mediaUploadToContentfulUpload = async (upload: MediaUploadOptions): Promis
   }
 }
 
+/**
+ * Converts a Contentful Asset to a Media Store Item
+ * 
+ * @param asset The Contentful Asset to convert
+ * @param directory The "directory" or media type for the media asset to be displayed in (Optional)
+ * @returns 
+ */
 const assetToMedia = (asset: Asset, directory?: string): ContentfulMedia => {
   return {
     type: "file",
@@ -160,6 +199,12 @@ const assetToMedia = (asset: Asset, directory?: string): ContentfulMedia => {
   }
 }
 
+/**
+ * Creates an asset query from a media listing
+ * 
+ * @param values Media list options
+ * @returns A contentful asset query
+ */
 const createAssetQuery = (values: any) => {
   const possible_types = Object.keys(fileTypes);
   let query: any = {};

@@ -1,6 +1,12 @@
 import type { ContentType, Field as ContentfulField } from 'contentful';
 import type { Field as TinaField } from 'tinacms';
 
+/**
+ * Converts a Contentful Content Type to a TinaCMS Fields Array
+ * 
+ * @param contentType The content type to convert
+ * @returns An array of TinaCMS fields
+ */
 export function createFieldConfigFromContentType(contentType: ContentType): TinaField<any>[] {
   return contentType.fields.reduce(
     (tinaFields: TinaField<any>[], field) => {

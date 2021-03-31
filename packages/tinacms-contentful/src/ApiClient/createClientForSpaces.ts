@@ -2,7 +2,7 @@ import { openOauthWindow } from "../Authentication";
 import { SpaceOptions, ContentfulClient, ContentfulClientOptions } from "./ApiClient";
 
 export type ContentfulMultiClient = Pick<ContentfulClient, "authenticate" | "allowedOrigins"> & {
-  [key: string]: ContentfulClient;
+  [spaceId: string]: ContentfulClient;
 }
 
 export function createContentfulClientForSpaces(spaces: SpaceOptions[], options: ContentfulClientOptions): ContentfulMultiClient {

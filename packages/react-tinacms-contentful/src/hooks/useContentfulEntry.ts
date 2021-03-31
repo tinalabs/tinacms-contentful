@@ -9,6 +9,14 @@ export interface useContentfulEntryOptions {
   query?: any;
 }
 
+/**
+ * Fetches a Contentful Entry by ID
+ * 
+ * @param entryId 
+ * @param options.spaceId If using multiple spaces, you must specify the space the entry is stored in (Optional)
+ * @param options.query A Contentful query to apply when fetching the entry
+ * @returns [entry, loading, error]
+ */
 export function useContentfulEntry<TEntryType extends Entry<any>>(
   entryId: string,
   options?: useContentfulEntryOptions
