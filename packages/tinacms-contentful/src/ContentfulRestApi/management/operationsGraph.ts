@@ -51,8 +51,9 @@ const createNode = (graph: OperationsGraph, initial: Entry<any> | null, updated:
   if (operation !== null) {
     graph.nodes.push(operation)
 
-    if (parent) {
-      createEdge(graph, parent.sys.id, operation.sys.id)
+    //To Do: We need to ensure that parent has an id before we create an edge
+    if (parent && parent.sys.id) {
+      createEdge(graph, parent?.sys.id, operation?.sys.id)
     }
   }
 
