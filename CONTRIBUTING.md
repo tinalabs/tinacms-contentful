@@ -2,39 +2,45 @@
 
 The following outlines the guidelines for contributing to this package.
 
-## TSDX Bootstrap
+## Pre-requisites
 
-This project was bootstrapped with [TSDX](https://github.com/jaredpalmer/tsdx).
+The same pre-requisites found in the [README](./README.md).
 
-## Local Development
+### Development
 
-### `yarn build`
+`yarn start` will start a development CLI for each package, running them all in parallel, watching for changes and rebuilding where applicable.
 
-Bundles the package to the `dist` folder.
-The package is optimized and bundled with Rollup into multiple formats (CommonJS, UMD, and ES Module).
+### Production Builds
+
+`yarn build` bundles all packages to a `dist` folder in the root of each package. 
+
+The built package is optimized and bundled with Rollup into multiple formats (CommonJS, UMD, and ES Module).
+
+### Publishing
+
+Publishing packages can be done by running `yarn run publish`, which runs an interactive prompt to publish packages with changes.
 
 ### Linking for local development
 
-If you are want to test local changes to `react-tinacms-contentful`, we recommend using webpack aliases rather than using npm/yarn link.
+If you are want to test local changes to `react-tinacms-contentful`, we recommend using webpack aliases rather than using npm/yarn link if using webpack, or use [Yalc](https://github.com/wclr/yalc) as a local NPM registry.
 
-For example, in a NextJS site, your `next.config.js` would look like:
+For example, in a Next.js site, your `next.config.js` would look like:
 
 ```
 const path = require("path");
 
-const tinaWebpackHelpers = require("@tinacms/webpack-helpers");
-
 module.exports = {
   webpack: (config, { dev }) => {
     if (dev) {
-      config.resolve.alias["@tinacms/react-tinacms-contentful"] = path.resolve(
+      config.resolve.alias["tinacms-contentful"] = path.resolve(
         "../react-tinacms-contentful"
       );
-      config.resolve.alias["react-beautiful-dnd"] = path.resolve(
-        "./node_modules/react-beautiful-dnd"
+      config.resolve.alias["react-tinacms-contentful"] = path.resolve(
+        "../react-tinacms-contentful"
       );
-
-      tinaWebpackHelpers.aliasTinaDev(config, "../tinacms");
+      config.resolve.alias["next-tinacms-contentful"] = path.resolve(
+        "../react-tinacms-contentful"
+      );
     }
 
     return config;
@@ -59,11 +65,13 @@ The required environment variables are outlined in `.env.sample`.
 The tests can be ran by running:
 
 ```
-yarn run test
+yarn test
 ```
 
 To run tests for a specific package, run:
 
 ```
-yarn run test --
+yarn test --scope package-name
 ```
+
+> E.g, `yarn test --scope tinacms-contentful`

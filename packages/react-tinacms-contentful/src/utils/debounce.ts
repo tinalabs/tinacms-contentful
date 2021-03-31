@@ -8,7 +8,7 @@
  * @param immediate Whether to short-circuit debouncing and run the logic immediately
  */
 export function debounce(func: (...args: any[]) => Promise<void>, wait: number, immediate: boolean) {
-  let timeout: NodeJS.Timeout | null;
+  let timeout: number | null;
 
   return function executedFunction(this: unknown) {
     const context = this;
