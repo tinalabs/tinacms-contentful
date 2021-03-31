@@ -30,9 +30,9 @@
     "url": "https://github.com/tinalabs/tinacms-contentful/issues"
   },
   "peerDependencies": {
-    "contentful": ">=8.1.7",
-    "contentful-management": ">=7.8.0",
-    "tinacms": ">=0.37.0"
+    "contentful": "^8.1.7",
+    "contentful-management": "^7.8.0",
+    "tinacms": "^0.37.0"
   },
   "dependencies": {
     "js-cookie": "^2.2.1",
