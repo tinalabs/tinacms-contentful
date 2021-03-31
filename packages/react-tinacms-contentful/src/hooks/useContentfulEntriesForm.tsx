@@ -148,7 +148,7 @@ export function useContentfulEntriesForm<EntryShape extends Record<string, any> 
       return;
     }
   }, [entries, options.locale]);
-  const [modifiedValues, form] = useForm<{ entries: Entry<EntryShape>[] }>({
+  const [, form] = useForm<{ entries: Entry<EntryShape>[] }>({
     ...options,
     id: options.id ?? Math.random() * 10000,
     label: options?.label || "Entries",
@@ -160,7 +160,7 @@ export function useContentfulEntriesForm<EntryShape extends Record<string, any> 
       ({form}: any) => options.buttons?.unpublish ? <AsyncAction labels={{ idle: "Unpublish all", running: "Unpublishing..."}} action={() => unpublish(form.values.entries)} /> : null,
       ({form}: any) => options.buttons?.archive ? <AsyncAction labels={{ idle: "Archive all", running: "Archiving..."}} action={() => publishOrAchive(form.values.entries, false)} /> : null,
     ],
-    onSubmit: onSubmit
+    onSubmit: (values, form) => onSubmit(values, form)
   }, {
     fields: formFields,
     label: watch?.label ?? undefined,
@@ -185,5 +185,5 @@ export function useContentfulEntriesForm<EntryShape extends Record<string, any> 
     }
   }, []);
 
-  return [modifiedValues.entries, form];
+  return [form.values, form];
 }

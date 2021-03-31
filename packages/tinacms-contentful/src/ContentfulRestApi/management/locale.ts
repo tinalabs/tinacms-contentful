@@ -67,6 +67,9 @@ export function getLocalizedFields<EntryShape = Record<string, any>>(fields: Ent
     .reduce((localizedFields: any, fieldName) => {
       const fields = fieldsToLocalize;
       const field = (fields as any)[fieldName];
+
+      if (!field) return localizedFields
+      
       const fieldDefinition = options?.contentType?.fields.find(field => field.name === fieldName);
       const isReference = Array.isArray(field) ? checkForReferences(field) : checkForReference(field);
       let shouldLocalize = true;
