@@ -175,7 +175,6 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
         locale: options.locale,
         initial: options?.references ? entry : undefined
       });
-      console.log({new_form_state})
       // Update the form to have the resolved result w/ new sys ids
       if (options.references) form.initialize(new_form_state);
       else form.initialize({
@@ -263,7 +262,7 @@ export const AsyncAction = ({ action, labels }: AsyncActionButtonProps) => {
       setStatus("idle")
     } catch (error) {
       setStatus("error");
-      console.log(error);
+      console.error(error);
     }
   }, [])
   const color = status === "error" ? "red" : "inherit"
