@@ -261,7 +261,7 @@ export class ContentfulClient {
     initial?: Entry<EntryShape>,
     force?: boolean
   }) {
-    console.log({options})
+
     try {
       const { locale } = options
       const entry = await this.getEntry<EntryShape>(entryId, {
@@ -332,7 +332,6 @@ export class ContentfulClient {
   private async updateEntryRecursive(initial: Entry<unknown> | null = null, updated: Entry<unknown> | null = null, options: GraphOptions & { shouldDelete?: boolean, locale: string }) {
     try {
       const { create, update, dereference } = createContentfulOperationsForEntry(initial, updated, options)
-      console.log({ create, update, dereference })
       const createBatches = (items: any): Operation[][] => items.reduce((batches: Operation[][], item: any, i: number) => {
         const batchSize = this.rateLimit
         const batchNumber = i < batchSize ? 0 : Math.floor(i / batchSize)
