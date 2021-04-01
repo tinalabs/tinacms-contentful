@@ -146,7 +146,7 @@ export class ContentfulClient {
     try {
       if (options?.mode === "management") {
         const { env } = await this.getManagementClient()
-        const entry = env.getEntry(entryId, options.query ?? undefined)
+        const entry = env.getEntry(entryId, options?.query)
 
         return entry
       }
@@ -154,7 +154,7 @@ export class ContentfulClient {
         const preview = options?.mode === "preview" || options?.preview === true ? true : false
         const client = this.getDeliveryClient(preview)
 
-        return client.getEntry<EntryShape>(entryId)
+        return client.getEntry<EntryShape>(entryId, options?.query)
       }
     }
     catch (error) {
@@ -240,9 +240,9 @@ export class ContentfulClient {
 
       createdEntry.fields = localiedFieldsWithReferences
 
-      createdEntry.update()
+      await createdEntry.update()
 
-      const entry = await this.getEntry(createdEntry.sys.id, { mode: "preview" })
+      const entry = await this.getEntry(createdEntry.sys.id, { mode: "preview", query: { include: options.references ? 10 : 0 } })
 
       return entry
     }
@@ -280,10 +280,10 @@ export class ContentfulClient {
         const localizedFieldsWithReferences = getLocalizedFields(update.fields, { contentType, locale: options.locale, references: true })
 
         entry.fields = localizedFieldsWithReferences
-
+        
         await entry.update()
 
-        const updated_entry = await this.getEntry(entry.sys.id, { mode: "preview" })
+        const updated_entry = await this.getEntry(entry.sys.id, { mode: "preview", query: { include: options.initial ? 10 : 0 } })
 
         return updated_entry
       }
@@ -384,7 +384,7 @@ export class ContentfulClient {
 
       if (updated_entry_id === null) throw new Error("Missing entry id");
 
-      const updated_entry = await this.getEntry(updated_entry_id, { mode: "preview" })
+      const updated_entry = await this.getEntry(updated_entry_id, { mode: "preview", query: { include: 10 } })
       
       return updated_entry
     } catch (error) {

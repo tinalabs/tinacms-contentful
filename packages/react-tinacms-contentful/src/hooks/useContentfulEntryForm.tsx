@@ -173,8 +173,9 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
     try {
       const new_form_state = await contentful.updateEntry(entry.sys.id, modifiedValues, {
         locale: options.locale,
-        initial: options?.references ? entry : undefined
+        initial: options?.references ? form.getState().initialValues : undefined
       });
+
       // Update the form to have the resolved result w/ new sys ids
       if (options.references) form.initialize(new_form_state);
       else form.initialize({
@@ -235,7 +236,7 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
     }
   }, []);
 
-  return [form.values, form, {
+  return [form.finalForm.getState().values, form, {
     loading: false,
     published: isPublished
   }];
