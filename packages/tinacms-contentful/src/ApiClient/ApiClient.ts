@@ -261,6 +261,7 @@ export class ContentfulClient {
     initial?: Entry<EntryShape>,
     force?: boolean
   }) {
+
     try {
       const { locale } = options
       const entry = await this.getEntry<EntryShape>(entryId, {
