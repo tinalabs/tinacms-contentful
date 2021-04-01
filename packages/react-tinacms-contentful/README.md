@@ -283,35 +283,4 @@ When using Contentful with TinaCMS and React, you must wrap the CMS-enabled port
 
 ## ContentfulClient
 
-### Properties
-
-The Client has the following properties:
-
-- `allowedOrigins`
-- `environment`
-- `sdks`
-- `rateLimit`
-
-### Methods
-
-The Client has the following methods:
-
-- `authenticate`
-- `setEnvironment`
-- `getEntry`
-- `getEntries`
-- `createEntry`
-- `updateEntry`
-- `deleteEntry`
-- `publishEntry`
-- `unpublishEntry`
-- `archiveEntry`
-- `getAsset`
-- `getAssets`
-- `getAssetCollection`
-- `createAsset`
-- `updateAsset`
-- `deleteAsset`
-- `archiveAsset`
-- `getContentType`
-- `sync`
+See the [Vanilla JS](../tinacms-contentful/README.md) docs. 
