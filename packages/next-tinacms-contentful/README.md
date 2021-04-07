@@ -108,7 +108,7 @@ export async function getStaticProps() {
 ### Edit Mode
 **Server-side Sessions with Next.js Preview Mode**
 
-You can enable an "edit mode" for your site using [server-side sessions with Next.js Preview mode](https://nextjs.org/docs/advanced-features/preview-mode), which uses HTTP only cookies to allow server-side logic to be run in front of requests, essentially allowing `getStaticProps` to work like `getServerSideProps` when users log in to edit pages.
+You can enable an "edit mode" for your site using [server-side sessions with Next.js Preview mode](https://nextjs.org/docs/advanced-features/preview-mode), which uses HTTP only cookies to allow server-side logic to be run in front of requests, providing a user specific payload of data on `context.previewData` in `getStaticProps`, `getServerSideProps`, and in API routes, as well as allowing `getStaticProps` to work like `getServerSideProps` when users log in to edit pages to allow editing-specific business logic.
 
 First, in `pages/api` add a new API route called `editing.js` with the following contents:
 
