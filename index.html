@@ -68,8 +68,15 @@
 									<li><a href="#installation">Installation</a></li>
 									<li><a href="#setup">Setup</a></li>
 									<li><a href="#media">Media</a></li>
-									<li><a href="#properties">Properties</a></li>
-									<li><a href="#methods">Methods</a></li>
+								</ul>
+							</li>
+							<li><a href="#apis">APIs</a><ul>
+									<li><a href="#contentful-client">Contentful Client</a><ul>
+											<li><a href="#options">Options</a></li>
+											<li><a href="#properties">Properties</a></li>
+											<li><a href="#methods">Methods</a></li>
+										</ul>
+									</li>
 								</ul>
 							</li>
 						</ul>
@@ -177,40 +184,57 @@
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">space</span><span style="color: #000000"> = </span><span style="color: #001080">cms</span><span style="color: #000000">.</span><span style="color: #001080">api</span><span style="color: #000000">.</span><span style="color: #001080">contentful</span><span style="color: #000000">[</span><span style="color: #001080">spaceId</span><span style="color: #000000">]</span>
 <span style="color: #001080">cms</span><span style="color: #000000">.</span><span style="color: #001080">media</span><span style="color: #000000">.</span><span style="color: #001080">store</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">ContentfulMediaStore</span><span style="color: #000000">(</span><span style="color: #001080">space</span><span style="color: #000000">)</span>
 </code></pre>
+				<a href="#apis" id="apis" style="color: inherit; text-decoration: none;">
+					<h2>APIs</h2>
+				</a>
+				<p>The library has the following core APIs:</p>
+				<ul>
+					<li><a href="#contentful-client">ContentfulClient</a>: an API client for communicating with Contentful that integrates directly with the CMS.</li>
+					<li><a href="">ContentfulMediaStore</a></li>
+				</ul>
+				<p>There are other public APIs as well. To learn more, <a href="https://tinalabs.github.io/tinacms-contentful/modules.html">read the full API documentation</a>.</p>
+				<a href="#contentful-client" id="contentful-client" style="color: inherit; text-decoration: none;">
+					<h3>Contentful Client</h3>
+				</a>
+				<p>Creates a TinaCMS API client for communicating with a Contentful Space.</p>
+				<a href="#options" id="options" style="color: inherit; text-decoration: none;">
+					<h4>Options</h4>
+				</a>
+				<p>The client takes the <a href="https://tinalabs.github.io/tinacms-contentful/interfaces/contentfulclientoptions.html">following constructor arguments</a>.</p>
 				<a href="#properties" id="properties" style="color: inherit; text-decoration: none;">
-					<h3>Properties</h3>
+					<h4>Properties</h4>
 				</a>
 				<p>The Client has the following properties:</p>
 				<ul>
-					<li><code>allowedOrigins</code></li>
-					<li><code>environment</code></li>
-					<li><code>sdks</code></li>
-					<li><code>rateLimit</code></li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#allowedorigins"><code>allowedOrigins</code></a>: the <a href="https://en.wikipedia.org/wiki/Fully_qualified_domain_name">FQDNs</a> allowed to receive Oauth bearer tokens. Defaults to the window hostname.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#environment"><code>environment</code></a>: the current Contentful environment the space is communicating with.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#ratelimit"><code>rateLimit</code></a>: the rate limit at which API operation will be throttled to.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#sdks"><code>sdks</code></a>: the Contentful SDK Client instances for this space.</li>
 				</ul>
 				<a href="#methods" id="methods" style="color: inherit; text-decoration: none;">
-					<h3>Methods</h3>
+					<h4>Methods</h4>
 				</a>
 				<p>The Client has the following methods:</p>
 				<ul>
-					<li><code>authenticate</code></li>
-					<li><code>setEnvironment</code></li>
-					<li><code>getEntry</code></li>
-					<li><code>getEntries</code></li>
-					<li><code>createEntry</code></li>
-					<li><code>updateEntry</code></li>
-					<li><code>deleteEntry</code></li>
-					<li><code>publishEntry</code></li>
-					<li><code>unpublishEntry</code></li>
-					<li><code>archiveEntry</code></li>
-					<li><code>getAsset</code></li>
-					<li><code>getAssets</code></li>
-					<li><code>getAssetCollection</code></li>
-					<li><code>createAsset</code></li>
-					<li><code>updateAsset</code></li>
-					<li><code>deleteAsset</code></li>
-					<li><code>archiveAsset</code></li>
-					<li><code>getContentType</code></li>
-					<li><code>sync</code></li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#authenticate"><code>authenticate</code></a>: triggers a popup window OAuth workflow .</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#setenvironment"><code>setEnvironment</code></a>: changes the environment the space is communicating with.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getentry"><code>getEntry</code></a>: fetch a published <code>delivery</code>, draft <code>preview</code>, or editable <code>management</code> entry. </li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getentries"><code>getEntries</code></a>: fetch multiple published <code>delivery</code>, draft <code>preview</code>, or editable <code>management</code> entries.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#createentry"><code>createEntry</code></a>: create a new entry for a specific content model.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#updateentry"><code>updateEntry</code></a>: update an existing entry with new data.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#deleteentry"><code>deleteEntry</code></a>: delete a specific entry.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#publishentry"><code>publishEntry</code></a>: publish a specific entry.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#unpublishentry"><code>unpublishEntry</code></a>: unpublish a specific entry.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#archiveentry"><code>archiveEntry</code></a>: archive a specific entry.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getasset"><code>getAsset</code></a>: fetch a published <code>delivery</code>, or draft <code>preview</code> asset.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getassets"><code>getAssets</code></a>: fetch multiple published <code>delivery</code>, or draft <code>preview</code> assets.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getassetcollection"><code>getAssetCollection</code></a>: fetch a paginated collection of published <code>delivery</code>, or draft <code>preview</code> assets.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#createasset"><code>createAsset</code></a>: create a new asset from a file upload.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#updateasset"><code>updateAsset</code></a>: update an existing asset from a file upload.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#deleteasset"><code>deleteAsset</code></a>: delete a specific asset.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#archiveasset"><code>archiveAsset</code></a>: archive a specific asset.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getcontenttype"><code>getContentType</code></a>: fetch a specific content type.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#sync"><code>sync</code></a>: [EXPERIMENTAL] Fetch all entries and assets from the space in the given environment to allow access without network connection.</li>
 				</ul>
 			</div>
 		</div>
