@@ -13,9 +13,9 @@ To use this plugin, the following is expected:
 
 To get up and running quickly, follow the instructions for your tech stack:
 
-- [Vanilla JS](https://tinalabs.github.io/tinacms-contentful/)
-- [React](https://tinalabs.github.io/react-tinacms-contentful/)
-- [Next.js](https://tinalabs.github.io/next-tinacms-contentful/)
+- [`tinacms-contentful`](https://tinalabs.github.io/tinacms-contentful/): plain Javascript APIs for client-side javascript.
+- [`react-tinacms-contentful`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/): React-specific APIs.
+- [`next-tinacms-contentful`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/): Next.js-specific APIs.
 
 ## Guides
 
