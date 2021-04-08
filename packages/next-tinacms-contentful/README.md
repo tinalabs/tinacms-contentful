@@ -189,7 +189,7 @@ There are other public APIs as well. To learn more, [read the full Next.js API d
 
 ### Server-side Methods
 
-- [`getEntry](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getentry): fetch a published `delivery`, draft `preview`, or editable `management` entry. 
+- [`getEntry`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getentry): fetch a published `delivery`, draft `preview`, or editable `management` entry. 
 - [`getEntries`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getentries): fetch multiple published `delivery`, draft `preview`, or editable `management` entries.
 - [`getAsset`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getasset): fetch a published `delivery`, or draft `preview` asset.
 - [`getAssets`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getassets): fetch multiple published `delivery`, or draft `preview` assets.
