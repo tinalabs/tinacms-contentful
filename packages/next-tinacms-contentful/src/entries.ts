@@ -16,7 +16,7 @@ class ServerSideEntries {
     if (options?.mode === "management" && !options.accessTokens.management) {
       throw new Error("You must provide a management token or bearer token when mode is 'management'");
     }
-    else if (options?.accessTokens.management) {
+    else if (options?.accessTokens?.management) {
       client.sdks.createManagementWithAccessToken(options.accessTokens.management)
     }
 
@@ -33,7 +33,7 @@ class ServerSideEntries {
     if (options?.mode === "management" && !options.accessTokens.management) {
       throw new Error("You must provide a management token or bearer token when mode is 'management'");
     }
-    else if (options?.accessTokens.management) {
+    else if (options?.accessTokens?.management) {
       client.sdks.createManagementWithAccessToken(options.accessTokens.management)
     }
 
