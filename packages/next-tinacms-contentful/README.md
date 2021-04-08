@@ -14,10 +14,10 @@ A utility library for using Contentful with TinaCMS and Next.js
 
 If you are looking to use Contentful in client-side JS, please see one of the following:
 
-- [Vanilla JS](/packages/tinacms-contentful/README.md)
-- [React](/packages/react-tinacms-contentful/README.md)
+- [Plain JS](https://tinalabs.github.io/tinacms-contentful/)
+- [React](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/)
 
-If you are looking to use Contentful inside of Next.js' build-time and serverless logic like `getStaticProps` and `getServerSideProps`, continue reading:
+If you are looking to use Contentful inside of Next.js' build-time and serverless logic like API routes, `getStaticProps` and `getServerSideProps`, continue reading:
 
 ### Installation
 
