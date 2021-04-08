@@ -13,9 +13,9 @@ To use this plugin, the following is expected:
 
 To get up and running quickly, follow the instructions for your tech stack:
 
-- [Vanilla JS](./packages/tinacms-contentful/README.md)
-- [React](./packages/react-tinacms-contentful/README.md)
-- [Next.js](./packages/next-tinacms-contentful/README.md)
+- [Vanilla JS](https://tinalabs.github.io/tinacms-contentful/)
+- [React](https://tinalabs.github.io/react-tinacms-contentful/)
+- [Next.js](https://tinalabs.github.io/next-tinacms-contentful/)
 
 ## Guides
 
