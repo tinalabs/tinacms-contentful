@@ -7,8 +7,11 @@ A library for using Contentful with TinaCMS
     - [Installation](#installation)
     - [Setup](#setup)
     - [Media](#media)
-    - [Properties](#properties)
-    - [Methods](#methods)
+  - [APIs](#apis)
+    - [Contentful Client](#contentful-client)
+      - [Options](#options)
+      - [Properties](#properties)
+      - [Methods](#methods)
 
 ## Usage
 
@@ -129,35 +132,52 @@ const space = cms.api.contentful[spaceId]
 cms.media.store = new ContentfulMediaStore(space)
 ```
 
-### Properties
+## APIs
+
+The library has the following core APIs:
+
+- [ContentfulClient](#contentful-client): an API client for communicating with Contentful that integrates directly with the CMS.
+- [ContentfulMediaStore]()
+
+There are other public APIs as well. To learn more, [read the full API documentation](https://tinalabs.github.io/tinacms-contentful/modules.html).
+
+### Contentful Client
+
+Creates a TinaCMS API client for communicating with a Contentful Space.
+
+#### Options
+
+The client takes the [following constructor arguments](https://tinalabs.github.io/tinacms-contentful/interfaces/contentfulclientoptions.html).
+
+#### Properties
 
 The Client has the following properties:
 
-- `allowedOrigins`
-- `environment`
-- `sdks`
-- `rateLimit`
+- [`allowedOrigins`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#allowedorigins): the [FQDNs](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) allowed to receive Oauth bearer tokens. Defaults to the window hostname.
+- [`environment`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#environment): the current Contentful environment the space is communicating with.
+- [`rateLimit`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#ratelimit): the rate limit at which API operation will be throttled to.
+- [`sdks`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#sdks): the Contentful SDK Client instances for this space.
 
-### Methods
+#### Methods
 
 The Client has the following methods:
 
-- `authenticate`
-- `setEnvironment`
-- `getEntry`
-- `getEntries`
-- `createEntry`
-- `updateEntry`
-- `deleteEntry`
-- `publishEntry`
-- `unpublishEntry`
-- `archiveEntry`
-- `getAsset`
-- `getAssets`
-- `getAssetCollection`
-- `createAsset`
-- `updateAsset`
-- `deleteAsset`
-- `archiveAsset`
-- `getContentType`
-- `sync`
+- [`authenticate`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#authenticate): triggers a popup window OAuth workflow .
+- [`setEnvironment`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#setenvironment): changes the environment the space is communicating with.
+- [`getEntry`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getentry): fetch a published `delivery`, draft `preview`, or editable `management` entry. 
+- [`getEntries`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getentries): fetch multiple published `delivery`, draft `preview`, or editable `management` entries.
+- [`createEntry`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#createentry): create a new entry for a specific content model.
+- [`updateEntry`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#updateentry): update an existing entry with new data.
+- [`deleteEntry`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#deleteentry): delete a specific entry.
+- [`publishEntry`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#publishentry): publish a specific entry.
+- [`unpublishEntry`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#unpublishentry): unpublish a specific entry.
+- [`archiveEntry`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#archiveentry): archive a specific entry.
+- [`getAsset`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getasset): fetch a published `delivery`, or draft `preview` asset.
+- [`getAssets`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getassets): fetch multiple published `delivery`, or draft `preview` assets.
+- [`getAssetCollection`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getassetcollection): fetch a paginated collection of published `delivery`, or draft `preview` assets.
+- [`createAsset`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#createasset): create a new asset from a file upload.
+- [`updateAsset`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#updateasset): update an existing asset from a file upload.
+- [`deleteAsset`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#deleteasset): delete a specific asset.
+- [`archiveAsset`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#archiveasset): archive a specific asset.
+- [`getContentType`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#getcontenttype): fetch a specific content type.
+- [`sync`](https://tinalabs.github.io/tinacms-contentful/classes/contentfulclient.html#sync): \[EXPERIMENTAL\] Fetch all entries and assets from the space in the given environment to allow access without network connection.

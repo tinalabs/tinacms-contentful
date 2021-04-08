@@ -7,6 +7,8 @@ A utility library for using Contentful with TinaCMS and Next.js
     - [Installation](#installation)
     - [Fetching Entries On The Server](#fetching-entries-on-the-server)
     - [Edit Mode](#edit-mode)
+  - [APIs](#apis)
+    - [Server-side Methods](#server-side-methods)
 
 ## Usage
 
@@ -173,3 +175,24 @@ export function getStaticProps(context) {
   }
 }
 ```
+## APIs
+
+The library has the following core APIs:
+
+- [ContentfulClient](https://tinalabs.github.io/tinacms-contentful/index.html#contentful-client): an API client for communicating with Contentful that integrates directly with the CMS.
+- [ContentfulMediaStore](https://tinalabs.github.io/tinacms-contentful/classes/contentfulmediastore.html): a media store that uses a `ContentfulClient` to manage media for a single space.
+- [Provider](https://tinalabs.github.io/react-tinacms-contentful/index.html#provider): a React provider for official plugins and authorization.
+- [Hooks](https://tinalabs.github.io/react-tinacms-contentful/index.html#hooks): a series of React Hooks for interacting with Contentful in your React app and CMS Plugins.
+- [Server-side Methods](#server-side-methods): utility methods for interacting with Contentful on the server.
+
+There are other public APIs as well. To learn more, [read the full Next.js API documentation](https://tinalabs.github.io/next-tinacms-contentful/modules.html) or [read the full JavaScript API documentation](https://tinalabs.github.io/tinacms-contentful/index.html).
+
+### Server-side Methods
+
+- [`getEntry](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getentry): fetch a published `delivery`, draft `preview`, or editable `management` entry. 
+- [`getEntries`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getentries): fetch multiple published `delivery`, draft `preview`, or editable `management` entries.
+- [`getAsset`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getasset): fetch a published `delivery`, or draft `preview` asset.
+- [`getAssets`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getassets): fetch multiple published `delivery`, or draft `preview` assets.
+- [`proxy`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#proxy): [EXPERIMENTAL] proxies requests to Contentful in server side logic, attaching bearer tokens from [edit mode](#edit-mode) on the way.
+- [`toggleEditing`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#toggleediting): sends a fetch request to enable [edit mode](#edit-mode).
+- [`editModeHandler`](https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#editmodehandler): a serverless request handler for toggling [edit mode](#edit-mode) in a Next.js API function.

@@ -7,12 +7,9 @@ A library for using Contentful with TinaCMS and React.js
     - [Installation](#installation)
     - [Setup](#setup)
     - [Media](#media)
-  - [React APIs](#react-apis)
+  - [APIs](#apis)
     - [Provider](#provider)
     - [Hooks](#hooks)
-  - [ContentfulClient](#contentfulclient)
-    - [Properties](#properties)
-    - [Methods](#methods)
 
 ## Usage
 
@@ -251,9 +248,16 @@ import { ContentfulClient, ContentfulMediaStore } from 'tinacms-contentful'
 }
 ```
 
-## React APIs
+## APIs
 
-`react-tinacms-contentful` exposes the following React APIs:
+The library has the following core APIs:
+
+- [ContentfulClient]([#contentful-client](https://tinalabs.github.io/tinacms-contentful/index.html#contentful-client)): an API client for communicating with Contentful that integrates directly with the CMS.
+- [ContentfulMediaStore](https://tinalabs.github.io/tinacms-contentful/classes/contentfulmediastore.html): a media store that uses a `ContentfulClient` to manage media for a single space.
+- [Provider](#provider): a React provider for official plugins and authorization.
+- [Hooks](#hooks): a series of React Hooks for interacting with Contentful in your React app and CMS Plugins.
+
+There are other public APIs as well. To learn more, [read the full React API documentation](https://tinalabs.github.io/react-tinacms-contentful/modules.html) or [read the full JavaScript API documentation](https://tinalabs.github.io/tinacms-contentful/index.html).
 
 ### Provider
 
@@ -271,47 +275,12 @@ When using Contentful with TinaCMS and React, you must wrap the CMS-enabled port
 
 ### Hooks
 
-- `useContentful`
-- `useContentfulDelivery`
-- `useContentfulPreview`
-- `useContentfulManagement`
-- `useContentfulEntry`
-- `useContentfulEntries`
-- `useContentfulEntryForm`
-- `useContentfulEntriesForm`
-- `useContentfulAuthRedirect`
-
-## ContentfulClient
-
-### Properties
-
-The Client has the following properties:
-
-- `allowedOrigins`
-- `environment`
-- `sdks`
-- `rateLimit`
-
-### Methods
-
-The Client has the following methods:
-
-- `authenticate`
-- `setEnvironment`
-- `getEntry`
-- `getEntries`
-- `createEntry`
-- `updateEntry`
-- `deleteEntry`
-- `publishEntry`
-- `unpublishEntry`
-- `archiveEntry`
-- `getAsset`
-- `getAssets`
-- `getAssetCollection`
-- `createAsset`
-- `updateAsset`
-- `deleteAsset`
-- `archiveAsset`
-- `getContentType`
-- `sync`
+- [`useContentful`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/modules.html#usecontentful): retreives the [`ContentfulClient`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/classes/contentfulclient.html) off of the CMS, and allows specifying a space ID when using multiple spaces.
+- [`useContentfulDelivery`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/modules.html#useContentfulDelivery): retreives a [delivery client](https://contentful.github.io/contentful.js/contentful/latest/index.html) from the `ContentfulClient` and allows specifying a space ID when using multiple spaces.
+- [`useContentfulPreview`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/modules.html#useContentfulPreview): retreives a [preview client](https://contentful.github.io/contentful.js/contentful/latest/index.html) from the `ContentfulClient` and allows specifying a space ID when using multiple spaces.
+- [`useContentfulManagement`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/modules.html#useContentfulManagement): retreives a [management client](https://contentful.github.io/contentful-management.js/contentful-management/7.14.0/) from the `ContentfulClient` and allows specifying a space ID when using multiple spaces.
+- [`useContentfulEntry`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/modules.html#usecontentfulentry): fetches an entry from contentful and returns the entry, loading constant, and error constant, and allows specifying a space ID when using multiple spaces.
+- [`useContentfulEntries`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/modules.html#usecontentfulentries): fetches multiple entries from contentful and returns the entry, loading constant, and error constant, and allows specifying a space ID when using multiple spaces.
+- [`useContentfulEntryForm`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/modules.html#usecontentfulentryform): creates a TinaCMS form for a given entry, which can be registered with the CMS or used to provide editing UIs to end users.
+- [`useContentfulEntriesForm`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/modules.html#usecontentfulentryform): creates a TinaCMS form for multiple entries, which can be registered with the CMS or used to provide editing UIs to end users.
+- [`useContentfulAuthRedirect`](https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/modules.html#usecontentfulauthredirect): sets up a route to be used as the callback URL for an OAuth application.
