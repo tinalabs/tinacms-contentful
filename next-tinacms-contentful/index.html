@@ -1,0 +1,561 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>next-tinacms-contentful</title>
+	<meta name="description" content="Documentation for next-tinacms-contentful">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">next-tinacms-contentful</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>next-tinacms-contentful</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#next-tinacms-contentful" id="next-tinacms-contentful" style="color: inherit; text-decoration: none;">
+					<h1><code>next-tinacms-contentful</code></h1>
+				</a>
+				<p>A utility library for using Contentful with TinaCMS and Next.js</p>
+				<ul>
+					<li><a href="#next-tinacms-contentful"><code>next-tinacms-contentful</code></a><ul>
+							<li><a href="#usage">Usage</a><ul>
+									<li><a href="#installation">Installation</a></li>
+									<li><a href="#fetching-entries-on-the-server">Fetching Entries On The Server</a></li>
+									<li><a href="#edit-mode">Edit Mode</a></li>
+								</ul>
+							</li>
+							<li><a href="#apis">APIs</a><ul>
+									<li><a href="#server-side-methods">Server-side Methods</a></li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h2>Usage</h2>
+				</a>
+				<p>If you are looking to use Contentful in client-side JS, please see one of the following:</p>
+				<ul>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/">Plain JS</a></li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/react-tinacms-contentful/">React</a></li>
+				</ul>
+				<p>If you are looking to use Contentful inside of Next.js&#39; build-time and serverless logic like API routes, <code>getStaticProps</code> and <code>getServerSideProps</code>, continue reading:</p>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h3>Installation</h3>
+				</a>
+				<p>To install the package, run:</p>
+				<pre><code><span style="color: #001080">npm</span><span style="color: #000000"> </span><span style="color: #001080">install</span><span style="color: #000000"> </span><span style="color: #001080">next</span><span style="color: #000000">-</span><span style="color: #001080">tinacms</span><span style="color: #000000">-</span><span style="color: #001080">contentful</span><span style="color: #000000"> </span><span style="color: #001080">react</span><span style="color: #000000">-</span><span style="color: #001080">tinacms</span><span style="color: #000000">-</span><span style="color: #001080">contentful</span><span style="color: #000000"> </span><span style="color: #001080">tinacms</span><span style="color: #000000">-</span><span style="color: #001080">contentful</span><span style="color: #000000"> </span><span style="color: #001080">contentful</span><span style="color: #000000"> </span><span style="color: #001080">contentful</span><span style="color: #000000">-</span><span style="color: #001080">management</span>
+</code></pre>
+				<a href="#fetching-entries-on-the-server" id="fetching-entries-on-the-server" style="color: inherit; text-decoration: none;">
+					<h3>Fetching Entries On The Server</h3>
+				</a>
+				<p><strong>Fetching A Single Entry</strong></p>
+				<p>To fetch a single entry, you can use <code>getEntry</code>:</p>
+				<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">getEntry</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;next-tinacms-contentful&#039;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">contentfulOptions</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">  </span><span style="color: #001080">spaceId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful Space ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">defaultEnvironmentId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful environment ID to use by default. Default: master */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">accessTokens:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">delivery:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful delivery access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">preview:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful preview access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">  </span><span style="color: #001080">clientId</span><span style="color: #000000">: </span><span style="color: #008000">/* OAuth App Client ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">redirectUrl:</span><span style="color: #000000"> </span><span style="color: #008000">/* OAuth App Callback URL */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">rateLimit:</span><span style="color: #000000"> </span><span style="color: #008000">/* API Rate Limit for your Contentful Plan (Requests per second). Default: 4 */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">insecure:</span><span style="color: #000000"> </span><span style="color: #008000">/* If true, uses same-site HTTPS cookies to create a session. Default: false */</span>
+<span style="color: #000000">}</span>
+
+<span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">getStaticProps</span><span style="color: #000000">() {</span>
+<span style="color: #000000">  </span><span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">entry</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">getEntry</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;EXAMPLE_ID&#039;</span><span style="color: #000000">, </span><span style="color: #001080">contentfulOptions</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">    </span><span style="color: #AF00DB">return</span><span style="color: #000000"> {</span>
+<span style="color: #000000">      </span><span style="color: #001080">props:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">entry</span>
+<span style="color: #000000">      }</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">  } </span><span style="color: #AF00DB">catch</span><span style="color: #000000"> (</span><span style="color: #001080">error</span><span style="color: #000000">) {</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">error</span><span style="color: #000000">(</span><span style="color: #001080">error</span><span style="color: #000000">)</span>
+
+<span style="color: #000000">    </span><span style="color: #AF00DB">return</span><span style="color: #000000"> {</span>
+<span style="color: #000000">      </span><span style="color: #001080">notFound:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<p><strong>Fetching Many Entries</strong></p>
+				<p>To fetch many entries, you can use <code>getEntries</code>:</p>
+				<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">getEntries</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;next-tinacms-contentful&#039;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">contentfulOptions</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">  </span><span style="color: #001080">spaceId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful Space ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">defaultEnvironmentId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful environment ID to use by default. Default: master */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">accessTokens:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">delivery:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful delivery access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">preview:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful preview access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">  </span><span style="color: #001080">clientId</span><span style="color: #000000">: </span><span style="color: #008000">/* OAuth App Client ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">redirectUrl:</span><span style="color: #000000"> </span><span style="color: #008000">/* OAuth App Callback URL */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">rateLimit:</span><span style="color: #000000"> </span><span style="color: #008000">/* API Rate Limit for your Contentful Plan (Requests per second). Default: 4 */</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">insecure:</span><span style="color: #000000"> </span><span style="color: #008000">/* If true, uses same-site HTTPS cookies to create a session. Default: false */</span>
+<span style="color: #000000">}</span>
+
+<span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">getStaticProps</span><span style="color: #000000">() {</span>
+<span style="color: #000000">  </span><span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">entry</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">getEntries</span><span style="color: #000000">({ </span><span style="color: #001080">content_type:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;EXAMPLE_CONTENT_TYPE_ID&quot;</span><span style="color: #000000"> }, </span><span style="color: #001080">contentfulOptions</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">    </span><span style="color: #AF00DB">return</span><span style="color: #000000"> {</span>
+<span style="color: #000000">      </span><span style="color: #001080">props:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">entry</span>
+<span style="color: #000000">      }</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">  } </span><span style="color: #AF00DB">catch</span><span style="color: #000000"> (</span><span style="color: #001080">error</span><span style="color: #000000">) {</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">error</span><span style="color: #000000">(</span><span style="color: #001080">error</span><span style="color: #000000">)</span>
+
+<span style="color: #000000">    </span><span style="color: #AF00DB">return</span><span style="color: #000000"> {</span>
+<span style="color: #000000">      </span><span style="color: #001080">notFound:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<a href="#edit-mode" id="edit-mode" style="color: inherit; text-decoration: none;">
+					<h3>Edit Mode</h3>
+				</a>
+				<p><strong>Server-side Sessions with Next.js Preview Mode</strong></p>
+				<p>You can enable an &quot;edit mode&quot; for your site using <a href="https://nextjs.org/docs/advanced-features/preview-mode">server-side sessions with Next.js Preview mode</a>, which uses HTTP only cookies to allow server-side logic to be run in front of requests, providing a user specific payload of data on <code>context.previewData</code> in <code>getStaticProps</code>, <code>getServerSideProps</code>, and in API routes, as well as allowing <code>getStaticProps</code> to work like <code>getServerSideProps</code> when users log in to edit pages to allow editing-specific business logic.</p>
+				<p>First, in <code>pages/api</code> add a new API route called <code>editing.js</code> with the following contents:</p>
+				<pre><code><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">editModeHandler</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;next-tinacms-contentful&#039;</span>
+
+<span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">editingHandler</span><span style="color: #000000"> = </span><span style="color: #795E26">editModeHandler</span><span style="color: #000000">(</span><span style="color: #098658">60</span><span style="color: #000000">)</span>
+</code></pre>
+				<p><code>editModeHandler</code> creates a serverless function that handles creating an &quot;editing session&quot; by enabling Next.js preview mode for the current user if it is not enabled, and adding metadata to Next.js&#39; preview data to allow changing how the page behaves for editing.</p>
+				<p><strong>Values</strong></p>
+				<table>
+					<thead>
+						<tr>
+							<th>Key</th>
+							<th>Type</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td><code>context.previewData.tina_enabled</code></td>
+							<td><code>boolean</code></td>
+							<td>True if logged in, false if not</td>
+						</tr>
+						<tr>
+							<td><code>context.previewData.contentful_bearer_token</code></td>
+							<td><code>string | null</code></td>
+							<td>If defined, is the bearer token for the current logged in user</td>
+						</tr>
+				</tbody></table>
+				<hr>
+				<p>Then, you need to update the CMS to enable edit mode when the user finishes logging in. We do this by adding some configuration to the <code>ContentfulProvider</code>, which is usually found in <code>pages/_app.js</code>:</p>
+				<pre><code><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">toggleEditing</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;next-tinacms-contentful&#039;</span>
+
+<span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">MyApp</span><span style="color: #000000">({ </span><span style="color: #001080">pageProps</span><span style="color: #000000">, </span><span style="color: #001080">Component</span><span style="color: #000000"> }) {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">cms</span><span style="color: #000000"> = </span><span style="color: #795E26">useMemo</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    ...</span>
+<span style="color: #000000">  }, [])</span>
+
+<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> (</span>
+<span style="color: #000000">    &lt;</span><span style="color: #001080">TinaProvider</span><span style="color: #000000"> </span><span style="color: #001080">cms</span><span style="color: #000000">={</span><span style="color: #001080">cms</span><span style="color: #000000">}&gt;</span>
+<span style="color: #000000">      &lt;</span><span style="color: #001080">ContentfulProvider</span><span style="color: #000000"> </span>
+<span style="color: #000000">        </span><span style="color: #001080">onLogin</span><span style="color: #000000">={() =&gt; </span><span style="color: #795E26">toggleEditing</span><span style="color: #000000">(</span><span style="color: #001080">true</span><span style="color: #000000">)}</span>
+<span style="color: #000000">        </span><span style="color: #001080">onLogout</span><span style="color: #000000">={) =&gt; </span><span style="color: #795E26">toggleEditing</span><span style="color: #000000">(</span><span style="color: #001080">false</span><span style="color: #000000">)}</span>
+<span style="color: #000000">      &gt;</span>
+<span style="color: #000000">        &lt;</span><span style="color: #001080">Component</span><span style="color: #000000"> {...</span><span style="color: #001080">pageProps</span><span style="color: #000000">} /&gt;</span>
+<span style="color: #000000">      &lt;/</span><span style="color: #001080">ContentfulProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">    &lt;/</span><span style="color: #001080">TinaProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">  )</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<p><code>toggleEditing</code> makes a HTTP POST request to the <code>api/editing</code> route, enabling or disabling the cms based on the boolean value passed in, and logs any errors to the user&#39;s console.</p>
+				<hr>
+				<p>Finally in any of your pages, you can use <code>getStaticProps</code> or <code>getServerSideProps</code> to check if edit mode is enabled:</p>
+				<pre><code><span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">getStaticProps</span><span style="color: #000000">(</span><span style="color: #001080">context</span><span style="color: #000000">) {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">entry</span><span style="color: #000000"> = </span><span style="color: #795E26">getEntry</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;EXAMPLE_ID&#039;</span><span style="color: #000000">, { </span>
+<span style="color: #000000">    ...</span><span style="color: #001080">contentfulOptions</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">mode:</span><span style="color: #000000"> </span><span style="color: #001080">context</span><span style="color: #000000">.</span><span style="color: #001080">previewData</span><span style="color: #000000">.</span><span style="color: #001080">tina_enabled</span><span style="color: #000000"> ? </span><span style="color: #A31515">&quot;preview&quot;</span><span style="color: #000000"> : </span><span style="color: #A31515">&quot;delivery&quot;</span>
+<span style="color: #000000">  })</span>
+
+<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">props:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">      </span><span style="color: #001080">entry</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<a href="#apis" id="apis" style="color: inherit; text-decoration: none;">
+					<h2>APIs</h2>
+				</a>
+				<p>The library has the following core APIs:</p>
+				<ul>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/index.html#contentful-client">ContentfulClient</a>: an API client for communicating with Contentful that integrates directly with the CMS.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/classes/contentfulmediastore.html">ContentfulMediaStore</a>: a media store that uses a <code>ContentfulClient</code> to manage media for a single space.</li>
+					<li><a href="https://tinalabs.github.io/react-tinacms-contentful/index.html#provider">Provider</a>: a React provider for official plugins and authorization.</li>
+					<li><a href="https://tinalabs.github.io/react-tinacms-contentful/index.html#hooks">Hooks</a>: a series of React Hooks for interacting with Contentful in your React app and CMS Plugins.</li>
+					<li><a href="#server-side-methods">Server-side Methods</a>: utility methods for interacting with Contentful on the server.</li>
+				</ul>
+				<p>There are other public APIs as well. To learn more, <a href="https://tinalabs.github.io/next-tinacms-contentful/modules.html">read the full Next.js API documentation</a> or <a href="https://tinalabs.github.io/tinacms-contentful/index.html">read the full JavaScript API documentation</a>.</p>
+				<a href="#server-side-methods" id="server-side-methods" style="color: inherit; text-decoration: none;">
+					<h3>Server-side Methods</h3>
+				</a>
+				<ul>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getentry"><code>getEntry</code></a>: fetch a published <code>delivery</code>, draft <code>preview</code>, or editable <code>management</code> entry. </li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getentries"><code>getEntries</code></a>: fetch multiple published <code>delivery</code>, draft <code>preview</code>, or editable <code>management</code> entries.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getasset"><code>getAsset</code></a>: fetch a published <code>delivery</code>, or draft <code>preview</code> asset.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#getassets"><code>getAssets</code></a>: fetch multiple published <code>delivery</code>, or draft <code>preview</code> assets.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#proxy"><code>proxy</code></a>: [EXPERIMENTAL] proxies requests to Contentful in server side logic, attaching bearer tokens from <a href="#edit-mode">edit mode</a> on the way.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#toggleediting"><code>toggleEditing</code></a>: sends a fetch request to enable <a href="#edit-mode">edit mode</a>.</li>
+					<li><a href="https://tinalabs.github.io/tinacms-contentful/next-tinacms-contentful/modules.html#editmodehandler"><code>editModeHandler</code></a>: a serverless request handler for toggling <a href="#edit-mode">edit mode</a> in a Next.js API function.</li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="classes/contentfulclient.html" class="tsd-kind-icon">Contentful<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/contentfulmediastore.html" class="tsd-kind-icon">Contentful<wbr>Media<wbr>Store</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/contentfulreactmediastore.html" class="tsd-kind-icon">Contentful<wbr>React<wbr>Media<wbr>Store</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/tinacms.html" class="tsd-kind-icon">TinaCMS</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/archiveactionprops.html" class="tsd-kind-icon">Archive<wbr>Action<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/asyncactionbuttonprops.html" class="tsd-kind-icon">Async<wbr>Action<wbr>Button<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfulclientoptions.html" class="tsd-kind-icon">Contentful<wbr>Client<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfuldirectory.html" class="tsd-kind-icon">Contentful<wbr>Directory</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfulentryformoptions.html" class="tsd-kind-icon">Contentful<wbr>Entry<wbr>Form<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfulmedia.html" class="tsd-kind-icon">Contentful<wbr>Media</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfulmediastoreoptions.html" class="tsd-kind-icon">Contentful<wbr>Media<wbr>Store<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfulreactmediastoreoptions.html" class="tsd-kind-icon">Contentful<wbr>React<wbr>Media<wbr>Store<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/entrystatus.html" class="tsd-kind-icon">Entry<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/mediamanagerfiltermodalprops.html" class="tsd-kind-icon">Media<wbr>Manager<wbr>Filter<wbr>Modal<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/operationsgraph.html" class="tsd-kind-icon">Operations<wbr>Graph</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/paginationprops.html" class="tsd-kind-icon">Pagination<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/spaceoptions.html" class="tsd-kind-icon">Space<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/tinacontentfulproviderprops.html" class="tsd-kind-icon">Tina<wbr>Contentful<wbr>Provider<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/usecontentfulentriesoptions.html" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entries<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/usecontentfulentryoptions.html" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entry<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#clientmode" class="tsd-kind-icon">Client<wbr>Mode</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#contentfulentriesformoptions" class="tsd-kind-icon">Contentful<wbr>Entries<wbr>Form<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#contentfulmulticlient" class="tsd-kind-icon">Contentful<wbr>Multi<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#contentfulupload" class="tsd-kind-icon">Contentful<wbr>Upload</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#operation" class="tsd-kind-icon">Operation</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#operationtype" class="tsd-kind-icon">Operation<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#optionalspaceoptions" class="tsd-kind-icon">Optional<wbr>Space<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#serveroptions" class="tsd-kind-icon">Server<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#space" class="tsd-kind-icon">Space</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#getentriesoptions" class="tsd-kind-icon">get<wbr>Entries<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#getentryoptions" class="tsd-kind-icon">get<wbr>Entry<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#getserversideentriesoptions" class="tsd-kind-icon">get<wbr>Server<wbr>Side<wbr>Entries<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#getserversideentryoptions" class="tsd-kind-icon">get<wbr>Server<wbr>Side<wbr>Entry<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#auth_failure" class="tsd-kind-icon">AUTH_<wbr>FAILURE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#auth_success" class="tsd-kind-icon">AUTH_<wbr>SUCCESS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#change_environment" class="tsd-kind-icon">CHANGE_<wbr>ENVIRONMENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#contentful_auth_hostname" class="tsd-kind-icon">CONTENTFUL_<wbr>AUTH_<wbr>HOSTNAME</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#contentful_auth_token" class="tsd-kind-icon">CONTENTFUL_<wbr>AUTH_<wbr>TOKEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#create_environment" class="tsd-kind-icon">CREATE_<wbr>ENVIRONMENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#custompaginatorplugin" class="tsd-kind-icon">Custom<wbr>Paginator<wbr>Plugin</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#entry_delete" class="tsd-kind-icon">ENTRY_<wbr>DELETE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#entry_publish" class="tsd-kind-icon">ENTRY_<wbr>PUBLISH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#entry_update" class="tsd-kind-icon">ENTRY_<wbr>UPDATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#error" class="tsd-kind-icon">ERROR</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#file_types" class="tsd-kind-icon">FILE_<wbr>TYPES</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#mediaarchiveaction" class="tsd-kind-icon">Media<wbr>Archive<wbr>Action</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#mediafilteraction" class="tsd-kind-icon">Media<wbr>Filter<wbr>Action</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#mediafilterscreenplugin" class="tsd-kind-icon">Media<wbr>Filter<wbr>Screen<wbr>Plugin</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#on_login" class="tsd-kind-icon">ON_<wbr>LOGIN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#on_logout" class="tsd-kind-icon">ON_<wbr>LOGOUT</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#asyncaction" class="tsd-kind-icon">Async<wbr>Action</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#mediaarchiveactionbutton" class="tsd-kind-icon">Media<wbr>Archive<wbr>Action<wbr>Button</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#mediafilter" class="tsd-kind-icon">Media<wbr>Filter</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#mediafilteractionbutton" class="tsd-kind-icon">Media<wbr>Filter<wbr>Action<wbr>Button</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#mediamanagerfiltermodal" class="tsd-kind-icon">Media<wbr>Manager<wbr>Filter<wbr>Modal</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#paginator" class="tsd-kind-icon">Paginator</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#tinacontentfulprovider" class="tsd-kind-icon">Tina<wbr>Contentful<wbr>Provider</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#authenticatewithcontentful" class="tsd-kind-icon">authenticate<wbr>With<wbr>Contentful</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#createcontentfulclientforspaces" class="tsd-kind-icon">create<wbr>Contentful<wbr>Client<wbr>For<wbr>Spaces</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#createcontentfuloperationsforentries" class="tsd-kind-icon">create<wbr>Contentful<wbr>Operations<wbr>For<wbr>Entries</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#createcontentfuloperationsforentry" class="tsd-kind-icon">create<wbr>Contentful<wbr>Operations<wbr>For<wbr>Entry</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#createfieldconfigfromcontenttype" class="tsd-kind-icon">create<wbr>Field<wbr>Config<wbr>From<wbr>Content<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#editmodehandler" class="tsd-kind-icon">edit<wbr>Mode<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getasset" class="tsd-kind-icon">get<wbr>Asset</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getassets" class="tsd-kind-icon">get<wbr>Assets</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getbearertoken" class="tsd-kind-icon">get<wbr>Bearer<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getbearertokenfromcontext" class="tsd-kind-icon">get<wbr>Bearer<wbr>Token<wbr>From<wbr>Context</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getcachedbearertoken" class="tsd-kind-icon">get<wbr>Cached<wbr>Bearer<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#getentries" class="tsd-kind-icon">get<wbr>Entries</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#getentry" class="tsd-kind-icon">get<wbr>Entry</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getspaceidfromreq" class="tsd-kind-icon">get<wbr>Space<wbr>IdFrom<wbr>Req</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#onbearertoken" class="tsd-kind-icon">on<wbr>Bearer<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#openoauthwindow" class="tsd-kind-icon">open<wbr>Oauth<wbr>Window</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#proxy" class="tsd-kind-icon">proxy</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#setcachedbearertoken" class="tsd-kind-icon">set<wbr>Cached<wbr>Bearer<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#toggleediting" class="tsd-kind-icon">toggle<wbr>Editing</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usecontentful" class="tsd-kind-icon">use<wbr>Contentful</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usecontentfulauthredirect" class="tsd-kind-icon">use<wbr>Contentful<wbr>Auth<wbr>Redirect</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usecontentfuldelivery" class="tsd-kind-icon">use<wbr>Contentful<wbr>Delivery</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#usecontentfulentries" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entries</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#usecontentfulentriesform" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entries<wbr>Form</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#usecontentfulentry" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entry</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#usecontentfulentryform" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entry<wbr>Form</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usecontentfulmanagement" class="tsd-kind-icon">use<wbr>Contentful<wbr>Management</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usecontentfulpreview" class="tsd-kind-icon">use<wbr>Contentful<wbr>Preview</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usemediafilterscreenplugin" class="tsd-kind-icon">use<wbr>Media<wbr>Filter<wbr>Screen<wbr>Plugin</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
