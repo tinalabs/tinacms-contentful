@@ -1,0 +1,639 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>react-tinacms-contentful</title>
+	<meta name="description" content="Documentation for react-tinacms-contentful">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">react-tinacms-contentful</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>react-tinacms-contentful</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#react-tinacms-contentful" id="react-tinacms-contentful" style="color: inherit; text-decoration: none;">
+					<h1><code>react-tinacms-contentful</code></h1>
+				</a>
+				<p>A library for using Contentful with TinaCMS and React.js</p>
+				<ul>
+					<li><a href="#react-tinacms-contentful"><code>react-tinacms-contentful</code></a><ul>
+							<li><a href="#usage">Usage</a><ul>
+									<li><a href="#installation">Installation</a></li>
+									<li><a href="#setup">Setup</a></li>
+									<li><a href="#media">Media</a></li>
+								</ul>
+							</li>
+							<li><a href="#react-apis">React APIs</a><ul>
+									<li><a href="#provider">Provider</a></li>
+									<li><a href="#hooks">Hooks</a></li>
+								</ul>
+							</li>
+							<li><a href="#contentfulclient">ContentfulClient</a><ul>
+									<li><a href="#properties">Properties</a></li>
+									<li><a href="#methods">Methods</a></li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h2>Usage</h2>
+				</a>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h3>Installation</h3>
+				</a>
+				<p>To install the package, run:</p>
+				<pre><code><span style="color: #001080">npm</span><span style="color: #000000"> </span><span style="color: #001080">install</span><span style="color: #000000"> </span><span style="color: #001080">react</span><span style="color: #000000">-</span><span style="color: #001080">tinacms</span><span style="color: #000000">-</span><span style="color: #001080">contentful</span><span style="color: #000000"> </span><span style="color: #001080">tinacms</span><span style="color: #000000">-</span><span style="color: #001080">contentful</span><span style="color: #000000"> </span><span style="color: #001080">contentful</span><span style="color: #000000"> </span><span style="color: #001080">contentful</span><span style="color: #000000">-</span><span style="color: #001080">management</span>
+</code></pre>
+				<a href="#setup" id="setup" style="color: inherit; text-decoration: none;">
+					<h3>Setup</h3>
+				</a>
+				<p>To setup TinaCMS with Contentful, you must create an instance of the TinaCMS <code>ContentfulClient</code> for each space you want to edit content from.</p>
+				<p><strong>For a single space:</strong></p>
+				<pre><code><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">React</span><span style="color: #000000">, { </span><span style="color: #001080">useMemo</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;React&#039;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">TinaProvider</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;tinacms&#039;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">ContentfulClient</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;tinacms-contentful&#039;</span>
+
+<span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #AF00DB">default</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">MyApp</span><span style="color: #000000">() {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">cms</span><span style="color: #000000"> = </span><span style="color: #795E26">useMemo</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">contentful</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">ContentfulClient</span><span style="color: #000000">({</span>
+<span style="color: #000000">      </span><span style="color: #001080">spaceId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful Space ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">defaultEnvironmentId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful environment ID to use by default. Default: master */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">accessTokens:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">delivery:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful delivery access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">preview:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful preview access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      }</span>
+<span style="color: #000000">      </span><span style="color: #001080">clientId</span><span style="color: #000000">: </span><span style="color: #008000">/* OAuth App Client ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">redirectUrl:</span><span style="color: #000000"> </span><span style="color: #008000">/* OAuth App Callback URL */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">rateLimit:</span><span style="color: #000000"> </span><span style="color: #008000">/* API Rate Limit for your Contentful Plan (Requests per second). Default: 4 */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">insecure:</span><span style="color: #000000"> </span><span style="color: #008000">/* If true, uses same-site HTTPS cookies to create a session. Default: false */</span>
+<span style="color: #000000">    })</span>
+
+<span style="color: #000000">    </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">TinaCMS</span><span style="color: #000000">({</span>
+<span style="color: #000000">      </span><span style="color: #001080">apis:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">contentful</span>
+<span style="color: #000000">      }</span>
+<span style="color: #000000">    })</span>
+<span style="color: #000000">  });</span>
+
+<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> (</span>
+<span style="color: #000000">    &lt;</span><span style="color: #001080">TinaProvider</span><span style="color: #000000"> </span><span style="color: #001080">cms</span><span style="color: #000000">={</span><span style="color: #001080">cms</span><span style="color: #000000">}&gt;</span>
+<span style="color: #000000">      &lt;</span><span style="color: #267F99">TinaContentfulProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">        &lt;</span><span style="color: #267F99">div</span><span style="color: #000000">&gt;</span><span style="color: #001080">Hello</span><span style="color: #000000"> </span><span style="color: #001080">world</span><span style="color: #000000">&lt;/</span><span style="color: #001080">div</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">      &lt;/</span><span style="color: #001080">TinaContentfulProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">    &lt;/</span><span style="color: #001080">TinaProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">  )</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<p>Or if the CMS has already been created:</p>
+				<pre><code><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">useCMS</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;tinacms&#039;</span>
+
+<span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #AF00DB">default</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">MyComponent</span><span style="color: #000000">() {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">cms</span><span style="color: #000000"> = </span><span style="color: #795E26">useCMS</span><span style="color: #000000">();</span>
+
+<span style="color: #000000">  </span><span style="color: #795E26">useEffect</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">contentful</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">ContentfulClient</span><span style="color: #000000">({</span>
+<span style="color: #000000">      </span><span style="color: #001080">spaceId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful Space ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">defaultEnvironmentId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful environment ID to use by default. Default: master */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">accessTokens:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">delivery:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful delivery access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">preview:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful preview access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      }</span>
+<span style="color: #000000">      </span><span style="color: #001080">clientId</span><span style="color: #000000">: </span><span style="color: #008000">/* OAuth App Client ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">redirectUrl:</span><span style="color: #000000"> </span><span style="color: #008000">/* OAuth App Callback URL */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">rateLimit:</span><span style="color: #000000"> </span><span style="color: #008000">/* API Rate Limit for your Contentful Plan (Requests per second). Default: 4 */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">insecure:</span><span style="color: #000000"> </span><span style="color: #008000">/* If true, uses same-site HTTPS cookies to create a session. Default: false */</span>
+<span style="color: #000000">    })</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">cms</span><span style="color: #000000">.</span><span style="color: #795E26">registerApi</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;contentful&#039;</span><span style="color: #000000">, </span><span style="color: #001080">contentful</span><span style="color: #000000">)</span>
+<span style="color: #000000">  }, [])</span>
+
+<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> (</span>
+<span style="color: #000000">    &lt;</span><span style="color: #267F99">div</span><span style="color: #000000">&gt;</span><span style="color: #001080">Hello</span><span style="color: #000000"> </span><span style="color: #001080">world</span><span style="color: #000000">!&lt;/</span><span style="color: #001080">div</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">  )</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<p><strong>For multiple spaces</strong>:</p>
+				<pre><code><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">React</span><span style="color: #000000">, { </span><span style="color: #001080">useMemo</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;React&#039;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">TinaProvider</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;tinacms&#039;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">createContentfulClientForSpaces</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;tinacms-contentful&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #AF00DB">default</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">MyApp</span><span style="color: #000000">() {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">cms</span><span style="color: #000000"> = </span><span style="color: #795E26">useMemo</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">spaces</span><span style="color: #000000"> = [</span>
+<span style="color: #000000">      {</span>
+<span style="color: #000000">        </span><span style="color: #001080">spaceId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful Space ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">defaultEnvironmentId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful environment ID to use by default. Default: master */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">accessTokens:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">          </span><span style="color: #001080">delivery:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful delivery access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">          </span><span style="color: #001080">preview:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful preview access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">      },</span>
+<span style="color: #000000">      {</span>
+<span style="color: #000000">        </span><span style="color: #001080">spaceId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful Space ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">defaultEnvironmentId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful environment ID to use by default. Default: master */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">accessTokens:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">          </span><span style="color: #001080">delivery:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful delivery access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">          </span><span style="color: #001080">preview:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful preview access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">      }</span>
+<span style="color: #000000">    ]</span>
+
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">contentful</span><span style="color: #000000"> = </span><span style="color: #795E26">createClientForSpaces</span><span style="color: #000000">(</span><span style="color: #001080">spaces</span><span style="color: #000000">, {</span>
+<span style="color: #000000">      </span><span style="color: #001080">clientId:</span><span style="color: #000000"> </span><span style="color: #008000">/* OAuth App Client ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">redirectUrl:</span><span style="color: #000000"> </span><span style="color: #008000">/* OAuth App Callback URL */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">rateLimit:</span><span style="color: #000000"> </span><span style="color: #008000">/* API Rate Limit for your Contentful Plan (Requests per second). Default: 4 */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">insecure:</span><span style="color: #000000"> </span><span style="color: #008000">/* If true, uses same-site HTTPS cookies to create a session. Default: false */</span>
+<span style="color: #000000">    })</span>
+
+<span style="color: #000000">    </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">TinaCMS</span><span style="color: #000000">({</span>
+<span style="color: #000000">      </span><span style="color: #001080">apis:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">contentful</span>
+<span style="color: #000000">      }</span>
+<span style="color: #000000">    })</span>
+<span style="color: #000000">  });</span>
+
+<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> (</span>
+<span style="color: #000000">    &lt;</span><span style="color: #001080">TinaProvider</span><span style="color: #000000"> </span><span style="color: #001080">cms</span><span style="color: #000000">={</span><span style="color: #001080">cms</span><span style="color: #000000">}&gt;</span>
+<span style="color: #000000">      &lt;</span><span style="color: #267F99">TinaContentfulProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">        &lt;</span><span style="color: #267F99">div</span><span style="color: #000000">&gt;</span><span style="color: #001080">Hello</span><span style="color: #000000"> </span><span style="color: #001080">world</span><span style="color: #000000">&lt;/</span><span style="color: #001080">div</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">      &lt;/</span><span style="color: #001080">TinaContentfulProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">    &lt;/</span><span style="color: #001080">TinaProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">  )</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<a href="#media" id="media" style="color: inherit; text-decoration: none;">
+					<h3>Media</h3>
+				</a>
+				<p>To add support for media, you must setup a media store for the space media should be uploaded to.</p>
+				<p><strong>For a single space:</strong></p>
+				<pre><code class="language-diff"><span style="color: #000000">import React, { useMemo } from &#039;React&#039;</span>
+<span style="color: #000000">import { TinaProvider } from &#039;tinacms&#039;</span>
+<span style="color: #000000">import { ContentfulClient, ContentfulMediaStore } from &#039;tinacms-contentful&#039;</span>
+
+<span style="color: #000000">export default function MyApp() {</span>
+<span style="color: #000000">  const cms = useMemo(() =&gt; {</span>
+<span style="color: #000000">    const contentful = new ContentfulClient({</span>
+<span style="color: #000000">      spaceId: /* Contentful Space ID */,</span>
+<span style="color: #000000">      defaultEnvironmentId: /* Contentful environment ID to use by default. Default: master */,</span>
+<span style="color: #000000">      accessTokens: {</span>
+<span style="color: #000000">        delivery: /* Contentful delivery access token for the space */,</span>
+<span style="color: #000000">        preview: /* Contentful preview access token for the space */,</span>
+<span style="color: #000000">      }</span>
+<span style="color: #000000">      clientId: /* OAuth App Client ID */,</span>
+<span style="color: #000000">      redirectUrl: /* OAuth App Callback URL */,</span>
+<span style="color: #000000">      rateLimit: /* API Rate Limit for your Contentful Plan (Requests per second). Default: 4 */,</span>
+<span style="color: #000000">      insecure: /* If true, uses same-site HTTPS cookies to create a session. Default: false */</span>
+<span style="color: #000000">    })</span>
+<span style="color: #000000">    const contentfulMediaStore = new ContentfulMediaStore(contentful)</span>
+
+<span style="color: #000000">    return new TinaCMS({</span>
+<span style="color: #000000">      apis: {</span>
+<span style="color: #000000">        contentful</span>
+<span style="color: #000000">      },</span>
+<span style="color: #000000">      media: contentfulMediaStore</span>
+<span style="color: #000000">    })</span>
+<span style="color: #000000">  });</span>
+
+<span style="color: #000000">  return (</span>
+<span style="color: #000000">    &lt;TinaProvider cms={cms}&gt;</span>
+<span style="color: #000000">      &lt;TinaContentfulProvider&gt;</span>
+<span style="color: #000000">        &lt;div&gt;Hello world&lt;/div&gt;</span>
+<span style="color: #000000">      &lt;/TinaContentfulProvider&gt;</span>
+<span style="color: #000000">    &lt;/TinaProvider&gt;</span>
+<span style="color: #000000">  )</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<p><strong>For multiple spaces</strong>:</p>
+				<p>The media store is only capable of acting on a single space at a time. To change spaces dynamically, run:</p>
+				<pre><code><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">React</span><span style="color: #000000">, { </span><span style="color: #001080">useMemo</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;React&#039;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">TinaProvider</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;tinacms&#039;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">ContentfulClient</span><span style="color: #000000">, </span><span style="color: #001080">ContentfulMediaStore</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;tinacms-contentful&#039;</span>
+
+<span style="color: #000000">+</span><span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #AF00DB">default</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">MyApp</span><span style="color: #000000">(</span><span style="color: #001080">currentSpaceId</span><span style="color: #000000">) {</span>
+<span style="color: #000000">      </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">spaces</span><span style="color: #000000"> = [</span>
+<span style="color: #000000">      {</span>
+<span style="color: #000000">        </span><span style="color: #001080">spaceId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful Space ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">defaultEnvironmentId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful environment ID to use by default. Default: master */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">accessTokens:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">          </span><span style="color: #001080">delivery:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful delivery access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">          </span><span style="color: #001080">preview:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful preview access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">      },</span>
+<span style="color: #000000">      {</span>
+<span style="color: #000000">        </span><span style="color: #001080">spaceId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful Space ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">defaultEnvironmentId:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful environment ID to use by default. Default: master */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">accessTokens:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">          </span><span style="color: #001080">delivery:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful delivery access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">          </span><span style="color: #001080">preview:</span><span style="color: #000000"> </span><span style="color: #008000">/* Contentful preview access token for the space */</span><span style="color: #000000">,</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">      }</span>
+<span style="color: #000000">    ]</span>
+
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">contentful</span><span style="color: #000000"> = </span><span style="color: #795E26">createClientForSpaces</span><span style="color: #000000">(</span><span style="color: #001080">spaces</span><span style="color: #000000">, {</span>
+<span style="color: #000000">      </span><span style="color: #001080">clientId:</span><span style="color: #000000"> </span><span style="color: #008000">/* OAuth App Client ID */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">redirectUrl:</span><span style="color: #000000"> </span><span style="color: #008000">/* OAuth App Callback URL */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">rateLimit:</span><span style="color: #000000"> </span><span style="color: #008000">/* API Rate Limit for your Contentful Plan (Requests per second). Default: 4 */</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">insecure:</span><span style="color: #000000"> </span><span style="color: #008000">/* If true, uses same-site HTTPS cookies to create a session. Default: false */</span>
+<span style="color: #000000">    })</span>
+
+<span style="color: #000000">+    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">contentfulMediaStore</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">ContentfulMediaStore</span><span style="color: #000000">(</span><span style="color: #001080">contentful</span><span style="color: #000000">[</span><span style="color: #001080">currentSpaceId</span><span style="color: #000000">])</span>
+
+<span style="color: #000000">    </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">TinaCMS</span><span style="color: #000000">({</span>
+<span style="color: #000000">      </span><span style="color: #001080">apis:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">contentful</span>
+<span style="color: #000000">      },</span>
+<span style="color: #000000">      </span><span style="color: #001080">media:</span><span style="color: #000000"> </span><span style="color: #001080">contentfulMediaStore</span>
+<span style="color: #000000">    })</span>
+<span style="color: #000000">  });</span>
+
+<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> (</span>
+<span style="color: #000000">    &lt;</span><span style="color: #001080">TinaProvider</span><span style="color: #000000"> </span><span style="color: #001080">cms</span><span style="color: #000000">={</span><span style="color: #001080">cms</span><span style="color: #000000">}&gt;</span>
+<span style="color: #000000">      &lt;</span><span style="color: #267F99">TinaContentfulProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">        &lt;</span><span style="color: #267F99">div</span><span style="color: #000000">&gt;</span><span style="color: #001080">Hello</span><span style="color: #000000"> </span><span style="color: #001080">world</span><span style="color: #000000">&lt;/</span><span style="color: #001080">div</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">      &lt;</span><span style="color: #267F99">TinaContentfulProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">    &lt;/</span><span style="color: #001080">TinaProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">  )</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<a href="#react-apis" id="react-apis" style="color: inherit; text-decoration: none;">
+					<h2>React APIs</h2>
+				</a>
+				<p><code>react-tinacms-contentful</code> exposes the following React APIs:</p>
+				<a href="#provider" id="provider" style="color: inherit; text-decoration: none;">
+					<h3>Provider</h3>
+				</a>
+				<p>When using Contentful with TinaCMS and React, you must wrap the CMS-enabled portions of your app with the <code>TinaContentfulProvider</code>:</p>
+				<pre><code><span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> (</span>
+<span style="color: #000000">    &lt;</span><span style="color: #001080">TinaProvider</span><span style="color: #000000"> </span><span style="color: #001080">cms</span><span style="color: #000000">={</span><span style="color: #001080">cms</span><span style="color: #000000">}&gt;</span>
+<span style="color: #000000">      &lt;</span><span style="color: #267F99">TinaContentfulProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">        &lt;</span><span style="color: #267F99">div</span><span style="color: #000000">&gt;</span><span style="color: #001080">Hello</span><span style="color: #000000"> </span><span style="color: #001080">world</span><span style="color: #000000">&lt;/</span><span style="color: #001080">div</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">      &lt;</span><span style="color: #267F99">TinaContentfulProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">    &lt;/</span><span style="color: #001080">TinaProvider</span><span style="color: #000000">&gt;</span>
+<span style="color: #000000">  )</span>
+</code></pre>
+				<a href="#hooks" id="hooks" style="color: inherit; text-decoration: none;">
+					<h3>Hooks</h3>
+				</a>
+				<ul>
+					<li><code>useContentful</code></li>
+					<li><code>useContentfulDelivery</code></li>
+					<li><code>useContentfulPreview</code></li>
+					<li><code>useContentfulManagement</code></li>
+					<li><code>useContentfulEntry</code></li>
+					<li><code>useContentfulEntries</code></li>
+					<li><code>useContentfulEntryForm</code></li>
+					<li><code>useContentfulEntriesForm</code></li>
+					<li><code>useContentfulAuthRedirect</code></li>
+				</ul>
+				<a href="#contentfulclient" id="contentfulclient" style="color: inherit; text-decoration: none;">
+					<h2>ContentfulClient</h2>
+				</a>
+				<a href="#properties" id="properties" style="color: inherit; text-decoration: none;">
+					<h3>Properties</h3>
+				</a>
+				<p>The Client has the following properties:</p>
+				<ul>
+					<li><code>allowedOrigins</code></li>
+					<li><code>environment</code></li>
+					<li><code>sdks</code></li>
+					<li><code>rateLimit</code></li>
+				</ul>
+				<a href="#methods" id="methods" style="color: inherit; text-decoration: none;">
+					<h3>Methods</h3>
+				</a>
+				<p>The Client has the following methods:</p>
+				<ul>
+					<li><code>authenticate</code></li>
+					<li><code>setEnvironment</code></li>
+					<li><code>getEntry</code></li>
+					<li><code>getEntries</code></li>
+					<li><code>createEntry</code></li>
+					<li><code>updateEntry</code></li>
+					<li><code>deleteEntry</code></li>
+					<li><code>publishEntry</code></li>
+					<li><code>unpublishEntry</code></li>
+					<li><code>archiveEntry</code></li>
+					<li><code>getAsset</code></li>
+					<li><code>getAssets</code></li>
+					<li><code>getAssetCollection</code></li>
+					<li><code>createAsset</code></li>
+					<li><code>updateAsset</code></li>
+					<li><code>deleteAsset</code></li>
+					<li><code>archiveAsset</code></li>
+					<li><code>getContentType</code></li>
+					<li><code>sync</code></li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="classes/contentfulclient.html" class="tsd-kind-icon">Contentful<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/contentfulmediastore.html" class="tsd-kind-icon">Contentful<wbr>Media<wbr>Store</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/contentfulreactmediastore.html" class="tsd-kind-icon">Contentful<wbr>React<wbr>Media<wbr>Store</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/tinacms.html" class="tsd-kind-icon">TinaCMS</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/archiveactionprops.html" class="tsd-kind-icon">Archive<wbr>Action<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/asyncactionbuttonprops.html" class="tsd-kind-icon">Async<wbr>Action<wbr>Button<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfulclientoptions.html" class="tsd-kind-icon">Contentful<wbr>Client<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfuldirectory.html" class="tsd-kind-icon">Contentful<wbr>Directory</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfulentryformoptions.html" class="tsd-kind-icon">Contentful<wbr>Entry<wbr>Form<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfulmedia.html" class="tsd-kind-icon">Contentful<wbr>Media</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfulmediastoreoptions.html" class="tsd-kind-icon">Contentful<wbr>Media<wbr>Store<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contentfulreactmediastoreoptions.html" class="tsd-kind-icon">Contentful<wbr>React<wbr>Media<wbr>Store<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/entrystatus.html" class="tsd-kind-icon">Entry<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/mediamanagerfiltermodalprops.html" class="tsd-kind-icon">Media<wbr>Manager<wbr>Filter<wbr>Modal<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/operationsgraph.html" class="tsd-kind-icon">Operations<wbr>Graph</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/paginationprops.html" class="tsd-kind-icon">Pagination<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/spaceoptions.html" class="tsd-kind-icon">Space<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/tinacontentfulproviderprops.html" class="tsd-kind-icon">Tina<wbr>Contentful<wbr>Provider<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/usecontentfulentriesoptions.html" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entries<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/usecontentfulentryoptions.html" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entry<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#clientmode" class="tsd-kind-icon">Client<wbr>Mode</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#contentfulentriesformoptions" class="tsd-kind-icon">Contentful<wbr>Entries<wbr>Form<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#contentfulmulticlient" class="tsd-kind-icon">Contentful<wbr>Multi<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#contentfulupload" class="tsd-kind-icon">Contentful<wbr>Upload</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#operation" class="tsd-kind-icon">Operation</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#operationtype" class="tsd-kind-icon">Operation<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#optionalspaceoptions" class="tsd-kind-icon">Optional<wbr>Space<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#space" class="tsd-kind-icon">Space</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#getentriesoptions" class="tsd-kind-icon">get<wbr>Entries<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#getentryoptions" class="tsd-kind-icon">get<wbr>Entry<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#auth_failure" class="tsd-kind-icon">AUTH_<wbr>FAILURE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#auth_success" class="tsd-kind-icon">AUTH_<wbr>SUCCESS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#change_environment" class="tsd-kind-icon">CHANGE_<wbr>ENVIRONMENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#contentful_auth_hostname" class="tsd-kind-icon">CONTENTFUL_<wbr>AUTH_<wbr>HOSTNAME</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#contentful_auth_token" class="tsd-kind-icon">CONTENTFUL_<wbr>AUTH_<wbr>TOKEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#create_environment" class="tsd-kind-icon">CREATE_<wbr>ENVIRONMENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#custompaginatorplugin" class="tsd-kind-icon">Custom<wbr>Paginator<wbr>Plugin</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#entry_delete" class="tsd-kind-icon">ENTRY_<wbr>DELETE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#entry_publish" class="tsd-kind-icon">ENTRY_<wbr>PUBLISH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#entry_update" class="tsd-kind-icon">ENTRY_<wbr>UPDATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#error" class="tsd-kind-icon">ERROR</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#file_types" class="tsd-kind-icon">FILE_<wbr>TYPES</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#mediaarchiveaction" class="tsd-kind-icon">Media<wbr>Archive<wbr>Action</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#mediafilteraction" class="tsd-kind-icon">Media<wbr>Filter<wbr>Action</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#mediafilterscreenplugin" class="tsd-kind-icon">Media<wbr>Filter<wbr>Screen<wbr>Plugin</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#on_login" class="tsd-kind-icon">ON_<wbr>LOGIN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#on_logout" class="tsd-kind-icon">ON_<wbr>LOGOUT</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#asyncaction" class="tsd-kind-icon">Async<wbr>Action</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#mediaarchiveactionbutton" class="tsd-kind-icon">Media<wbr>Archive<wbr>Action<wbr>Button</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#mediafilter" class="tsd-kind-icon">Media<wbr>Filter</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#mediafilteractionbutton" class="tsd-kind-icon">Media<wbr>Filter<wbr>Action<wbr>Button</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#mediamanagerfiltermodal" class="tsd-kind-icon">Media<wbr>Manager<wbr>Filter<wbr>Modal</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#paginator" class="tsd-kind-icon">Paginator</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#tinacontentfulprovider" class="tsd-kind-icon">Tina<wbr>Contentful<wbr>Provider</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#authenticatewithcontentful" class="tsd-kind-icon">authenticate<wbr>With<wbr>Contentful</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#createcontentfulclientforspaces" class="tsd-kind-icon">create<wbr>Contentful<wbr>Client<wbr>For<wbr>Spaces</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#createcontentfuloperationsforentries" class="tsd-kind-icon">create<wbr>Contentful<wbr>Operations<wbr>For<wbr>Entries</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#createcontentfuloperationsforentry" class="tsd-kind-icon">create<wbr>Contentful<wbr>Operations<wbr>For<wbr>Entry</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#createfieldconfigfromcontenttype" class="tsd-kind-icon">create<wbr>Field<wbr>Config<wbr>From<wbr>Content<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getbearertoken" class="tsd-kind-icon">get<wbr>Bearer<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getcachedbearertoken" class="tsd-kind-icon">get<wbr>Cached<wbr>Bearer<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#onbearertoken" class="tsd-kind-icon">on<wbr>Bearer<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#openoauthwindow" class="tsd-kind-icon">open<wbr>Oauth<wbr>Window</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#setcachedbearertoken" class="tsd-kind-icon">set<wbr>Cached<wbr>Bearer<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usecontentful" class="tsd-kind-icon">use<wbr>Contentful</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usecontentfulauthredirect" class="tsd-kind-icon">use<wbr>Contentful<wbr>Auth<wbr>Redirect</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usecontentfuldelivery" class="tsd-kind-icon">use<wbr>Contentful<wbr>Delivery</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#usecontentfulentries" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entries</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#usecontentfulentriesform" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entries<wbr>Form</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#usecontentfulentry" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entry</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#usecontentfulentryform" class="tsd-kind-icon">use<wbr>Contentful<wbr>Entry<wbr>Form</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usecontentfulmanagement" class="tsd-kind-icon">use<wbr>Contentful<wbr>Management</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usecontentfulpreview" class="tsd-kind-icon">use<wbr>Contentful<wbr>Preview</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#usemediafilterscreenplugin" class="tsd-kind-icon">use<wbr>Media<wbr>Filter<wbr>Screen<wbr>Plugin</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
