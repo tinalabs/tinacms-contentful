@@ -172,8 +172,8 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
   const onSubmit = useCallback(async (modifiedValues, form) => {
     try {
       const new_form_state = await contentful.updateEntry(entry.sys.id, modifiedValues, {
-        locale: options?.locale,
-        initial: options?.references ? form.initialValues : undefined
+        locale: options.locale,
+        initial: options?.references ? form.getState().initialValues : undefined
       });
 
       // Update the form to have the resolved result w/ new sys ids
@@ -199,7 +199,7 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
       return;
     }
   }, [entry, options.locale]);
-  const [modifiedValues, form] = useForm<Entry<EntryShape>>({
+  const [, form] = useForm<Entry<EntryShape>>({
     ...options,
     id: options.id ?? entry.sys.id,
     label: options?.label || entry.sys.id,
@@ -211,7 +211,7 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
       ({form}: any) => options.buttons?.unpublish ? <AsyncAction labels={{ idle: "Unpublish", running: "Unpublishing..."}} action={() => unpublish(form.values)} /> : null,
       ({form}: any) => options.buttons?.archive ? <AsyncAction labels={{ idle: "Archive", running: "Archiving..."}} action={() => publishOrAchive(form.values, false)} /> : null,
     ],
-    onSubmit: onSubmit
+    onSubmit: (values, form) => onSubmit(values, form)
   }, {
     fields: formFields,
     label: watch?.label ?? undefined,
@@ -236,7 +236,7 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
     }
   }, []);
 
-  return [modifiedValues, form, {
+  return [form.finalForm.getState().values, form, {
     loading: false,
     published: isPublished
   }];
@@ -263,7 +263,7 @@ export const AsyncAction = ({ action, labels }: AsyncActionButtonProps) => {
       setStatus("idle")
     } catch (error) {
       setStatus("error");
-      console.log(error);
+      console.error(error);
     }
   }, [])
   const color = status === "error" ? "red" : "inherit"

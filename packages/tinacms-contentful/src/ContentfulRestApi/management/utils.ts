@@ -3,7 +3,7 @@ import { v4 } from 'uuid'
 import { getFieldsWithReferences } from './locale'
 import { Entry, GraphOptions, Operation, OperationsGraph } from './operationsGraph'
 
-export const isEntry = (entry: Entry<any>) => typeof entry.sys !== "undefined" && entry.sys.type === "Entry"
+export const isEntry = (entry: Entry<any>) => typeof entry?.sys !== "undefined" && entry?.sys?.type === "Entry"
 export const isEntries = (entries: Entry<any>[]) => entries.findIndex && entries.findIndex(entry => isEntry(entry)) > -1
 export const hasNode = (operations: OperationsGraph, node: Entry<any>) => operations.nodes.findIndex(currentNode => currentNode.sys.id === node.sys?.id) > -1 || false
 
