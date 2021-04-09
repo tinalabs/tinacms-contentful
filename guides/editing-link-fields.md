@@ -156,7 +156,12 @@ const form = new Form({
   id: "example-entry",
   label: "Example Entry",
   fields: [
-    { name: "fields.title", label: "Title", component: "text" }
+    { name: "fields.title", label: "Title", component: "text" }.
+    { name: "fields.author", label: "Author", component: "group", fields: [
+      { name: "fields.firstName", label: "First Name", component: "text" },
+      { name: "fields.lastName", label: "First Name", component: "text" },
+      { name: "fields.title", label: "Title", component: "text" },
+    }]
   ],
   loadInitialValues: contentful.getEntry('ENTRY_ID', { mode: "preview" }),
   onSubmit: (values, form) => {
@@ -199,7 +204,14 @@ export const EditableExampleEntry = ({ entry }) => {
       publish: true,
       unpublish: true,
       archive: true
-    }
+    },
+    fields: [
+      { name: "fields.title", label: "Title", component: "text" }.
+      { name: "fields.author", label: "Author", component: "group", fields: [
+        { name: "fields.firstName", label: "First Name", component: "text" },
+        { name: "fields.lastName", label: "First Name", component: "text" },
+        { name: "fields.title", label: "Title", component: "text" },
+    }]
   })
 
   usePlugin(form)
