@@ -182,7 +182,7 @@ const CreateEntryForm = () => {
 
 #### Updating An Entry
 
-To create an entry, you can run `createEntry` on the `ContentfulClient` returned by `useContentful`:
+To create an entry, you can run `updateEntry` on the `ContentfulClient` returned by `useContentful`:
 
 ```
 const UpdateEntryForm = ({ entryId }) => {
@@ -211,7 +211,7 @@ const UpdateEntryForm = ({ entryId }) => {
 
 #### Deleting An Entry
 
-To create an entry, you can run `createEntry` on the `ContentfulClient` returned by `useContentful`:
+To create an entry, you can run `deleteEntry` on the `ContentfulClient` returned by `useContentful`:
 
 ```
 const DeleteEntryForm = ({ entryId }) => {
@@ -222,7 +222,7 @@ const DeleteEntryForm = ({ entryId }) => {
     const entryId = values.get('entryId')
 
     event.preventDefault()
-    contentful.updateEntry(entryId)
+    contentful.deleteEntry(entryId)
       .then(() => cms.alerts.success("Deleted entry"))
       .catch((err) => {
         console.error(error)
