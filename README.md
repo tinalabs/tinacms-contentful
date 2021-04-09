@@ -28,7 +28,7 @@ There are three different approaches to using Contentful with TinaCMS, depending
 
 There are also the following use-case specific guides:
 
-1. [*Updating entries with references*](./guides/entries-with-references.md), which allows you to build complex data structures using Contentful Link fields and edit them with a single TinaCMS form.
+1. [*Editing entries with link fields*](./guides/editing-link-fields.md), which allows you to build complex data structures using Contentful Link fields and edit them with a single TinaCMS form.
 2. [*Adding new features to the CMS using Contentful*](./guides/plugins.md), such as adding toolbar widgets, screen plugins, custom fields, and custom form actions.
 
 ## Roadmap
@@ -37,4 +37,3 @@ The following is a series of things _we would like to add_ or are _considering a
 
 - The ability to create, update, and delete content models as the user using the `ContentfulClient` and in TinaCMS sidebar and toolbar as forms/content creators/screen plugin(s).
 - The ability to manage media from multiple spaces at one time
-
