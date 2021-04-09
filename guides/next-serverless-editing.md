@@ -257,3 +257,56 @@ You can currently:
 ### Server-side Bearer Tokens
 
 The currently logged in user's bearer token is securely availble in server-side logic inside Next.js server-side context's `previewData` as `context.previewData.contentful_bearer_token`. You can use this to create an instance of the Contentful Management SDK and make requests on behalf of the current user.
+
+E.g., with the Delivery SDK:
+
+```
+import { createClient } from 'contentful'
+
+export const getStaticProps = async (context) => {
+  try {
+    let token = context.preview && context.previewData.contentful_bearer_token 
+      ? context.previewData.contentful_bearer_token 
+      : process.env.NEXT_PUBLIC_CONTENTFUL_DELIVERY_ACCESS_TOKEN;
+    const contentful = createClient({
+      space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE,
+      accessToken: token
+    })
+    
+    return await contentful.getEntry('ENTRY_ID')
+  }
+  catch (error) {
+    return {
+      notFound: true
+    }
+  }  
+}
+```
+
+Or, with the Management SDK in an API route:
+
+```
+export const apiHandler = (req, res) => {
+  try {
+      const context = req.context;
+      let token = context.preview && context.previewData.contentful_bearer_token 
+        ? context.previewData.contentful_bearer_token 
+        : process.env.NEXT_PUBLIC_CONTENTFUL_DELIVERY_ACCESS_TOKEN;
+      const contentful = createClient({
+        space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE,
+        accessToken: token
+      })
+      const entry =  await contentful.getEntry('ENTRY_ID')
+      
+      // Do something, like update the entry
+      entry.fields = JSON.parse(req.body
+      
+      await entry.update()
+      
+      res.status(200).end()
+    }
+    catch (error) {
+      req.status(500).send(error.message)
+    }
+}
+```
