@@ -27,6 +27,5 @@ There are three different approaches to using Contentful with TinaCMS, depending
 
 There are also the following use-case specific guides:
 
-1. [*Creating entries*](./guides/creating-entries.md), using a TinaCMS content creator to allow new entries to be created inside the CMS.
-2. [*Updating entries with references*](./guides/entries-with-references.md), which allows you to build complex data structures using Contentful Link fields and edit them with a single TinaCMS form.
-3. [*Adding new features to the CMS using Contentful*](./guides/plugins.md), such as adding toolbar widgets, screen plugins, custom fields, and custom form actions.
+1. [*Editing entries with link fields*](./guides/editing-link-fields.md), which allows you to build complex data structures using Contentful Link fields and edit them with a single TinaCMS form.
+2. [*Adding new features to the CMS using Contentful*](./guides/plugins.md), such as adding toolbar widgets, screen plugins, custom fields, and custom form actions.
