@@ -256,7 +256,7 @@ You can currently:
 
 ### Server-side Bearer Tokens
 
-The currently logged in user's bearer token is securely availble in server-side logic inside Next.js server-side context's `previewData` as `context.previewData.contentful_bearer_token`. You can use this to create an instance of the Contentful Management SDK and make requests on behalf of the current user.
+The currently logged in user's bearer token is securely availble in server-side logic inside Next.js server-side context's `previewData` as `context.previewData.contentful_bearer_token`. You can use this to create an instance of the Contentful SDK's directly and make requests on behalf of the current user.
 
 E.g., with the Delivery SDK:
 
