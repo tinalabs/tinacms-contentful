@@ -7,7 +7,8 @@ This package provides helpers for setting up TinaCMS to use the Contentful API a
 To use this plugin, the following is expected:
 
 - You have a working application with [TinaCMS already setup](https://tinacms.org/docs/cms)
-- You have setup [OAuth applications with Contentful](./docs/oauth.md) if you plan to have your users authenticate with Contentful
+- You have setup [OAuth applications with Contentful](https://www.contentful.com/developers/docs/extensibility/oauth/) if you plan to have your users authenticate with Contentful
+- You have a space with Content Models and Entries ready to use
 
 ## Quick Start
 
