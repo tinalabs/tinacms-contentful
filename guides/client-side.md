@@ -3,7 +3,7 @@
 
 This guide covers how you can setup TinaCMS to handle READ-only data from Contentful in your application. Even when the CMS is disabled, you can use it to display all of the data in your Contentful space(s).
 
-We will cover how to do the following in plain JavaScript, React, or on the server:
+We will cover how to do the following in plain JavaScript or in React:
 
 - [Client-side with READ-only access tokens](#client-side-with-read-only-access-tokens)
   - [Pre-requisites](#pre-requisites)
