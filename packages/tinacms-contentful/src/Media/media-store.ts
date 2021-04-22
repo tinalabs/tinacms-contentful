@@ -193,7 +193,7 @@ const assetToMedia = (asset: Asset, directory?: string): ContentfulMedia => {
     type: "file",
     id: asset.sys.id,
     previewSrc: asset.fields.file.url,
-    filename: asset.fields.file.fileName,
+    filename: asset.fields.title ?? asset.fields.file.fileName,
     directory: directory ?? "",
     sys: asset.sys,
     fields: asset.fields,
