@@ -115,7 +115,7 @@ export class ContentfulMediaStore implements MediaStore {
     }, {
       preview: true
     });
-    let items: Media[] = current_collection.items
+    let items: Media[] = current_collection.items.filter((asset) => asset.fields.file)
       .map((asset) => assetToMedia(asset, options?.directory));
     
     return {
@@ -188,11 +188,12 @@ const mediaUploadToContentfulUpload = async (upload: MediaUploadOptions): Promis
  * @returns 
  */
 const assetToMedia = (asset: Asset, directory?: string): ContentfulMedia => {
+
   return {
     type: "file",
     id: asset.sys.id,
     previewSrc: asset.fields.file.url,
-    filename: asset.fields.file.fileName,
+    filename: asset.fields.title ?? asset.fields.file.fileName,
     directory: directory ?? "",
     sys: asset.sys,
     fields: asset.fields,
