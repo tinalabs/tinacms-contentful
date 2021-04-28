@@ -465,7 +465,7 @@ describe("ContentfulClient", () => {
           "fields.file.fileName": "content-model-full.svg"
         }
         const res = await contentful.getAssets(query)
-  
+        
         expect(res.length).toBe(1)
       })
 
