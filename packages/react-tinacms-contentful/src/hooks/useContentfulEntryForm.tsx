@@ -219,20 +219,23 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
   });
 
   useEffect(() => {
-    const timeout = typeof options.saveOnChange === "number" ? options.saveOnChange : 5
-    const unsubscribe = form.subscribe(debounce(
-      async ({ dirty, submitting, active }) => {
-        if (options?.saveOnChange && dirty && !submitting && !active) {
-          return await form.submit();
-        }
-
-        return;
-      },
-      1000 * timeout, false),
-    { values: true, dirty: true, submitting: true, active: true})
-
-    return () => {
-      unsubscribe();
+    if (options.saveOnChange){
+      console.log('why?')
+      const timeout = typeof options.saveOnChange === "number" ? options.saveOnChange : 5
+      const unsubscribe = form.subscribe(debounce(
+        async ({ dirty, submitting, active }) => {
+          if (options?.saveOnChange && dirty && !submitting && !active) {
+            return await form.submit();
+          }
+  
+          return;
+        },
+        1000 * timeout, false),
+      { values: true, dirty: true, submitting: true, active: true})
+  
+      return () => {
+        unsubscribe();
+      }
     }
   }, []);
 
