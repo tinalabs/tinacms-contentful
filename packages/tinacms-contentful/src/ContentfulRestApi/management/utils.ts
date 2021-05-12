@@ -49,28 +49,32 @@ export const findReferenceKeys = (entry: Entry<any>, contentType?: ContentType) 
  * @returns A reference with an id or null
  */
 export const addReferenceId = (entry: Entry<any> | null, fieldName: string) => {
-  const field = entry?.fields?.[fieldName]
-  
+  let field = entry?.fields?.[fieldName]
   if (!field || !entry) return null
   
   const isArray = Array.isArray(field)
   const items = isArray ? field : [field]
-
+  
   items.forEach((item: any, idx: number) => {
-    const itemId = item?.sys?.id ?? v4()
-    
-    item.sys.id = itemId
+    const itemId = v4()
+    item = {
+      ...item,
+      sys: {
+        ...item.sys,
+        id: itemId
+      }
+    }
     
     if (isArray) {
-      entry.fields[fieldName][idx].sys.id = itemId
-      field[idx].sys.id = itemId
+      entry.fields[fieldName][idx] = item
+      field[idx] = {...item}
     } else  {
-      entry.fields[fieldName].sys.id = itemId
-      field.sys.id = itemId
+      entry.fields[fieldName] = item
+      field = {...item}
     }
     
   })
-
+  
   return field
 }
 
