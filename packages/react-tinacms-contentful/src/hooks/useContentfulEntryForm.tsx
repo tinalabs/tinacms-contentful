@@ -220,7 +220,6 @@ export function useContentfulEntryForm<EntryShape extends Record<string, any> = 
 
   useEffect(() => {
     if (options.saveOnChange){
-      console.log('why?')
       const timeout = typeof options.saveOnChange === "number" ? options.saveOnChange : 5
       const unsubscribe = form.subscribe(debounce(
         async ({ dirty, submitting, active }) => {

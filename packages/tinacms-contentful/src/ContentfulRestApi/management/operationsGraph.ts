@@ -118,10 +118,13 @@ export const createContentfulOperationsForEntry = (initial: Entry<any> | null, u
 function computeContentfulOperationsForEntry(operations: OperationsGraph, initial: Entry<any> | null, updated: Entry<any> | null, parent: Entry<any> | null = null, options?: GraphOptions) {
   const entry = (updated && typeof updated?.sys !== undefined) ? updated : initial;
   const initialKeys = initial !== null ? findReferenceKeys(initial, options?.contentType) : [];
-  const initialReferences = [].concat.apply([], initialKeys.map(childKey => addReferenceId(initial, childKey)))
+  const initialWithId = initialKeys.map(childKey => addReferenceId(initial, childKey))
+  const initialReferences = [].concat.apply([], initialWithId)
     .filter(item => typeof item !== "undefined" && item !== null)
   const updatedKeys = updated !== null ? findReferenceKeys(updated, options?.contentType) : [];
-  const updatedReferences = [].concat.apply([], updatedKeys.map(childKey => addReferenceId(updated, childKey)))
+  const updatedWithId = updatedKeys.map(childKey => addReferenceId(updated, childKey))
+
+  const updatedReferences = [].concat.apply([], updatedWithId)
     .filter(item => typeof item !== "undefined" && item !== null)
   if (entry && hasNode(operations, entry) === false) {
     createNode(operations, initial, updated, parent, options);
