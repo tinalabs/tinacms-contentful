@@ -363,6 +363,11 @@
   resolved "https://registry.yarnpkg.com/@tinacms/react-modals/-/react-modals-0.36.0.tgz#5829b0bf1a49bdbd2f99cc784602f3b1fb09897c"
   integrity sha512-+tvUXcShMYGhXWJZgxzlL1NdLqR/KS6/97bPaNjgxs0xIF3EY99lbB5X8lgOuL1zPGW86lQ4Z7+XphKa6hPOhg==
 
+"@tinacms/react-screens@^0.32.0":
+  version "0.32.0"
+  resolved "https://registry.yarnpkg.com/@tinacms/react-screens/-/react-screens-0.32.0.tgz#e756d555b3e7e0735080934f335e6cd6861924d2"
+  integrity sha512-+oI1H/n7OcDEvUThe2BtHTRRekWLjPbxAjIUn+b82F8jkBQDaTSHtT1WxCz0EGIVtHAiKT3NBb56885Bmbfmhw==
+
 "@tinacms/react-screens@^0.36.0":
   version "0.36.0"
   resolved "https://registry.yarnpkg.com/@tinacms/react-screens/-/react-screens-0.36.0.tgz#5bb374c7fc5588bbd6e2fdabf5369d716f21dc82"
@@ -1789,6 +1794,11 @@ jest-worker@24.9.0, jest-worker@^24.0.0:
     merge-stream "^2.0.0"
     supports-color "^6.1.0"
 
+js-cookie@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-2.2.1.tgz#69e106dc5d5806894562902aa5baec3744e9b2b8"
+  integrity sha512-HvdH2LzI/EAZcUwA8+0nKNtWHqS+ZmijLA30RwZA0bo7ToCckjK5MkGhjED9KoRcXO6BaGI3I9UIzSA1FKFPOQ==
+
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
@@ -1998,9 +2008,9 @@ minimatch@^3.0.0, minimatch@^3.0.4:
     brace-expansion "^1.1.7"
 
 minimist@^1.2.0, minimist@^1.2.3, minimist@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
-  integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
+  integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
 
 mkdirp-classic@^0.5.2, mkdirp-classic@^0.5.3:
   version "0.5.3"
@@ -2633,6 +2643,16 @@ react-testing-library@^8.0.1:
   resolved "https://registry.yarnpkg.com/react-testing-library/-/react-testing-library-8.0.1.tgz#b3dd43bce3fa88423cf0a23292fb819023c227cc"
   integrity sha512-Gq4JC9r3prA4hYwo7afcbHHMFckO29+5Nrh2KblAEPuK/DWaU0bJE1vtpAgLhzhY9bBirmcgjjIHljHEwGAXKw==
 
+react-tinacms-contentful@^0.7.11:
+  version "0.7.15"
+  resolved "https://registry.yarnpkg.com/react-tinacms-contentful/-/react-tinacms-contentful-0.7.15.tgz#7a957a72954fde797be29a80da7cc6e20eb0572e"
+  integrity sha512-G7aOVWXTxV3kB1In9MgOhOyV3LB5VlHHGK1W8a6veouxN+AW9JmpBcaSNSWq/I9UjFQbnNEyW3S7E4jhsw79XQ==
+  dependencies:
+    "@tinacms/icons" "^0.36.0"
+    "@tinacms/react-forms" "^0.36.0"
+    "@tinacms/react-screens" "^0.32.0"
+    "@tinacms/styles" "^0.33.0"
+
 react-tinacms-date@^0.32.0:
   version "0.32.0"
   resolved "https://registry.yarnpkg.com/react-tinacms-date/-/react-tinacms-date-0.32.0.tgz#8f29cd8857c91611c1fc47f9b41223fd7eb9eae4"
@@ -3208,6 +3228,14 @@ timers-browserify@^2.0.4:
   dependencies:
     setimmediate "^1.0.4"
 
+tinacms-contentful@^0.7.11:
+  version "0.7.15"
+  resolved "https://registry.yarnpkg.com/tinacms-contentful/-/tinacms-contentful-0.7.15.tgz#4815cb9faf2db1992ab02a7621e99f3bf1d7515e"
+  integrity sha512-DzDG7//f4IP9VugqxSdMOO1EfE+cO+XY6lhLvCsmc5wvvOor526YDQqw7YqqDXrEpo6H6kSonqXMvz+4vPhOTw==
+  dependencies:
+    js-cookie "^2.2.1"
+    uuid "^8.3.2"
+
 tinacms@^0.37.0:
   version "0.37.0"
   resolved "https://registry.yarnpkg.com/tinacms/-/tinacms-0.37.0.tgz#81e2cad483a36bbc45320a57d34dada62e691ac9"
@@ -3423,6 +3451,11 @@ util@^0.11.0:
   integrity sha512-HShAsny+zS2TZfaXxD9tYj4HQGlBezXZMZuM/S5PKLLoZkShZiGk9o5CzukI1LVHZvjdvZ2Sj1aW/Ndn2NB/HQ==
   dependencies:
     inherits "2.0.3"
+
+uuid@^8.3.2:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 vm-browserify@1.1.2, vm-browserify@^1.0.1:
   version "1.1.2"
